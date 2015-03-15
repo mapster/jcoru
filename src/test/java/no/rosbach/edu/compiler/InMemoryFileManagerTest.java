@@ -9,13 +9,14 @@ import javax.tools.StandardLocation;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static javax.tools.JavaFileObject.Kind;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,15 +26,17 @@ import static org.mockito.Mockito.verify;
  */
 public class InMemoryFileManagerTest {
 
-    public static final String CLASS_NAME = "MyClass";
-    public static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
+    private static final String PACKAGE = "package/sub";
+    private static final String CLASS_NAME = "MyClass";
+    private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
+    private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
     private JavaFileManager systemFileManager;
     private InMemoryFileManager inMemoryFileManager;
 
     @Before
     public void setStage() {
         systemFileManager = mock(JavaFileManager.class);
-        inMemoryFileManager = new InMemoryFileManager(new HashMap<String, InMemoryClassFile>(), systemFileManager);
+        inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), new HashMap<String, InMemoryClassFile>(), systemFileManager);
     }
 
     //
@@ -131,7 +134,39 @@ public class InMemoryFileManagerTest {
         verify(systemFileManager).list(StandardLocation.ANNOTATION_PROCESSOR_PATH, "", set(Kind.CLASS), false);
     }
 
+    @Test
+    public void listShouldReturnSourcesInRoot() {
+        List<JavaFileObject> sources = list(StandardLocation.SOURCE_PATH, "", set(Kind.SOURCE), false);
+        assertEquals(1, sources.size());
+        assertSame(JAVA_SOURCE, sources.get(0));
+    }
+
+    @Test
+    public void listShouldReturnSourcesInPackage() {
+        List<JavaFileObject> sources = list(StandardLocation.SOURCE_PATH, PACKAGE.replace("/", "."), set(Kind.SOURCE), false);
+        assertEquals(1, sources.size());
+        assertSame(SOURCE_IN_PACKAGE, sources.get(0));
+    }
+
+    @Test
+    public void listShouldReturnAllSourcesWithRecurse() {
+        List<JavaFileObject> sources = list(StandardLocation.SOURCE_PATH, "", set(Kind.SOURCE), true);
+        assertEquals(2, sources.size());
+    }
+
     private <T> Set<T> set(T... elements) {
         return new HashSet<T>(Arrays.asList(elements));
+    }
+
+    private List<JavaFileObject> list(StandardLocation location, String path, Set<Kind> kinds, boolean recurse) {
+        try {
+            List<JavaFileObject> list = new LinkedList<>();
+            for(JavaFileObject file: inMemoryFileManager.list(location, path, kinds, recurse)) {
+                list.add(file);
+            }
+            return list;
+        } catch (IOException e) {
+            throw new Error("Failed to list files.", e);
+        }
     }
 }

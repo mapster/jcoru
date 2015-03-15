@@ -11,7 +11,7 @@ class JavaSourceString extends SimpleJavaFileObject {
     private String sourcecode;
 
     protected JavaSourceString(String filename, String sourcecode){
-        super(URI.create("file:///tmp/source/" + filename), Kind.SOURCE);
+        super(URI.create(filename), Kind.SOURCE);
         this.sourcecode = sourcecode;
     }
 

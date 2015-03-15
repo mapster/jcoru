@@ -14,18 +14,21 @@ import java.util.*;
 class InMemoryFileManager implements JavaFileManager {
     private final ClassLoader classPathLoader;
     private final JavaFileManager systemFileManager;
+    private final FileTree sources;
     Map<String, InMemoryClassFile> classStore;
 
-    public InMemoryFileManager(){
+    public InMemoryFileManager(List<JavaFileObject> sources){
         this.classStore = new HashMap<>();
         classPathLoader = new TransientClassLoader(this.classStore);
         this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
+        this.sources = new SimpleFileTree(sources);
     }
 
-    InMemoryFileManager(Map<String, InMemoryClassFile> classStore, JavaFileManager systemFileManager){
+    InMemoryFileManager(List<JavaFileObject> sources, Map<String, InMemoryClassFile> classStore, JavaFileManager systemFileManager){
         this.classStore = classStore;
         classPathLoader = new TransientClassLoader(classStore);
         this.systemFileManager = systemFileManager;
+        this.sources = new SimpleFileTree(sources);
     }
 
     @Override
@@ -38,7 +41,10 @@ class InMemoryFileManager implements JavaFileManager {
         if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
             return systemFileManager.list(location, packageName, kinds, recurse);
         }
-        if(location.equals(CLASS_PATH) || location.equals(SOURCE_PATH)){
+        else if(location.equals(SOURCE_PATH)){
+            return sources.listFiles(packageName.replace(".", "/"), recurse);
+        }
+        else if (location.equals(CLASS_PATH)) {
             return new LinkedList<>();
         }
         throw new Error(String.format("unsupported arguments: list(%s, %s, %s, %s)", location, packageName, kinds.toString(), Boolean.toString(recurse)));
