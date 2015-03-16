@@ -17,10 +17,10 @@ public class InMemoryClassFile extends SimpleJavaFileObject {
     /**
      * Construct an InMemoryClassFile with the given URI.
      *
-     * @param uri  the URI for this file object
+     * @param name the name for this file object.
      */
-    protected InMemoryClassFile(URI uri) {
-        super(uri, Kind.CLASS);
+    protected InMemoryClassFile(String name) {
+        super(URI.create(name), Kind.CLASS);
     }
 
     public InMemoryClassFile(URI uri, InputStream inputStream) throws IOException {

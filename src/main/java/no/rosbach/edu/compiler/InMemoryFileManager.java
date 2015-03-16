@@ -1,12 +1,11 @@
 package no.rosbach.edu.compiler;
 
 import javax.tools.*;
-
-import static javax.tools.StandardLocation.*;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.*;
+
+import static javax.tools.StandardLocation.*;
 
 /**
 * Created by mapster on 30.11.14.
@@ -41,8 +40,9 @@ class InMemoryFileManager implements JavaFileManager {
         if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
             return systemFileManager.list(location, packageName, kinds, recurse);
         }
-        else if(location.equals(SOURCE_PATH)){
-            return sources.listFiles(packageName.replace(".", "/"), recurse);
+        else if(location.equals(SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)){
+            Collection<JavaFileObject> files = sources.listFiles(packageName.replace(".", "/"), recurse);
+            return files;
         }
         else if (location.equals(CLASS_PATH)) {
             return new LinkedList<>();
@@ -54,6 +54,9 @@ class InMemoryFileManager implements JavaFileManager {
     public String inferBinaryName(Location location, JavaFileObject file) {
         if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
             return systemFileManager.inferBinaryName(location, file);
+        }
+        else if(location.equals(SOURCE_PATH)) {
+            return file.toUri().toString();
         }
         throw new Error("inferBinaryName not implemented yet.");
     }
@@ -96,7 +99,7 @@ class InMemoryFileManager implements JavaFileManager {
     @Override
     public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
         if(location.equals(CLASS_OUTPUT)){
-            InMemoryClassFile javaClass = new InMemoryClassFile(URI.create(className));
+            InMemoryClassFile javaClass = new InMemoryClassFile(className);
             classStore.put(javaClass.getName(), javaClass);
             return javaClass;
         }

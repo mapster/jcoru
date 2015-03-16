@@ -6,18 +6,12 @@ import org.junit.Test;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static javax.tools.JavaFileObject.Kind;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -34,9 +28,9 @@ public class InMemoryFileManagerTest {
     private InMemoryFileManager inMemoryFileManager;
 
     @Before
-    public void setStage() {
+    public void setStage() throws IOException {
         systemFileManager = mock(JavaFileManager.class);
-        inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), new HashMap<String, InMemoryClassFile>(), systemFileManager);
+        inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), new HashMap<>(), systemFileManager);
     }
 
     //
@@ -44,7 +38,7 @@ public class InMemoryFileManagerTest {
     //
 
     /**
-     * Verify uri when Location: CLASS_OUTPUT && sibling is a JavaSourceString
+     * Verify type when Location: CLASS_OUTPUT && sibling is a JavaSourceString
      * @throws IOException never.
      */
     @Test
@@ -118,6 +112,12 @@ public class InMemoryFileManagerTest {
         verify(systemFileManager).inferBinaryName(StandardLocation.ANNOTATION_PROCESSOR_PATH, javaObject);
     }
 
+    @Test
+    public void inferBinaryNameForSourcePathShouldReturnURI() {
+        JavaSourceString javaObject = new JavaSourceString("fixtures/MyClass.java", "");
+        assertEquals(javaObject.toUri().toString(), inMemoryFileManager.inferBinaryName(StandardLocation.SOURCE_PATH, javaObject));
+    }
+
     //
     //  list
     //
@@ -154,8 +154,15 @@ public class InMemoryFileManagerTest {
         assertEquals(2, sources.size());
     }
 
+//    @Test
+//    public void listShouldReturnClassesInRoot() {
+//        List<JavaFileObject> classes = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);
+//        assertEquals(1, classes.size());
+//        assertSame(classInRoot, classes.get(0));
+//    }
+
     private <T> Set<T> set(T... elements) {
-        return new HashSet<T>(Arrays.asList(elements));
+        return new HashSet<>(Arrays.asList(elements));
     }
 
     private List<JavaFileObject> list(StandardLocation location, String path, Set<Kind> kinds, boolean recurse) {

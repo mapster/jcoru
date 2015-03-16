@@ -4,7 +4,9 @@ import com.sun.source.util.JavacTask;
 
 import javax.tools.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by mapster on 25.11.14.
@@ -13,10 +15,17 @@ public class MyCompiler {
 
     InMemoryFileManager fileManager;
     private final JavaCompiler compiler;
+    private DiagnosticListener diagnosticListener;
 
     public MyCompiler() {
-        fileManager = new InMemoryFileManager(new LinkedList<JavaFileObject>());
+        fileManager = new InMemoryFileManager(new LinkedList<>());
         compiler = ToolProvider.getSystemJavaCompiler();
+    }
+
+    public MyCompiler(DiagnosticListener diagnosticListener) {
+        fileManager = new InMemoryFileManager(new LinkedList<>());
+        this.compiler = ToolProvider.getSystemJavaCompiler();
+        this.diagnosticListener = diagnosticListener;
     }
 
     public Iterable<? extends JavaFileObject> compile(JavaSourceString myTestSource) throws IOException {
@@ -24,7 +33,7 @@ public class MyCompiler {
     }
 
     public Iterable<? extends JavaFileObject> compile(List<? extends JavaFileObject> files) throws IOException {
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, files);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
 
         JavacTask javacTask = (JavacTask) task;
 
