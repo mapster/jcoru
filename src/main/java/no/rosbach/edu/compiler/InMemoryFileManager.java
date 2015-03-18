@@ -4,6 +4,8 @@ import javax.tools.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static javax.tools.StandardLocation.*;
 
@@ -11,6 +13,11 @@ import static javax.tools.StandardLocation.*;
 * Created by mapster on 30.11.14.
 */
 class InMemoryFileManager implements JavaFileManager {
+    private static final String PROPERTIES_PATH = "filemanager.properties";
+    private static final String PROPERTIES_LIST_DELIMITER = ",";
+    private static final String DELELEGATE_TO_PARENT = "delegate_to_parent.packages";
+    private static Properties properties = loadProperties();
+    private static Set<String> delegate_packages;
     private final ClassLoader classPathLoader;
     private final JavaFileManager systemFileManager;
     private final FileTree sources;
@@ -30,6 +37,20 @@ class InMemoryFileManager implements JavaFileManager {
         this.sources = new SimpleFileTree(sources);
     }
 
+    private static Properties loadProperties() {
+        Properties properties = new Properties();
+        try {
+            properties.load(TransientClassLoader.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH));
+        } catch (IOException e) {
+            //TODO: log entry
+            return new Properties();
+        }
+
+        delegate_packages = new HashSet<String>(Arrays.asList(properties.getProperty(DELELEGATE_TO_PARENT).split(PROPERTIES_LIST_DELIMITER)));
+
+        return properties;
+    }
+
     @Override
     public ClassLoader getClassLoader(Location location) {
         return classPathLoader;
@@ -37,8 +58,9 @@ class InMemoryFileManager implements JavaFileManager {
 
     @Override
     public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
-        if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
-            return systemFileManager.list(location, packageName, kinds, recurse);
+        if(delegate_packages.contains(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
+            Iterable<JavaFileObject> list = systemFileManager.list(location, packageName, kinds, recurse);
+            return StreamSupport.stream(list.spliterator(), false).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
         }
         else if(location.equals(SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)){
             Collection<JavaFileObject> files = sources.listFiles(packageName.replace(".", "/"), recurse);
@@ -52,6 +74,10 @@ class InMemoryFileManager implements JavaFileManager {
 
     @Override
     public String inferBinaryName(Location location, JavaFileObject file) {
+        if(file instanceof ManagedFileObject){
+            ManagedFileObject managedFileObject = (ManagedFileObject) file;
+            return managedFileObject.getFileManager().inferBinaryName(location, managedFileObject.getFileObject());
+        }
         if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
             return systemFileManager.inferBinaryName(location, file);
         }
@@ -99,9 +125,9 @@ class InMemoryFileManager implements JavaFileManager {
     @Override
     public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
         if(location.equals(CLASS_OUTPUT)){
-            InMemoryClassFile javaClass = new InMemoryClassFile(className);
-            classStore.put(javaClass.getName(), javaClass);
-            return javaClass;
+            InMemoryClassFile inMemoryFile = new InMemoryClassFile(className);
+            classStore.put(inMemoryFile.getName(), inMemoryFile);
+            return new ManagedFileObject(this, inMemoryFile);
         }
         throw new Error("getJavaFileForOutput not implemented yet.");
     }

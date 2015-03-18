@@ -12,8 +12,11 @@ import java.util.*;
 
 import static javax.tools.JavaFileObject.Kind;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by mapster on 09.03.15.
@@ -30,6 +33,8 @@ public class InMemoryFileManagerTest {
     @Before
     public void setStage() throws IOException {
         systemFileManager = mock(JavaFileManager.class);
+        when(systemFileManager.list(any(JavaFileManager.Location.class), anyString(), anySet(), anyBoolean())).thenReturn(Arrays.asList(new InMemoryClassFile("heisann")));
+
         inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), new HashMap<>(), systemFileManager);
     }
 
@@ -118,6 +123,12 @@ public class InMemoryFileManagerTest {
         assertEquals(javaObject.toUri().toString(), inMemoryFileManager.inferBinaryName(StandardLocation.SOURCE_PATH, javaObject));
     }
 
+    @Test
+    public void inferBinaryNameShouldDeferManagedFileObjects() {
+        inMemoryFileManager.inferBinaryName(StandardLocation.SOURCE_PATH, new ManagedFileObject(systemFileManager, JAVA_SOURCE));
+        verify(systemFileManager).inferBinaryName(StandardLocation.SOURCE_PATH, JAVA_SOURCE);
+    }
+
     //
     //  list
     //
@@ -152,6 +163,12 @@ public class InMemoryFileManagerTest {
     public void listShouldReturnAllSourcesWithRecurse() {
         List<JavaFileObject> sources = list(StandardLocation.SOURCE_PATH, "", set(Kind.SOURCE), true);
         assertEquals(2, sources.size());
+    }
+
+    @Test
+    public void listShouldWrapSystemManagedFileObjects() {
+        List<JavaFileObject> list = list(StandardLocation.PLATFORM_CLASS_PATH, "java.util", set(Kind.CLASS, Kind.CLASS), false);
+        assertTrue(list.stream().allMatch(file -> file instanceof ManagedFileObject));
     }
 
 //    @Test

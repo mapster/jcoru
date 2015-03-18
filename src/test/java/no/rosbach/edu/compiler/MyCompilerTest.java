@@ -10,9 +10,9 @@ import javax.tools.JavaFileObject.Kind;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -50,18 +50,14 @@ public class MyCompilerTest {
 
     @Test
     public void ableToCompileAggregationClass() {
-        compiler.fileManager = new InMemoryFileManager(Arrays.asList(AGGREGATION_CLASS_SOURCE, CONTAINED_CLASS_SOURCE));
         Iterable<? extends JavaFileObject> compiled = compile(AGGREGATION_CLASS_SOURCE, CONTAINED_CLASS_SOURCE);
-        compiled.iterator().hasNext();
+        assertEquals(2, collect(compiled).size());
     }
 
-    private void runMain(Iterable<? extends JavaFileObject> compiled, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        JavaFileObject obj = compiled.iterator().next();
-        Class<?> MyTestClass = ((TransientClassLoader)classLoader).loadClass(obj.toUri().toString());
-
-        Method main = MyTestClass.getMethod("main", String[].class);
-        String[] params = {"alexander", "per"};
-        main.invoke(null, (Object) params);
+    @Test
+    public void ableToCompileUnitTestClass() {
+        Iterable<? extends JavaFileObject> compiled = compile(getFixtureSource("UnitTest"));
+        assertEquals("UnitTest", compiled.iterator().next().getName());
     }
 
     private Iterable<? extends JavaFileObject> compile(JavaSourceString... source) {
@@ -72,12 +68,20 @@ public class MyCompilerTest {
         }
     }
 
-    private JavaSourceString getFixtureSource(Class<?> fixtureInterface) {
-        String name = fixtureInterface.getSimpleName() + ".java";
-        try(InputStream sourceStream = this.getClass().getClassLoader().getResourceAsStream("fixtures" + File.separatorChar + name)) {
-            return new JavaSourceString(name, IOUtils.toString(sourceStream));
+    private JavaSourceString getFixtureSource(String className) {
+        String fileName = className + ".java";
+        try(InputStream sourceStream = this.getClass().getClassLoader().getResourceAsStream("fixtures" + File.separatorChar + fileName)) {
+            return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
         } catch (IOException e) {
             throw new Error("Failed to read fixture java source.", e);
         }
+    }
+
+    private static <T> List<T> collect(Iterable<T> it) {
+        List<T> list = new LinkedList<>();
+        for(T e: it) {
+            list.add(e);
+        }
+        return list;
     }
 }
