@@ -49,7 +49,7 @@ public class InMemoryFileManagerTest {
     @Test
     public void getJavaFileForOutputShouldProvideInMemoryClassFileForClassOutputLocationAndJavaSourceStringSibling () throws IOException {
         JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
-        assertTrue(javaFileForOutput instanceof InMemoryClassFile);
+        assertTrue(ManagedFileObject.getManagedFileObject(javaFileForOutput) instanceof InMemoryClassFile);
     }
 
     /**
@@ -60,6 +60,16 @@ public class InMemoryFileManagerTest {
     public void getJavaFileForOutputShouldProvideFileObjectWithClassNameAsURI() throws IOException {
         JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
         assertEquals(URI.create(CLASS_NAME), javaFileForOutput.toUri());
+    }
+
+    /**
+     * Verify that objects are wrapped as ManagedFileObject
+     * @throws IOException
+     */
+    @Test
+    public void getJavaFileForOutputShouldProvideManagedFileObjects () throws IOException {
+        JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
+        assertTrue(javaFileForOutput instanceof ManagedFileObject);
     }
 
     //

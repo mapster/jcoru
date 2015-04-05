@@ -40,7 +40,7 @@ class InMemoryFileManager implements JavaFileManager {
     private static Properties loadProperties() {
         Properties properties = new Properties();
         try {
-            properties.load(TransientClassLoader.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH));
+            properties.load(InMemoryFileManager.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH));
         } catch (IOException e) {
             //TODO: log entry
             return new Properties();
@@ -69,7 +69,7 @@ class InMemoryFileManager implements JavaFileManager {
         else if (location.equals(CLASS_PATH)) {
             return new LinkedList<>();
         }
-        throw new Error(String.format("unsupported arguments: list(%s, %s, %s, %s)", location, packageName, kinds.toString(), Boolean.toString(recurse)));
+        throw new UnsupportedLocation(String.format("Cannot list files of kinds (%s) for package %s on location %s.", kinds.toString(), packageName, location));
     }
 
     @Override
@@ -84,17 +84,17 @@ class InMemoryFileManager implements JavaFileManager {
         else if(location.equals(SOURCE_PATH)) {
             return file.toUri().toString();
         }
-        throw new Error("inferBinaryName not implemented yet.");
+        throw new UnsupportedLocation(String.format("Cannot infer binary name of %s for location %s.", file.toUri().toString(), location.getName()));
     }
 
     @Override
     public boolean isSameFile(FileObject a, FileObject b) {
-        throw new Error("isSameFile not implemented yet.");
+        throw new UnsupportedOperationException("isSameFile not implemented yet.");
     }
 
     @Override
     public boolean handleOption(String current, Iterator<String> remaining) {
-        throw new Error("handleOption not implemented yet.");
+        throw new UnsupportedOperationException("handleOption not implemented yet.");
     }
 
     @Override
@@ -114,12 +114,12 @@ class InMemoryFileManager implements JavaFileManager {
                     return false;
             }
         }
-        throw new Error("hasLocation not implemented yet.");
+        throw new UnsupportedLocation("Only support StandardLocations.");
     }
 
     @Override
     public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) throws IOException {
-        throw new Error("getJavaFileForInput not implemented yet.");
+        throw new UnsupportedOperationException(String.format("getJavaFileForInput is not yet supported."));
     }
 
     @Override
@@ -129,17 +129,17 @@ class InMemoryFileManager implements JavaFileManager {
             classStore.put(inMemoryFile.getName(), inMemoryFile);
             return new ManagedFileObject(this, inMemoryFile);
         }
-        throw new Error("getJavaFileForOutput not implemented yet.");
+        throw new UnsupportedLocation(String.format("Cannot get java file for output for location %s.", location.getName()));
     }
 
     @Override
     public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
-        throw new Error("getFileForInput not implemented yet.");
+        throw new UnsupportedOperationException("getFileForInput not implemented yet.");
     }
 
     @Override
     public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
-        throw new Error("getFileForOutput not implemented yet.");
+        throw new UnsupportedOperationException("getFileForOutput not implemented yet.");
     }
 
     @Override
@@ -149,11 +149,11 @@ class InMemoryFileManager implements JavaFileManager {
 
     @Override
     public void close() throws IOException {
-        throw new Error("close not implemented yet.");
+        throw new UnsupportedOperationException("close not implemented yet.");
     }
 
     @Override
     public int isSupportedOption(String option) {
-        throw new Error("isSupportedOption not implemented yet.");
+        throw new UnsupportedOperationException("isSupportedOption not implemented yet.");
     }
 }
