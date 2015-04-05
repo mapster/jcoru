@@ -26,9 +26,20 @@ public class JavaSourceString extends SimpleJavaFileObject {
         }
 
         JavaSourceString other = (JavaSourceString) o;
-        if(!other.toUri().equals(toUri())) {
+        if(other.toUri() == null) {
+            if(toUri() != null) {
+                return false;
+            }
+        }
+        else if(!other.toUri().equals(toUri())) {
             return false;
         }
-        return other.sourcecode.equals(sourcecode);
+
+        if(other.sourcecode == null){
+            return sourcecode == null;
+        }
+        else {
+            return other.sourcecode.equals(sourcecode);
+        }
     }
 }

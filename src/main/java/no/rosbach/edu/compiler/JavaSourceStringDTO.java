@@ -1,12 +1,15 @@
 package no.rosbach.edu.compiler;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Created by mapster on 05.04.15.
  */
+@XmlRootElement
 public class JavaSourceStringDTO {
 
-    private String filename;
-    private String sourcecode;
+    public String filename;
+    public String sourcecode;
 
     public JavaSourceStringDTO() {}
 
@@ -31,9 +34,21 @@ public class JavaSourceStringDTO {
         }
 
         JavaSourceStringDTO other = (JavaSourceStringDTO) o;
-        if(!other.filename.equals(filename)) {
+
+        if(other.filename == null) {
+            if(filename != null) {
+                return false;
+            }
+        }
+        else if(!other.filename.equals(filename)) {
             return false;
         }
-        return other.sourcecode.equals(sourcecode);
+
+        if(other.sourcecode == null) {
+            return sourcecode == null;
+        }
+        else {
+            return other.sourcecode.equals(sourcecode);
+        }
     }
 }

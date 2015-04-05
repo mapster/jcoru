@@ -7,7 +7,10 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.List;
 
 import static no.rosbach.edu.compiler.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
@@ -24,13 +27,15 @@ public class CompilerResourceTest extends JerseyTest {
 
     @Test
     public void test() {
-        JavaSourceString javaSource = getFixtureSource(Fixtures.TEST_CLASS);
-        String result = compileRequest(javaSource);
+        JavaSourceStringDTO javaSource = new JavaSourceStringDTO(getFixtureSource(Fixtures.TEST_CLASS));
+        JavaSourceStringDTO result = compileRequest(javaSource);
         assertEquals(javaSource, result);
     }
 
-    private String compileRequest(JavaSourceString javaSource) {
-        return target(CompilerResource.COMPILER_PATH).request().post(Entity.entity(javaSource, MediaType.APPLICATION_JSON), String.class);
+    private JavaSourceStringDTO compileRequest(JavaSourceStringDTO... javaSources) {
+        List<JavaSourceStringDTO> entity = Arrays.asList(javaSources);
+        GenericEntity<List<JavaSourceStringDTO>> listGenericEntity = new GenericEntity<List<JavaSourceStringDTO>>(entity) {};
+        return target(CompilerResource.COMPILER_PATH).request().post(Entity.entity(listGenericEntity, MediaType.APPLICATION_JSON), JavaSourceStringDTO.class);
     }
 
 }
