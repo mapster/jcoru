@@ -1,5 +1,6 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
+import no.rosbach.edu.compiler.JavaSourceString;
 import org.junit.Before;
 import org.junit.Test;
 

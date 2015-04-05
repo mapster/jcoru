@@ -1,5 +1,6 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
+import no.rosbach.edu.compiler.JavaSourceString;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,9 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * Created by mapster on 15.03.15.

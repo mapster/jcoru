@@ -1,5 +1,6 @@
 package no.rosbach.edu.compiler;
 
+import no.rosbach.edu.compiler.filemanager.InMemoryClassFile;
 import no.rosbach.edu.compiler.fixtures.AggregationClass;
 import no.rosbach.edu.compiler.fixtures.ContainedClass;
 import no.rosbach.edu.compiler.fixtures.TestClass;

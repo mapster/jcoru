@@ -1,4 +1,6 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
+
+import no.rosbach.edu.compiler.TransientClassLoader;
 
 import javax.tools.*;
 import java.io.IOException;
@@ -12,7 +14,7 @@ import static javax.tools.StandardLocation.*;
 /**
 * Created by mapster on 30.11.14.
 */
-class InMemoryFileManager implements JavaFileManager {
+public class InMemoryFileManager implements JavaFileManager {
     private static final String PROPERTIES_PATH = "filemanager.properties";
     private static final String PROPERTIES_LIST_DELIMITER = ",";
     private static final String DELELEGATE_TO_PARENT = "delegate_to_parent.packages";

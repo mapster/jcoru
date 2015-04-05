@@ -1,19 +1,18 @@
 package no.rosbach.edu.compiler;
 
 import com.sun.tools.javac.util.ClientCodeException;
-import org.apache.commons.io.IOUtils;
+import no.rosbach.edu.compiler.fixtures.Fixtures;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static no.rosbach.edu.compiler.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -56,7 +55,7 @@ public class MyCompilerTest {
 
     @Test
     public void ableToCompileUnitTestClass() {
-        Iterable<? extends JavaFileObject> compiled = compile(getFixtureSource("UnitTest"));
+        Iterable<? extends JavaFileObject> compiled = compile(getFixtureSource(Fixtures.UNIT_TEST));
         assertEquals("UnitTest", compiled.iterator().next().getName());
     }
 
@@ -68,14 +67,6 @@ public class MyCompilerTest {
         }
     }
 
-    private JavaSourceString getFixtureSource(String className) {
-        String fileName = className + ".java";
-        try(InputStream sourceStream = this.getClass().getClassLoader().getResourceAsStream("fixtures" + File.separatorChar + fileName)) {
-            return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
-        } catch (IOException e) {
-            throw new Error("Failed to read fixture java source.", e);
-        }
-    }
 
     private static <T> List<T> collect(Iterable<T> it) {
         List<T> list = new LinkedList<>();

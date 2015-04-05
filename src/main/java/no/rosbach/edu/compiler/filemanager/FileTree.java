@@ -1,11 +1,7 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
 import javax.tools.JavaFileObject;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by mapster on 15.03.15.

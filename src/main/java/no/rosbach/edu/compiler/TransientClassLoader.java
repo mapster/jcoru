@@ -1,6 +1,7 @@
 package no.rosbach.edu.compiler;
 
 
+import no.rosbach.edu.compiler.filemanager.InMemoryClassFile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;

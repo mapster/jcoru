@@ -1,4 +1,4 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
 /**
  * Created by mapster on 05.04.15.

@@ -1,4 +1,4 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;

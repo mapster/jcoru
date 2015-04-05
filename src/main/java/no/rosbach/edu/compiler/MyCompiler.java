@@ -1,6 +1,7 @@
 package no.rosbach.edu.compiler;
 
 import com.sun.source.util.JavacTask;
+import no.rosbach.edu.compiler.filemanager.InMemoryFileManager;
 
 import javax.tools.*;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by mapster on 25.11.14.
  */
-public class MyCompiler {
+class MyCompiler {
 
     InMemoryFileManager fileManager;
     private final JavaCompiler compiler;

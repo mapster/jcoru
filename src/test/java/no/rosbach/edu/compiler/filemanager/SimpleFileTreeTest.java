@@ -1,4 +1,4 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
 import javax.tools.JavaFileObject;
 import java.util.List;

@@ -1,4 +1,4 @@
-package no.rosbach.edu.compiler;
+package no.rosbach.edu.compiler.filemanager;
 
 
 import org.apache.commons.io.IOUtils;
