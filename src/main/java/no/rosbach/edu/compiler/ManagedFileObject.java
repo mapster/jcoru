@@ -19,6 +19,13 @@ public class ManagedFileObject implements JavaFileObject {
         this.fileObject = fileObject;
     }
 
+    public static JavaFileObject getManagedFileObject(JavaFileObject object) {
+        if(object instanceof ManagedFileObject) {
+            return ((ManagedFileObject)object).fileObject;
+        }
+        return object;
+    }
+
     public JavaFileManager getFileManager() {
         return fileManager;
     }
