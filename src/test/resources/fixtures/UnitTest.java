@@ -1,5 +1,6 @@
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -10,5 +11,10 @@ public class UnitTest {
     @Test
     public void test() {
         assertTrue(true);
+    }
+
+    @Test
+    public void failingTest() {
+        assertEquals("true", "false");
     }
 }
