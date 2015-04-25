@@ -1,4 +1,4 @@
-public class TestClass implements no.rosbach.edu.compiler.fixtures.TestClass {
+public class TestClass implements no.rosbach.edu.compile.fixtures.TestClass {
     public String test() {
         return testResult;
     }
