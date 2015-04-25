@@ -36,6 +36,9 @@ public class CompilerResource {
     }
 
     private void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDTO> sources) {
+        if(sources == null) {
+            throw new BadRequestException("Empty source payload.");
+        }
         List<JavaSourceStringDTO> invalidSources = sources.stream().filter(s -> isBlank(s.filename) || isBlank(s.sourcecode)).collect(toList());
         if(!invalidSources.isEmpty()) {
             throw new BadRequestException(String.format("The following source files are missing file name or source code: ", invalidSources.stream().map(s -> s.filename).reduce((f1, f2) -> f1 + ", " + f2)));

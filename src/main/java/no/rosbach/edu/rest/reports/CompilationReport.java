@@ -22,7 +22,7 @@ public class CompilationReport {
 
     public String getReportLevel() {
         if(reportLevel == null) {
-            return null;
+            return "SUCCESS";
         }
        return reportLevel.name();
     }

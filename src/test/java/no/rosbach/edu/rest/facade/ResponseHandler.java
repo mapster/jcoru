@@ -1,6 +1,7 @@
 package no.rosbach.edu.rest.facade;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 
 /**
@@ -10,7 +11,12 @@ public class ResponseHandler {
     public static void throwExceptionIfError(Response response) {
         switch (Response.Status.fromStatusCode(response.getStatus())) {
             case BAD_REQUEST:
-                throw new BadRequestException(response.getEntity().toString());
+                throw new BadRequestException();
+            case INTERNAL_SERVER_ERROR:
+                throw new InternalServerErrorException();
+        }
+        if(response.getStatus() >= Response.Status.BAD_REQUEST.getStatusCode()) {
+            throw new RuntimeException("Unhandled error response: " + response.getStatus());
         }
     }
 }

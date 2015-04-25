@@ -1,6 +1,7 @@
 package no.rosbach.edu.rest.facade;
 
 import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.rest.ErrorMessage;
 import no.rosbach.edu.rest.JavaSourceStringDTO;
 import no.rosbach.edu.rest.reports.CompilationReport;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -8,6 +9,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
@@ -18,8 +20,7 @@ import java.util.List;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureInterfaceSource;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by mapster on 05.04.15.
@@ -31,7 +32,7 @@ public class CompilerResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(CompilerResource.class);
+        return new ResourceConfig(CompilerResource.class, DefaultExceptionMapper.class);
     }
 
     @Test
@@ -56,9 +57,47 @@ public class CompilerResourceTest extends JerseyTest {
         compileRequest(new JavaSourceStringDTO("", "This is some java source"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void returnsBadRequestForNullPost() {
-        ResponseHandler.throwExceptionIfError(target(CompilerResource.COMPILER_PATH).request().post(null));
+        expectMessageAndException(stringRequest(null), BadRequestException.class);
+    }
+
+    @Test
+    public void returnsBadRequestForEmptyStringPost() {
+        expectMessageAndException(stringRequest(""), BadRequestException.class);
+    }
+
+    @Test
+    public void returnsSuccessForEmptyList() {
+        CompilationReport report = compileRequest();
+        assertTrue(report.isSuccess());
+    }
+
+    @Test
+    public void returnsBadRequestForInvalidJson() {
+        expectMessageAndException(stringRequest("{\"field:\" 100}"), BadRequestException.class);
+    }
+
+    private void expectMessageAndException(Response response, Class<? extends WebApplicationException> expectedException) {
+        try {
+            ErrorMessage msg = response.readEntity(ErrorMessage.class);
+            assertEquals(response.getStatus(), msg.status);
+        } catch (Exception e) {
+            fail();
+        }
+        try {
+            ResponseHandler.throwExceptionIfError(response);
+        } catch (WebApplicationException thrown) {
+            assertEquals(expectedException, thrown.getClass());
+        }
+    }
+
+    private Response stringRequest(String s) {
+        Entity entity = null;
+        if(s != null) {
+            entity = Entity.entity(s, MediaType.APPLICATION_JSON);
+        }
+        return target(CompilerResource.COMPILER_PATH).request().post(entity);
     }
 
     private CompilationReport compileRequest(JavaSourceStringDTO... javaSources) {
