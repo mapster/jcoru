@@ -11,7 +11,8 @@ import java.util.stream.StreamSupport;
  * Created by mapster on 05.04.15.
  */
 public enum Fixtures {
-    AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), UNIT_TEST("UnitTest");
+    AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), FAIL_TEST("FailTest"), SUCCESS_TEST("SuccessTest"),
+    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest");
 
     private final String name;
 

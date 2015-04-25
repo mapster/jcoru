@@ -10,6 +10,6 @@ public class SimpleFileTreeTest extends FileTreeTest {
 
     @Override
     FileTree getFileTree(List<JavaFileObject> files) {
-        return new SimpleFileTree(files);
+        return new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, files);
     }
 }

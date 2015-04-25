@@ -1,6 +1,6 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.compile.MyCompiler;
+import no.rosbach.edu.compile.JavaCompiler;
 import no.rosbach.edu.filemanager.JavaSourceString;
 import no.rosbach.edu.rest.JavaSourceStringDTO;
 import no.rosbach.edu.rest.reports.CompilationReport;
@@ -22,7 +22,7 @@ public class CompilerResource {
     public static final String COMPILER_PATH = "/compile";
 
     private final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    MyCompiler compiler = new MyCompiler(reportBuilder);
+    JavaCompiler compiler = new JavaCompiler(reportBuilder);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by mapster on 16.03.15.
  */
-public class UnitTest {
+public class FailTest {
 
     @Test
     public void test() {

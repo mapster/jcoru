@@ -27,15 +27,20 @@ public class InMemoryFileManagerTest {
     private static final String CLASS_NAME = "MyClass";
     private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
     private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
+    public static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
     private JavaFileManager systemFileManager;
     private InMemoryFileManager inMemoryFileManager;
+    private HashMap<String, InMemoryClassFile> classStore;
 
     @Before
     public void setStage() throws IOException {
         systemFileManager = mock(JavaFileManager.class);
         when(systemFileManager.list(any(JavaFileManager.Location.class), anyString(), anySet(), anyBoolean())).thenReturn(Arrays.asList(new InMemoryClassFile("heisann")));
 
-        inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), new HashMap<>(), systemFileManager);
+        classStore = new HashMap<>();
+        classStore.put(TEST_CLASS.getName(), TEST_CLASS);
+
+        inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), classStore, systemFileManager);
     }
 
     //
@@ -181,6 +186,27 @@ public class InMemoryFileManagerTest {
         assertTrue(list.stream().allMatch(file -> file instanceof ManagedFileObject));
     }
 
+    @Test
+    public void listShouldReturnFromClassStoreForClassPathLocation() {
+        List<JavaFileObject> list = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);
+        assertTrue(list.contains(TEST_CLASS));
+    }
+
+    @Test
+    public void listShouldReturnFromClassStoreForClassPathLocationWhenClassIsAddedAfterConstruction() {
+        final InMemoryClassFile newClass = new InMemoryClassFile("NewClass");
+        classStore.put(newClass.getName(), newClass);
+        List<JavaFileObject> list = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);
+        assertTrue(list.contains(newClass));
+    }
+
+    @Test
+    public void listShouldReturnFromClassStoreForClassPathLocationWhenClassIsInPackage() {
+        final InMemoryClassFile newClass = new InMemoryClassFile("mypackage.NewClass");
+        classStore.put(newClass.getName(), newClass);
+        List<JavaFileObject> list = list(StandardLocation.CLASS_PATH, "mypackage", set(Kind.CLASS), false);
+        assertTrue(list.contains(newClass));
+    }
 //    @Test
 //    public void listShouldReturnClassesInRoot() {
 //        List<JavaFileObject> classes = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);

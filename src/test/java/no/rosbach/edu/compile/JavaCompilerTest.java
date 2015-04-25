@@ -20,16 +20,16 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by mapster on 25.11.14.
  */
-public class MyCompilerTest {
+public class JavaCompilerTest {
 
     private static final JavaSourceString MY_TEST_SOURCE = new JavaSourceString("MyTest.java", "public class MyTest { public String test(String arg) { return (\"Hello world \" + arg); }}");
     private static final JavaSourceString AGGREGATION_CLASS_SOURCE = new JavaSourceString("Aggregation.java", "public class Aggregation { Contained value = new Contained(); public Contained getValue() { return value; } public String getContainedValue() { return value.getActualValue(); } }");
     private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString("Contained.java", "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
-    private MyCompiler compiler;
+    private JavaCompiler compiler;
 
     @Before
     public void setStage() {
-        compiler = new MyCompiler(new SensitiveDiagnosticListener());
+        compiler = new JavaCompiler(new SensitiveDiagnosticListener());
     }
 
     @Test
@@ -56,8 +56,8 @@ public class MyCompilerTest {
 
     @Test
     public void ableToCompileUnitTestClass() {
-        Iterable<? extends JavaFileObject> compiled = compile(getFixtureSource(Fixtures.UNIT_TEST));
-        assertEquals("UnitTest", compiled.iterator().next().getName());
+        Iterable<? extends JavaFileObject> compiled = compile(getFixtureSource(Fixtures.FAIL_TEST));
+        assertEquals(Fixtures.FAIL_TEST.toString(), compiled.iterator().next().getName());
     }
 
     private Iterable<? extends JavaFileObject> compile(JavaSourceString... source) {

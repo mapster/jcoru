@@ -23,20 +23,23 @@ public class InMemoryFileManager implements JavaFileManager {
     private final ClassLoader classPathLoader;
     private final JavaFileManager systemFileManager;
     private final FileTree sources;
+    private final FileTree compiledClasses;
     Map<String, InMemoryClassFile> classStore;
 
     public InMemoryFileManager(List<JavaFileObject> sources){
         this.classStore = new HashMap<>();
         classPathLoader = new TransientClassLoader(this.classStore);
         this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
-        this.sources = new SimpleFileTree(sources);
+        this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
+        this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
     }
 
     InMemoryFileManager(List<JavaFileObject> sources, Map<String, InMemoryClassFile> classStore, JavaFileManager systemFileManager){
         this.classStore = classStore;
         classPathLoader = new TransientClassLoader(classStore);
         this.systemFileManager = systemFileManager;
-        this.sources = new SimpleFileTree(sources);
+        this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
+        this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
     }
 
     private static Properties loadProperties() {
@@ -68,8 +71,8 @@ public class InMemoryFileManager implements JavaFileManager {
             Collection<JavaFileObject> files = sources.listFiles(packageName.replace(".", "/"), recurse);
             return files;
         }
-        else if (location.equals(CLASS_PATH)) {
-            return new LinkedList<>();
+        else if (location.equals(CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
+            return compiledClasses.listFiles(packageName, false);
         }
         throw new UnsupportedLocation(String.format("Cannot list files of kinds (%s) for package %s on location %s.", kinds.toString(), packageName, location));
     }
@@ -83,7 +86,7 @@ public class InMemoryFileManager implements JavaFileManager {
         if(location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)){
             return systemFileManager.inferBinaryName(location, file);
         }
-        else if(location.equals(SOURCE_PATH)) {
+        if(location.equals(SOURCE_PATH) || location.equals(CLASS_PATH)) {
             return file.toUri().toString();
         }
         throw new UnsupportedLocation(String.format("Cannot infer binary name of %s for location %s.", file.toUri().toString(), location.getName()));
