@@ -12,6 +12,10 @@ import java.util.List;
 public class JUnitTestRunner {
     private JUnitCore core = new JUnitCore();
 
+    public JUnitTestRunner() {
+
+    }
+
     public Result test(Class clazz) {
         return test(Arrays.asList(clazz));
     }
@@ -19,4 +23,5 @@ public class JUnitTestRunner {
     public Result test(List<Class> classes) {
         return core.run(classes.toArray(new Class[]{}));
     }
+
 }

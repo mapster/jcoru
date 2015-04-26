@@ -98,8 +98,19 @@ public class JUnitReport {
         this.tests = tests;
     }
 
+    /**
+     * List of failed test descriptions.
+     * @return list of failure entries.
+     */
     public List<JUnitReportFailure> getFailures() {
         return failures;
     }
 
+    /**
+     * Set the test failure descriptions.
+     * @param failures list of failures.
+     */
+    public void setFailures(List<JUnitReportFailure> failures) {
+        this.failures = failures;
+    }
 }

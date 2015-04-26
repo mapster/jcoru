@@ -1,14 +1,15 @@
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by mapster on 25.04.15.
+ * Test fixture with two passing tests.
  */
 public class SuccessTest {
     @Test
     public void test1() {
-        assertTrue(1 == 1);
+        assertEquals(1, 1);
     }
 
     @Test

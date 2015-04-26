@@ -7,12 +7,10 @@ import no.rosbach.edu.rest.reports.CompilationReport;
 import no.rosbach.edu.rest.reports.JUnitReport;
 import no.rosbach.edu.rest.reports.Report;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 import javax.tools.JavaFileObject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,6 +24,7 @@ import static no.rosbach.edu.utils.Stream.stream;
 @Path(JUnitRunnerResource.TEST_PATH)
 public class JUnitRunnerResource extends CompilerResourceBase {
     public static final String TEST_PATH = "/test";
+    public static final String INITIALIZATION_ERROR_FAILURE = "initializationError";
 
     private final JUnitTestRunner testRunner = new JUnitTestRunner();
 
@@ -44,7 +43,15 @@ public class JUnitRunnerResource extends CompilerResourceBase {
 
         Stream<? extends Class<?>> loadedClasses = stream(compiledClasses).map(c -> loadClass(c));
         Result testResult = testRunner.test(loadedClasses.filter(c -> c.getSimpleName().endsWith("Test")).collect(toList()));
+
+        testResult.getFailures().stream().forEach(JUnitRunnerResource::throwExceptionIfInitializationError);
+
         return new Report(new JUnitReport(testResult));
     }
 
+    public static void throwExceptionIfInitializationError(Failure failure) {
+        if(failure.getDescription().getMethodName().equals(INITIALIZATION_ERROR_FAILURE)) {
+            throw new BadRequestException(failure.getDescription().getDisplayName() + ": " + failure.getException().getMessage(), failure.getException());
+        }
+    }
 }

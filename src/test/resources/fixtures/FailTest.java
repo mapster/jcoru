@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by mapster on 16.03.15.
+ * Test fixture with two failing and one passing test. At least one test expects a total of three (3) tests.
  */
 public class FailTest {
 

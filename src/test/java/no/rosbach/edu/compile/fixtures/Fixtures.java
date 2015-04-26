@@ -4,7 +4,9 @@ import no.rosbach.edu.filemanager.JavaSourceString;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static no.rosbach.edu.utils.Stream.stream;
 
 /**
@@ -12,7 +14,7 @@ import static no.rosbach.edu.utils.Stream.stream;
  */
 public enum Fixtures {
     AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), FAIL_TEST("FailTest"), SUCCESS_TEST("SuccessTest"),
-    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX("IllegalSyntax", true);
+    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX("IllegalSyntax", true), NOT_REALLY_TEST("NotReallyTest");
 
     private final String name;
     private final boolean notCompilable;
@@ -32,9 +34,13 @@ public enum Fixtures {
         return name;
     }
 
-    public static JavaSourceString getFixtureSource(Fixtures className) {
-        String fileName = className + ".java";
-        try(InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(className) + File.separatorChar + fileName)) {
+    public static List<JavaSourceString> getFixtureSources(Fixtures... fixtures) {
+        return stream(fixtures).map(Fixtures::getFixtureSource).collect(toList());
+    }
+
+    public static JavaSourceString getFixtureSource(Fixtures fixture) {
+        String fileName = fixture + ".java";
+        try(InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(fixture) + File.separatorChar + fileName)) {
             return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
         } catch (IOException e) {
             throw new Error("Failed to read fixture java source.", e);
