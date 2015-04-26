@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.runner.Result;
 
 import javax.tools.JavaFileObject;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -28,12 +27,8 @@ public class JUnitRunnerTestBase {
     }
 
     protected List<Class> compileAndLoadClasses(JavaSourceString... fixtureSource) {
-        try {
-            return StreamSupport.stream(compiler.compile(Arrays.asList(fixtureSource)).spliterator(), false)
+        return StreamSupport.stream(compiler.compile(Arrays.asList(fixtureSource)).spliterator(), false)
                     .map(javaFile -> loadClass(javaFile)).collect(toList());
-        } catch (IOException e) {
-            throw new Error("Failed to read fixture sources.", e);
-        }
     }
 
     private Class<?> loadClass(JavaFileObject javaFile) {

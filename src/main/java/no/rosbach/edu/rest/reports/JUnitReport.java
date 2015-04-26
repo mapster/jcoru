@@ -9,7 +9,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by mapster on 26.04.15.
  */
-public class JUnitReport {
+public class JUnitReport implements Report {
 
     private int ignored;
     private long runTime;
@@ -102,5 +102,10 @@ public class JUnitReport {
 
     public List<JUnitReportFailure> getFailures() {
         return failures;
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.JUnit;
     }
 }
