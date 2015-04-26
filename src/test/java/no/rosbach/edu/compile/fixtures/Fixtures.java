@@ -4,8 +4,8 @@ import no.rosbach.edu.filemanager.JavaSourceString;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.stream.StreamSupport;
+
+import static no.rosbach.edu.utils.Stream.stream;
 
 /**
  * Created by mapster on 05.04.15.
@@ -60,6 +60,6 @@ public enum Fixtures {
     }
 
     private static String compactPath(String... path) {
-        return StreamSupport.stream(Arrays.spliterator(path), false).reduce((s1, s2) -> s1 + File.separatorChar + s2).get();
+        return stream(path).reduce((s1, s2) -> s1 + File.separatorChar + s2).get();
     }
 }

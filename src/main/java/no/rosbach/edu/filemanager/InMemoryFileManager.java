@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static javax.tools.StandardLocation.*;
+import static no.rosbach.edu.utils.Stream.stream;
 
 /**
 * Created by mapster on 30.11.14.
@@ -65,7 +65,7 @@ public class InMemoryFileManager implements JavaFileManager {
     public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
         if(delegate_packages.contains(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
             Iterable<JavaFileObject> list = systemFileManager.list(location, packageName, kinds, recurse);
-            return StreamSupport.stream(list.spliterator(), false).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
+            return stream(list).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
         }
         else if(location.equals(SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)){
             Collection<JavaFileObject> files = sources.listFiles(packageName.replace(".", "/"), recurse);

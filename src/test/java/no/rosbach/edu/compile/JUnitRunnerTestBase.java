@@ -5,11 +5,11 @@ import org.junit.Before;
 import org.junit.runner.Result;
 
 import javax.tools.JavaFileObject;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static no.rosbach.edu.utils.Stream.stream;
 
 /**
  * Created by mapster on 26.04.15.
@@ -27,11 +27,10 @@ public class JUnitRunnerTestBase {
     }
 
     protected List<Class> compileAndLoadClasses(JavaSourceString... fixtureSource) {
-        return StreamSupport.stream(compiler.compile(Arrays.asList(fixtureSource)).spliterator(), false)
-                    .map(javaFile -> loadClass(javaFile)).collect(toList());
+        return stream(compiler.compile(asList(fixtureSource))).map(javaFile -> loadClass(javaFile)).collect(toList());
     }
 
-    private Class<?> loadClass(JavaFileObject javaFile) {
+    protected Class<?> loadClass(JavaFileObject javaFile) {
         try {
             return classLoader.loadClass(javaFile.getName());
         } catch (ClassNotFoundException e) {

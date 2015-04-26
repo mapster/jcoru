@@ -18,10 +18,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureInterfaceSource;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
+import static no.rosbach.edu.utils.Stream.stream;
 import static org.junit.Assert.*;
 
 /**
@@ -115,7 +115,7 @@ public class CompilerResourceTest extends JerseyTest {
     }
 
     private CompilationReport compileRequest(JavaSourceString... fixtureSource) {
-        return compileRequest(StreamSupport.stream(Arrays.spliterator(fixtureSource), false).map(JavaSourceStringDTO::new).toArray(JavaSourceStringDTO[]::new));
+        return compileRequest(stream(fixtureSource).map(JavaSourceStringDTO::new).toArray(JavaSourceStringDTO[]::new));
     }
 
     private CompilationReport compileRequest(JavaSourceStringDTO... javaSources) {

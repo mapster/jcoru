@@ -32,7 +32,7 @@ public abstract class CompilerResourceBase {
         return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
     }
 
-    private Class<?> loadClass(JavaFileObject javaFile) {
+    protected Class<?> loadClass(JavaFileObject javaFile) {
         try {
             return classLoader.loadClass(javaFile.getName());
         } catch (ClassNotFoundException e) {
