@@ -38,6 +38,13 @@ public class JUnitTestRunnerTest extends JUnitRunnerTestBase {
     }
 
     @Test
+    public void testAcceptsSingleClass() {
+        Class clazz = compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST)).stream().findFirst().orElseThrow(() -> new Error("No class loaded."));
+        Result test = runTests(clazz);
+        assertFalse(test.wasSuccessful());
+    }
+
+    @Test
     public void testAcceptsEmptyList() {
         Result r = runTests(new LinkedList<>());
         assertEquals(0, r.getRunCount());

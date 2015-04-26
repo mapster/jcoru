@@ -45,7 +45,7 @@ public class JUnitRunnerTestBase {
     }
 
     public Result runTests(Class clazz) {
-        return runTests(Arrays.asList(clazz));
+        return testRunner.test(clazz);
     }
 
     public Result runTests(List<Class> classes) {

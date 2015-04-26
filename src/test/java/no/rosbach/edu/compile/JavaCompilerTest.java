@@ -60,6 +60,12 @@ public class JavaCompilerTest {
         assertEquals(Fixtures.FAIL_TEST.toString(), compiled.iterator().next().getName());
     }
 
+    @Test
+    public void ableToCompileSingleClass() throws IOException {
+        JavaFileObject compiled = compiler.compile(getFixtureSource(Fixtures.FAIL_TEST)).iterator().next();
+        assertEquals(Fixtures.FAIL_TEST.toString(), compiled.getName());
+    }
+
     private Iterable<? extends JavaFileObject> compile(JavaSourceString... source) {
         try {
             return compiler.compile(Arrays.asList(source));
