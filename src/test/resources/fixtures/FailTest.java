@@ -17,4 +17,9 @@ public class FailTest {
     public void failingTest() {
         assertEquals("true", "false");
     }
+
+    @Test
+    public void failingTest2() {
+        assertTrue(false);
+    }
 }
