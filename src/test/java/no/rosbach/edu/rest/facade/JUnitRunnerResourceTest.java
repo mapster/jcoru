@@ -85,4 +85,9 @@ public class JUnitRunnerResourceTest extends CompilerResourceTestBase {
         junitReportRequest(getFixtureSources(Fixtures.NOT_REALLY_TEST));
     }
 
+    @Test
+    public void shouldNotRunTestsForClassNotNamedAsTestClass() {
+        JUnitReport report = junitReportRequest(getFixtureSources(Fixtures.NOT_NAMED_AS_TEST_CLASS));
+        assertEquals(0, report.getTests());
+    }
 }

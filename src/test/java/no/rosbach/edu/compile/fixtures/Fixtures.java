@@ -14,7 +14,7 @@ import static no.rosbach.edu.utils.Stream.stream;
  */
 public enum Fixtures {
     AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), FAIL_TEST("FailTest"), SUCCESS_TEST("SuccessTest"),
-    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX("IllegalSyntax", true), NOT_REALLY_TEST("NotReallyTest");
+    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX("IllegalSyntax", true), NOT_REALLY_TEST("NotReallyTest"), NOT_NAMED_AS_TEST_CLASS("NotNamedAsTestClass");
 
     private final String name;
     private final boolean notCompilable;
