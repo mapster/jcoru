@@ -8,7 +8,7 @@ import java.util.List;
  * Created by mapster on 24.04.15.
  */
 @XmlRootElement
-public class CompilationReport implements Report {
+public class CompilationReport {
     private Diagnostic.Kind reportLevel;
     public List<CompilationReportEntry> entries;
 
@@ -33,10 +33,5 @@ public class CompilationReport implements Report {
 
     public boolean isSuccess() {
         return entries.isEmpty();
-    }
-
-    @Override
-    public Kind getKind() {
-        return Kind.COMPILATION;
     }
 }

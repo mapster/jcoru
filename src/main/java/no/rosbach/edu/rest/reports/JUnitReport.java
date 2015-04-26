@@ -9,8 +9,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by mapster on 26.04.15.
  */
-public class JUnitReport implements Report {
-
+public class JUnitReport {
     private int ignored;
     private long runTime;
     private int failedTests;
@@ -21,7 +20,6 @@ public class JUnitReport implements Report {
      * The default constructor.
      */
     public JUnitReport() {
-
     }
 
     /**
@@ -104,8 +102,4 @@ public class JUnitReport implements Report {
         return failures;
     }
 
-    @Override
-    public Kind getKind() {
-        return Kind.JUnit;
-    }
 }

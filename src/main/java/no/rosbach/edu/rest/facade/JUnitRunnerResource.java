@@ -39,12 +39,12 @@ public class JUnitRunnerResource extends CompilerResourceBase {
         // If compilation failed the return compilation report
         CompilationReport compilationReport = reportBuilder.buildReport();
         if(!compilationReport.isSuccess()) {
-            return compilationReport;
+            return new Report(compilationReport);
         }
 
         Stream<? extends Class<?>> loadedClasses = stream(compiledClasses).map(c -> loadClass(c));
         Result testResult = testRunner.test(loadedClasses.filter(c -> c.getSimpleName().endsWith("Test")).collect(toList()));
-        return new JUnitReport(testResult);
+        return new Report(new JUnitReport(testResult));
     }
 
 }
