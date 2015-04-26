@@ -2,17 +2,12 @@ package no.rosbach.edu.rest.facade;
 
 import no.rosbach.edu.compile.fixtures.Fixtures;
 import no.rosbach.edu.filemanager.JavaSourceString;
-import no.rosbach.edu.rest.ErrorMessage;
 import no.rosbach.edu.rest.JavaSourceStringDTO;
 import no.rosbach.edu.rest.reports.CompilationReport;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,19 +17,20 @@ import java.util.List;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureInterfaceSource;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static no.rosbach.edu.utils.Stream.stream;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by mapster on 05.04.15.
  */
-public class CompilerResourceTest extends JerseyTest {
+public class CompilerResourceTest extends ResourceTestBase {
 
     public static final JavaSourceStringDTO TEST_CLASS_SOURCE = new JavaSourceStringDTO(getFixtureSource(Fixtures.TEST_CLASS));
     public static final JavaSourceStringDTO TEST_CLASS_I_SOURCE = new JavaSourceStringDTO(getFixtureInterfaceSource(Fixtures.TEST_CLASS));
 
     @Override
-    protected Application configure() {
-        return new ResourceConfig(CompilerResource.class, DefaultExceptionMapper.class);
+    protected Class[] getFacadesToTest() {
+        return new Class[]{CompilerResource.class};
     }
 
     @Test
@@ -92,28 +88,6 @@ public class CompilerResourceTest extends JerseyTest {
         assertFalse(compilationReport.isSuccess());
     }
 
-    private void expectMessageAndException(Response response, Class<? extends WebApplicationException> expectedException) {
-        try {
-            ErrorMessage msg = response.readEntity(ErrorMessage.class);
-            assertEquals(response.getStatus(), msg.status);
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            ResponseHandler.throwExceptionIfError(response);
-        } catch (WebApplicationException thrown) {
-            assertEquals(expectedException, thrown.getClass());
-        }
-    }
-
-    private Response stringRequest(String s) {
-        Entity entity = null;
-        if(s != null) {
-            entity = Entity.entity(s, MediaType.APPLICATION_JSON);
-        }
-        return target(CompilerResource.COMPILER_PATH).request().post(entity);
-    }
-
     private CompilationReport compileRequest(JavaSourceString... fixtureSource) {
         return compileRequest(stream(fixtureSource).map(JavaSourceStringDTO::new).toArray(JavaSourceStringDTO[]::new));
     }
@@ -127,5 +101,4 @@ public class CompilerResourceTest extends JerseyTest {
 
         return response.readEntity(CompilationReport.class);
     }
-
 }
