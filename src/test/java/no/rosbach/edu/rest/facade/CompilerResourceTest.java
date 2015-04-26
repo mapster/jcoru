@@ -1,6 +1,7 @@
 package no.rosbach.edu.rest.facade;
 
 import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.filemanager.JavaSourceString;
 import no.rosbach.edu.rest.ErrorMessage;
 import no.rosbach.edu.rest.JavaSourceStringDTO;
 import no.rosbach.edu.rest.reports.CompilationReport;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureInterfaceSource;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
@@ -69,13 +71,25 @@ public class CompilerResourceTest extends JerseyTest {
 
     @Test
     public void returnsSuccessForEmptyList() {
-        CompilationReport report = compileRequest();
+        CompilationReport report = compileRequest(new JavaSourceStringDTO[0]);
         assertTrue(report.isSuccess());
     }
 
     @Test
     public void returnsBadRequestForInvalidJson() {
         expectMessageAndException(stringRequest("{\"field:\" 100}"), BadRequestException.class);
+    }
+
+    @Test
+    public void returnsFailingReportForIllegalSyntax() {
+        CompilationReport report = compileRequest(getFixtureSource(Fixtures.ILLEGAL_SYNTAX));
+        assertFalse(report.isSuccess());
+    }
+
+    @Test
+    public void returnsFailingReportWhenReferencedClassIsMissing() {
+        CompilationReport compilationReport = compileRequest(getFixtureSource(Fixtures.TEST_SUBJECT_TEST));
+        assertFalse(compilationReport.isSuccess());
     }
 
     private void expectMessageAndException(Response response, Class<? extends WebApplicationException> expectedException) {
@@ -98,6 +112,10 @@ public class CompilerResourceTest extends JerseyTest {
             entity = Entity.entity(s, MediaType.APPLICATION_JSON);
         }
         return target(CompilerResource.COMPILER_PATH).request().post(entity);
+    }
+
+    private CompilationReport compileRequest(JavaSourceString... fixtureSource) {
+        return compileRequest(StreamSupport.stream(Arrays.spliterator(fixtureSource), false).map(JavaSourceStringDTO::new).toArray(JavaSourceStringDTO[]::new));
     }
 
     private CompilationReport compileRequest(JavaSourceStringDTO... javaSources) {

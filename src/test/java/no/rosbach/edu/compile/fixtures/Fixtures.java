@@ -12,12 +12,19 @@ import java.util.stream.StreamSupport;
  */
 public enum Fixtures {
     AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), FAIL_TEST("FailTest"), SUCCESS_TEST("SuccessTest"),
-    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest");
+    TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX("IllegalSyntax", true);
 
     private final String name;
+    private final boolean notCompilable;
 
     Fixtures(String className) {
         this.name = className;
+        notCompilable = false;
+    }
+
+    Fixtures(String className, boolean notCompilable) {
+        name = className;
+        this.notCompilable = notCompilable;
     }
 
     @Override
@@ -27,7 +34,7 @@ public enum Fixtures {
 
     public static JavaSourceString getFixtureSource(Fixtures className) {
         String fileName = className + ".java";
-        try(InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream("fixtures" + File.separatorChar + fileName)) {
+        try(InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(className) + File.separatorChar + fileName)) {
             return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
         } catch (IOException e) {
             throw new Error("Failed to read fixture java source.", e);
@@ -43,6 +50,13 @@ public enum Fixtures {
         } catch (IOException e) {
             throw new Error(String.format("Failed to read interface for fixture %s", className), e);
         }
+    }
+
+    private static String getSourceDirectory(Fixtures f) {
+        if(f.notCompilable) {
+            return "uncompilable-fixtures";
+        }
+        return "fixtures";
     }
 
     private static String compactPath(String... path) {
