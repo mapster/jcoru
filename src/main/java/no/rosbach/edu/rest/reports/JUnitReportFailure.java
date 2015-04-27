@@ -4,9 +4,6 @@ import org.junit.ComparisonFailure;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 
-/**
- * Created by mapster on 26.04.15.
- */
 public class JUnitReportFailure {
   private String testClassName;
   private String testMethodName;

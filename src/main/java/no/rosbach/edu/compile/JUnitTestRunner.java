@@ -6,9 +6,6 @@ import org.junit.runner.Result;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by mapster on 06.04.15.
- */
 public class JUnitTestRunner {
   private JUnitCore core = new JUnitCore();
 

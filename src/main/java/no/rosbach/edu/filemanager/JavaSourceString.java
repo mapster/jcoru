@@ -4,9 +4,6 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
-/**
- * Created by mapster on 26.11.14.
- */
 public class JavaSourceString extends SimpleJavaFileObject {
   private String sourcecode;
 

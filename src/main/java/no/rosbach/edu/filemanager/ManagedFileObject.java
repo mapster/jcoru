@@ -12,9 +12,6 @@ import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
-/**
- * Created by mapster on 18.03.15.
- */
 public class ManagedFileObject implements JavaFileObject {
   private final JavaFileManager fileManager;
   private final JavaFileObject fileObject;

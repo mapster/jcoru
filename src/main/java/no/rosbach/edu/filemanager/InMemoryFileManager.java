@@ -29,9 +29,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-/**
- * Created by mapster on 30.11.14.
- */
 public class InMemoryFileManager implements JavaFileManager {
   private static final String PROPERTIES_PATH = "filemanager.properties";
   private static final String PROPERTIES_LIST_DELIMITER = ",";

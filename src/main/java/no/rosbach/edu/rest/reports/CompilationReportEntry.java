@@ -4,9 +4,6 @@ import javax.tools.Diagnostic;
 import javax.tools.SimpleJavaFileObject;
 import javax.xml.bind.annotation.XmlTransient;
 
-/**
- * Created by mapster on 24.04.15.
- */
 public class CompilationReportEntry {
   public String message;
   public String code;

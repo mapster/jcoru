@@ -11,9 +11,6 @@ import java.util.List;
 import javax.tools.JavaFileObject;
 import javax.ws.rs.BadRequestException;
 
-/**
- * Created by mapster on 26.04.15.
- */
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
   private final JavaCompiler compiler = new JavaCompiler(reportBuilder);

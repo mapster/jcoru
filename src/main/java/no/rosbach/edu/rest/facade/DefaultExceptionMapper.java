@@ -14,9 +14,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-/**
- * Created by mapster on 25.04.15.
- */
 @Provider
 public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
   private static final Logger LOGGER = LogManager.getLogger();

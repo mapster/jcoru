@@ -5,9 +5,6 @@ import java.util.List;
 import javax.tools.Diagnostic;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Created by mapster on 24.04.15.
- */
 @XmlRootElement
 public class CompilationReport {
   public List<CompilationReportEntry> entries;

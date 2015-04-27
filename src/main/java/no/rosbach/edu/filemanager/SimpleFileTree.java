@@ -1,13 +1,11 @@
 package no.rosbach.edu.filemanager;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.tools.JavaFileObject;
 
-/**
- * Created by mapster on 15.03.15.
- */
 public class SimpleFileTree<T extends JavaFileObject> implements FileTree<T> {
 
   private final Collection<T> files;
@@ -25,7 +23,7 @@ public class SimpleFileTree<T extends JavaFileObject> implements FileTree<T> {
 
   @Override
   public Collection<T> listFiles(String path, boolean recurse) {
-    return files.stream().filter(f -> fileIsInPath(path, f.getName(), recurse)).collect(Collectors.toList());
+    return files.stream().filter(f -> fileIsInPath(path, f.getName(), recurse)).collect(toList());
   }
 
   private boolean fileIsInPath(String path, String name, boolean recurse) {

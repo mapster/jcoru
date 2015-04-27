@@ -9,9 +9,6 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.SimpleJavaFileObject;
 
-/**
- * Created by mapster on 24.04.15.
- */
 public class CompilationReportBuilder implements DiagnosticListener<SimpleJavaFileObject> {
 
   private final List<Diagnostic<? extends SimpleJavaFileObject>> reports = new LinkedList<>();

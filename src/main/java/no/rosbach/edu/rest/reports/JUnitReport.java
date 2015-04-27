@@ -6,9 +6,6 @@ import org.junit.runner.Result;
 
 import java.util.List;
 
-/**
- * Created by mapster on 26.04.15.
- */
 public class JUnitReport {
   private int ignored;
   private long runTime;

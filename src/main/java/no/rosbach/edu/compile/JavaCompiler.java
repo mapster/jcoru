@@ -14,10 +14,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-
-/**
- * Created by mapster on 25.11.14.
- */
 public class JavaCompiler {
 
   private final javax.tools.JavaCompiler compiler;

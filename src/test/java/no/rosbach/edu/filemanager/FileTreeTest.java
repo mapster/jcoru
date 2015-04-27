@@ -1,5 +1,7 @@
 package no.rosbach.edu.filemanager;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -7,16 +9,11 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.tools.JavaFileObject;
 
-/**
- * Created by mapster on 15.03.15.
- */
 public abstract class FileTreeTest {
 
   @Before
@@ -133,6 +130,6 @@ public abstract class FileTreeTest {
   abstract FileTree getFileTree(List<JavaFileObject> files);
 
   private List<JavaFileObject> files(String... names) {
-    return Arrays.stream(names).map(name -> new JavaSourceString(name, "")).collect(Collectors.toList());
+    return stream(names).map(name -> new JavaSourceString(name, "")).collect(toList());
   }
 }

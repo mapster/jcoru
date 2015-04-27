@@ -12,9 +12,6 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
-/**
- * Created by mapster on 08.03.15.
- */
 public class InMemoryClassFile extends SimpleJavaFileObject {
 
   private ByteArrayOutputStream out = new ByteArrayOutputStream();

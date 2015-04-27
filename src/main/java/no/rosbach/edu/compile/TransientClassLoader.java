@@ -8,9 +8,6 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Created by mapster on 30.11.14.
- */
 public class TransientClassLoader extends ClassLoader {
 
   private Map<String, InMemoryClassFile> classStore;

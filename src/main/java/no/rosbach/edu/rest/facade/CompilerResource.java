@@ -12,9 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-/**
- * Root resource (exposed at "myresource" path).
- */
 @Path(CompilerResource.COMPILER_PATH)
 public class CompilerResource extends CompilerResourceBase {
   public static final String COMPILER_PATH = "/compile";

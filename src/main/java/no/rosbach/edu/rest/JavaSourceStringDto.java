@@ -4,9 +4,6 @@ import no.rosbach.edu.filemanager.JavaSourceString;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Created by mapster on 05.04.15.
- */
 @XmlRootElement
 public class JavaSourceStringDto {
 
