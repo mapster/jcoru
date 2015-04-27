@@ -10,10 +10,10 @@ import javax.xml.bind.annotation.XmlTransient;
 public class CompilationReportEntry {
     public String message;
     public String code;
-    private Diagnostic.Kind kind;
     public long lineNumber;
     public long columnNumber;
     public String sourceName;
+    private Diagnostic.Kind kind;
 
     public CompilationReportEntry() {
 
@@ -21,6 +21,7 @@ public class CompilationReportEntry {
 
     /**
      * Create a complete report entry from Diagnostic.
+     *
      * @param diagnostic the diagnostic.
      */
     public CompilationReportEntry(Diagnostic<? extends SimpleJavaFileObject> diagnostic) {

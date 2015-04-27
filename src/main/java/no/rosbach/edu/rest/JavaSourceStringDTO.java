@@ -1,8 +1,8 @@
 package no.rosbach.edu.rest;
 
-import no.rosbach.edu.filemanager.JavaSourceString;
-
 import javax.xml.bind.annotation.XmlRootElement;
+
+import no.rosbach.edu.filemanager.JavaSourceString;
 
 /**
  * Created by mapster on 05.04.15.
@@ -13,7 +13,8 @@ public class JavaSourceStringDTO {
     public String filename;
     public String sourcecode;
 
-    public JavaSourceStringDTO() {}
+    public JavaSourceStringDTO() {
+    }
 
     public JavaSourceStringDTO(String filename, String sourcecode) {
         this.filename = filename;
@@ -31,25 +32,23 @@ public class JavaSourceStringDTO {
 
     @Override
     public boolean equals(Object o) {
-        if(o == null || !(o instanceof JavaSourceStringDTO)) {
+        if (o == null || !(o instanceof JavaSourceStringDTO)) {
             return false;
         }
 
         JavaSourceStringDTO other = (JavaSourceStringDTO) o;
 
-        if(other.filename == null) {
-            if(filename != null) {
+        if (other.filename == null) {
+            if (filename != null) {
                 return false;
             }
-        }
-        else if(!other.filename.equals(filename)) {
+        } else if (!other.filename.equals(filename)) {
             return false;
         }
 
-        if(other.sourcecode == null) {
+        if (other.sourcecode == null) {
             return sourcecode == null;
-        }
-        else {
+        } else {
             return other.sourcecode.equals(sourcecode);
         }
     }

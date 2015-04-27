@@ -1,11 +1,12 @@
 package no.rosbach.edu.compile;
 
 
-import no.rosbach.edu.filemanager.InMemoryClassFile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.util.Map;
+
+import no.rosbach.edu.filemanager.InMemoryClassFile;
 
 /**
  * Created by mapster on 30.11.14.
@@ -25,7 +26,7 @@ public class TransientClassLoader extends ClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        if(classStore.containsKey(name)){
+        if (classStore.containsKey(name)) {
             return findClass(name);
         }
         return super.loadClass(name);
@@ -34,7 +35,7 @@ public class TransientClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         Class<?> clazz = findLoadedClass(name);
-        if(clazz != null) {
+        if (clazz != null) {
             return clazz;
         }
 

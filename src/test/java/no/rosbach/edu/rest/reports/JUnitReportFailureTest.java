@@ -1,12 +1,13 @@
 package no.rosbach.edu.rest.reports;
 
-import no.rosbach.edu.compile.JUnitRunnerTestBase;
-import no.rosbach.edu.compile.fixtures.Fixtures;
 import org.junit.Before;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+
+import no.rosbach.edu.compile.JUnitRunnerTestBase;
+import no.rosbach.edu.compile.fixtures.Fixtures;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
@@ -21,6 +22,10 @@ public class JUnitReportFailureTest extends JUnitRunnerTestBase {
     private Failure resultCmpFailure;
     private JUnitReportFailure reportCmpFailure;
 
+    private static boolean isComparisonFailure(Failure f) {
+        return f.getException() instanceof ComparisonFailure;
+    }
+
     @Before
     public void prepare() {
         result = runTests(compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST)));
@@ -29,12 +34,8 @@ public class JUnitReportFailureTest extends JUnitRunnerTestBase {
         reportCmpFailure = jUnitReport.getFailures().stream().filter(this::isSameFailureAsResultCmpFailure).findFirst().orElseThrow(() -> new Error("Failure not copied into report."));
     }
 
-    private static boolean isComparisonFailure(Failure f) {
-        return f.getException() instanceof ComparisonFailure;
-    }
-
     private boolean isSameFailureAsResultCmpFailure(JUnitReportFailure f) {
-        return String.format("%s(%s)",f.getTestMethodName(), f.getTestClassName()).equals(resultCmpFailure.getTestHeader());
+        return String.format("%s(%s)", f.getTestMethodName(), f.getTestClassName()).equals(resultCmpFailure.getTestHeader());
     }
 
     @Test

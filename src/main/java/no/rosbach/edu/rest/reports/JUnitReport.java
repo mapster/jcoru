@@ -24,7 +24,6 @@ public class JUnitReport {
 
     /**
      * Construct a report from Junit Runner Result.
-     * @param junitResult
      */
     public JUnitReport(Result junitResult) {
         tests = junitResult.getRunCount();
@@ -36,6 +35,7 @@ public class JUnitReport {
 
     /**
      * The number of ignored tests.
+     *
      * @return ignored tests.
      */
     public int getIgnored() {
@@ -44,6 +44,7 @@ public class JUnitReport {
 
     /**
      * Set the number of ignored tests.
+     *
      * @param ignored ignored tests.
      */
     public void setIgnored(int ignored) {
@@ -52,6 +53,7 @@ public class JUnitReport {
 
     /**
      * The run time of the test suite in milliseconds.
+     *
      * @return run time in ms.
      */
     public long getRunTime() {
@@ -60,7 +62,6 @@ public class JUnitReport {
 
     /**
      * Set the run time of the test suite in milliseconds.
-     * @param runTime
      */
     public void setRunTime(long runTime) {
         this.runTime = runTime;
@@ -68,6 +69,7 @@ public class JUnitReport {
 
     /**
      * The number of failed tests.
+     *
      * @return failed tests.
      */
     public int getFailedTests() {
@@ -76,7 +78,6 @@ public class JUnitReport {
 
     /**
      * Set the number of failed tests.
-     * @param failedTests
      */
     public void setFailedTests(int failedTests) {
         this.failedTests = failedTests;
@@ -84,6 +85,7 @@ public class JUnitReport {
 
     /**
      * The total number of tests run.
+     *
      * @return total tests.
      */
     public int getTests() {
@@ -92,7 +94,6 @@ public class JUnitReport {
 
     /**
      * Set the total number of tests run.
-     * @param tests
      */
     public void setTests(int tests) {
         this.tests = tests;
@@ -100,6 +101,7 @@ public class JUnitReport {
 
     /**
      * List of failed test descriptions.
+     *
      * @return list of failure entries.
      */
     public List<JUnitReportFailure> getFailures() {
@@ -108,6 +110,7 @@ public class JUnitReport {
 
     /**
      * Set the test failure descriptions.
+     *
      * @param failures list of failures.
      */
     public void setFailures(List<JUnitReportFailure> failures) {

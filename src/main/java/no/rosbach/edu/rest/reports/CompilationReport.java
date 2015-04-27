@@ -1,16 +1,17 @@
 package no.rosbach.edu.rest.reports;
 
+import java.util.List;
+
 import javax.tools.Diagnostic;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
  * Created by mapster on 24.04.15.
  */
 @XmlRootElement
 public class CompilationReport {
-    private Diagnostic.Kind reportLevel;
     public List<CompilationReportEntry> entries;
+    private Diagnostic.Kind reportLevel;
 
     public CompilationReport() {
     }
@@ -21,10 +22,10 @@ public class CompilationReport {
     }
 
     public String getReportLevel() {
-        if(reportLevel == null) {
+        if (reportLevel == null) {
             return "SUCCESS";
         }
-       return reportLevel.name();
+        return reportLevel.name();
     }
 
     public void setReportLevel(String level) {

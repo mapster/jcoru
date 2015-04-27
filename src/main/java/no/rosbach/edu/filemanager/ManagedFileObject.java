@@ -1,11 +1,16 @@
 package no.rosbach.edu.filemanager;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.URI;
+
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import java.io.*;
-import java.net.URI;
 
 /**
  * Created by mapster on 18.03.15.
@@ -20,8 +25,8 @@ public class ManagedFileObject implements JavaFileObject {
     }
 
     public static JavaFileObject getManagedFileObject(JavaFileObject object) {
-        if(object instanceof ManagedFileObject) {
-            return ((ManagedFileObject)object).fileObject;
+        if (object instanceof ManagedFileObject) {
+            return ((ManagedFileObject) object).fileObject;
         }
         return object;
     }

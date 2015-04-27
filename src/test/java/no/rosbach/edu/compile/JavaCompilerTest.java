@@ -1,17 +1,20 @@
 package no.rosbach.edu.compile;
 
 import com.sun.tools.javac.util.ClientCodeException;
-import no.rosbach.edu.compile.fixtures.Fixtures;
-import no.rosbach.edu.filemanager.JavaSourceString;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
+
+import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.filemanager.JavaSourceString;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
@@ -26,6 +29,14 @@ public class JavaCompilerTest {
     private static final JavaSourceString AGGREGATION_CLASS_SOURCE = new JavaSourceString("Aggregation.java", "public class Aggregation { Contained value = new Contained(); public Contained getValue() { return value; } public String getContainedValue() { return value.getActualValue(); } }");
     private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString("Contained.java", "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
     private JavaCompiler compiler;
+
+    private static <T> List<T> collect(Iterable<T> it) {
+        List<T> list = new LinkedList<>();
+        for (T e : it) {
+            list.add(e);
+        }
+        return list;
+    }
 
     @Before
     public void setStage() {
@@ -68,14 +79,5 @@ public class JavaCompilerTest {
 
     private Iterable<? extends JavaFileObject> compile(JavaSourceString... source) {
         return compiler.compile(Arrays.asList(source));
-    }
-
-
-    private static <T> List<T> collect(Iterable<T> it) {
-        List<T> list = new LinkedList<>();
-        for(T e: it) {
-            list.add(e);
-        }
-        return list;
     }
 }

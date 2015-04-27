@@ -3,31 +3,41 @@ package no.rosbach.edu.filemanager;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
 
 import static javax.tools.JavaFileObject.Kind;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by mapster on 09.03.15.
  */
 public class InMemoryFileManagerTest {
 
+    public static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
     private static final String PACKAGE = "package/sub";
     private static final String CLASS_NAME = "MyClass";
     private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
     private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
-    public static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
     private JavaFileManager systemFileManager;
     private InMemoryFileManager inMemoryFileManager;
     private HashMap<String, InMemoryClassFile> classStore;
@@ -49,16 +59,18 @@ public class InMemoryFileManagerTest {
 
     /**
      * Verify type when Location: CLASS_OUTPUT && sibling is a JavaSourceString
+     *
      * @throws IOException never.
      */
     @Test
-    public void getJavaFileForOutputShouldProvideInMemoryClassFileForClassOutputLocationAndJavaSourceStringSibling () throws IOException {
+    public void getJavaFileForOutputShouldProvideInMemoryClassFileForClassOutputLocationAndJavaSourceStringSibling() throws IOException {
         JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
         assertTrue(ManagedFileObject.getManagedFileObject(javaFileForOutput) instanceof InMemoryClassFile);
     }
 
     /**
      * Verify uri when Location: CLASS_OUTPUT && sibling is a JavaSourceString
+     *
      * @throws IOException never.
      */
     @Test
@@ -69,10 +81,9 @@ public class InMemoryFileManagerTest {
 
     /**
      * Verify that objects are wrapped as ManagedFileObject
-     * @throws IOException
      */
     @Test
-    public void getJavaFileForOutputShouldProvideManagedFileObjects () throws IOException {
+    public void getJavaFileForOutputShouldProvideManagedFileObjects() throws IOException {
         JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
         assertTrue(javaFileForOutput instanceof ManagedFileObject);
     }
@@ -221,7 +232,7 @@ public class InMemoryFileManagerTest {
     private List<JavaFileObject> list(StandardLocation location, String path, Set<Kind> kinds, boolean recurse) {
         try {
             List<JavaFileObject> list = new LinkedList<>();
-            for(JavaFileObject file: inMemoryFileManager.list(location, path, kinds, recurse)) {
+            for (JavaFileObject file : inMemoryFileManager.list(location, path, kinds, recurse)) {
                 list.add(file);
             }
             return list;

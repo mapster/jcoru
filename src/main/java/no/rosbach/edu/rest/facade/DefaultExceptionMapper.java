@@ -1,16 +1,18 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.rest.ErrorMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
+import no.rosbach.edu.rest.ErrorMessage;
 
 /**
  * Created by mapster on 25.04.15.
@@ -35,7 +37,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
     private void setHttpStatus(Throwable exception, ErrorMessage msg) {
-        if(exception instanceof WebApplicationException) {
+        if (exception instanceof WebApplicationException) {
             msg.status = ((WebApplicationException) exception).getResponse().getStatus();
         } else {
             msg.status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();

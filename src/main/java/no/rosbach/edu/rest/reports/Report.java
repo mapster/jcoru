@@ -7,19 +7,17 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Report {
-    public Report() {
+    public JUnitReport jUnitReport;
+    public CompilationReport compilationReport;
 
+    public Report() {
     }
 
     public Report(JUnitReport report) {
         this.jUnitReport = report;
     }
-
     public Report(CompilationReport report) {
         this.compilationReport = report;
     }
-
-    public JUnitReport jUnitReport;
-    public CompilationReport compilationReport;
 
 }

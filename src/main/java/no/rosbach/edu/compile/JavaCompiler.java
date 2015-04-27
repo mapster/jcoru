@@ -1,24 +1,26 @@
 package no.rosbach.edu.compile;
 
 import com.sun.source.util.JavacTask;
-import no.rosbach.edu.filemanager.InMemoryFileManager;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+
+import no.rosbach.edu.filemanager.InMemoryFileManager;
 
 /**
  * Created by mapster on 25.11.14.
  */
 public class JavaCompiler {
 
-    InMemoryFileManager fileManager;
     private final javax.tools.JavaCompiler compiler;
+    InMemoryFileManager fileManager;
     private DiagnosticListener diagnosticListener;
 
     public JavaCompiler() {

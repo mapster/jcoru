@@ -5,5 +5,6 @@ package no.rosbach.edu.compile.fixtures;
  */
 public interface TestClass {
     String testResult = "A string value";
+
     public String test();
 }

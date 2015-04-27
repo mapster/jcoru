@@ -3,9 +3,14 @@ package no.rosbach.edu.filemanager;
 
 import org.apache.commons.io.IOUtils;
 
-import javax.tools.SimpleJavaFileObject;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+
+import javax.tools.SimpleJavaFileObject;
 
 /**
  * Created by mapster on 08.03.15.

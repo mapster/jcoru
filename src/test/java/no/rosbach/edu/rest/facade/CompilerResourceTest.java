@@ -1,11 +1,12 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.rest.JavaSourceStringDTO;
-import no.rosbach.edu.rest.reports.CompilationReport;
 import org.junit.Test;
 
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
+
+import no.rosbach.edu.rest.JavaSourceStringDTO;
+import no.rosbach.edu.rest.reports.CompilationReport;
 
 import static org.junit.Assert.assertTrue;
 

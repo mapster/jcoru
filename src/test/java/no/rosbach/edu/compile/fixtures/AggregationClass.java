@@ -5,5 +5,6 @@ package no.rosbach.edu.compile.fixtures;
  */
 public interface AggregationClass {
     public ContainedClass getValue();
+
     public String getContainedValue();
 }

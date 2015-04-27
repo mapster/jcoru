@@ -1,14 +1,12 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.compile.fixtures.Fixtures;
-import no.rosbach.edu.filemanager.JavaSourceString;
-import no.rosbach.edu.rest.ErrorMessage;
-import no.rosbach.edu.rest.JavaSourceStringDTO;
-import no.rosbach.edu.rest.reports.CompilationReport;
 import org.apache.commons.lang3.ArrayUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
@@ -18,13 +16,19 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.List;
+
+import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.filemanager.JavaSourceString;
+import no.rosbach.edu.rest.ErrorMessage;
+import no.rosbach.edu.rest.JavaSourceStringDTO;
+import no.rosbach.edu.rest.reports.CompilationReport;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureInterfaceSource;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static no.rosbach.edu.utils.Stream.stream;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * Created by mapster on 26.04.15.
@@ -36,7 +40,9 @@ public abstract class CompilerResourceTestBase extends JerseyTest {
     private static final Class[] RESPONSE_MAPPERS = {DefaultExceptionMapper.class};
 
     protected abstract Class[] getFacadesToTest();
+
     protected abstract Invocation.Builder request();
+
     protected abstract CompilationReport compilationReportFromResponse(Response response);
 
     @Override
@@ -46,7 +52,7 @@ public abstract class CompilerResourceTestBase extends JerseyTest {
 
     protected Response stringRequest(String s) {
         Entity entity = null;
-        if(s != null) {
+        if (s != null) {
             entity = Entity.entity(s, MediaType.APPLICATION_JSON);
         }
         return request().post(entity);
@@ -68,6 +74,7 @@ public abstract class CompilerResourceTestBase extends JerseyTest {
 
     /**
      * Perform a request where CompilationReport is the expected response.
+     *
      * @param javaSources the java sources to compile.
      * @return a report of the compilation.
      */
@@ -77,12 +84,14 @@ public abstract class CompilerResourceTestBase extends JerseyTest {
 
     /**
      * Perform a request where CompilationReport is the expected response.
+     *
      * @param javaSources the java sources to compile.
      * @return a report of the compilation.
      */
     protected CompilationReport compilationReportRequest(JavaSourceStringDTO... javaSources) {
         List<JavaSourceStringDTO> entity = Arrays.asList(javaSources);
-        GenericEntity<List<JavaSourceStringDTO>> listGenericEntity = new GenericEntity<List<JavaSourceStringDTO>>(entity) {};
+        GenericEntity<List<JavaSourceStringDTO>> listGenericEntity = new GenericEntity<List<JavaSourceStringDTO>>(entity) {
+        };
 
         Response response = request().post(Entity.entity(listGenericEntity, MediaType.APPLICATION_JSON));
         ResponseHandler.throwExceptionIfError(response);

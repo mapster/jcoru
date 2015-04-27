@@ -1,10 +1,15 @@
 package no.rosbach.edu.compile.fixtures;
 
-import no.rosbach.edu.filemanager.JavaSourceString;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+
+import no.rosbach.edu.filemanager.JavaSourceString;
 
 import static java.util.stream.Collectors.toList;
 import static no.rosbach.edu.utils.Stream.stream;
@@ -29,18 +34,13 @@ public enum Fixtures {
         this.notCompilable = notCompilable;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     public static List<JavaSourceString> getFixtureSources(Fixtures... fixtures) {
         return stream(fixtures).map(Fixtures::getFixtureSource).collect(toList());
     }
 
     public static JavaSourceString getFixtureSource(Fixtures fixture) {
         String fileName = fixture + ".java";
-        try(InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(fixture) + File.separatorChar + fileName)) {
+        try (InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(fixture) + File.separatorChar + fileName)) {
             return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
         } catch (IOException e) {
             throw new Error("Failed to read fixture java source.", e);
@@ -49,7 +49,7 @@ public enum Fixtures {
 
     public static JavaSourceString getFixtureInterfaceSource(Fixtures className) {
         String fileName = className + ".java";
-        try (InputStream sourceStream = new FileInputStream(compactPath("src","test","java","no","rosbach","edu","compile","fixtures", fileName))) {
+        try (InputStream sourceStream = new FileInputStream(compactPath("src", "test", "java", "no", "rosbach", "edu", "compile", "fixtures", fileName))) {
             return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
         } catch (FileNotFoundException e) {
             throw new Error(String.format("Could not find interface source for fixture %s", className), e);
@@ -59,7 +59,7 @@ public enum Fixtures {
     }
 
     private static String getSourceDirectory(Fixtures f) {
-        if(f.notCompilable) {
+        if (f.notCompilable) {
             return "uncompilable-fixtures";
         }
         return "fixtures";
@@ -67,5 +67,10 @@ public enum Fixtures {
 
     private static String compactPath(String... path) {
         return stream(path).reduce((s1, s2) -> s1 + File.separatorChar + s2).get();
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

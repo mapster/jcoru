@@ -1,8 +1,9 @@
 package no.rosbach.edu.rest;
 
+import org.junit.Test;
+
 import no.rosbach.edu.compile.fixtures.Fixtures;
 import no.rosbach.edu.filemanager.JavaSourceString;
-import org.junit.Test;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;

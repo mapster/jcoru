@@ -1,10 +1,11 @@
 package no.rosbach.edu.rest.reports;
 
-import no.rosbach.edu.compile.JUnitRunnerTestBase;
-import no.rosbach.edu.compile.fixtures.Fixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Result;
+
+import no.rosbach.edu.compile.JUnitRunnerTestBase;
+import no.rosbach.edu.compile.fixtures.Fixtures;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;

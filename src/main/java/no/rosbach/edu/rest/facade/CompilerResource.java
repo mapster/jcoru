@@ -1,15 +1,16 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.rest.CompilerResourceBase;
-import no.rosbach.edu.rest.JavaSourceStringDTO;
-import no.rosbach.edu.rest.reports.CompilationReport;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+
+import no.rosbach.edu.rest.CompilerResourceBase;
+import no.rosbach.edu.rest.JavaSourceStringDTO;
+import no.rosbach.edu.rest.reports.CompilationReport;
 
 /**
  * Root resource (exposed at "myresource" path)

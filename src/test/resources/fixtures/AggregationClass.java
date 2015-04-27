@@ -1,4 +1,3 @@
-
 public class AggregationClass implements no.rosbach.edu.compile.fixtures.AggregationClass {
     ContainedClass value = new ContainedClass();
 

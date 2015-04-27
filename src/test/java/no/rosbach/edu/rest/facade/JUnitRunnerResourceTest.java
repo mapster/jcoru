@@ -1,12 +1,8 @@
 package no.rosbach.edu.rest.facade;
 
-import no.rosbach.edu.compile.fixtures.Fixtures;
-import no.rosbach.edu.filemanager.JavaSourceString;
-import no.rosbach.edu.rest.JavaSourceStringDTO;
-import no.rosbach.edu.rest.reports.CompilationReport;
-import no.rosbach.edu.rest.reports.JUnitReport;
-import no.rosbach.edu.rest.reports.Report;
 import org.junit.Test;
+
+import java.util.List;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
@@ -14,7 +10,13 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+
+import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.filemanager.JavaSourceString;
+import no.rosbach.edu.rest.JavaSourceStringDTO;
+import no.rosbach.edu.rest.reports.CompilationReport;
+import no.rosbach.edu.rest.reports.JUnitReport;
+import no.rosbach.edu.rest.reports.Report;
 
 import static java.util.stream.Collectors.toList;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSources;
@@ -44,12 +46,14 @@ public class JUnitRunnerResourceTest extends CompilerResourceTestBase {
 
     /**
      * Perform a request where JUnitReport is the expected response.
+     *
      * @param javaSources the java sources to run tests on.
      * @return a report of the test execution.
      */
     protected JUnitReport junitReportRequest(List<JavaSourceString> javaSources) {
         List<JavaSourceStringDTO> entity = stream(javaSources).map(JavaSourceStringDTO::new).collect(toList());
-        GenericEntity<List<JavaSourceStringDTO>> listGenericEntity = new GenericEntity<List<JavaSourceStringDTO>>(entity) {};
+        GenericEntity<List<JavaSourceStringDTO>> listGenericEntity = new GenericEntity<List<JavaSourceStringDTO>>(entity) {
+        };
 
         Response response = request().post(Entity.entity(listGenericEntity, MediaType.APPLICATION_JSON));
         ResponseHandler.throwExceptionIfError(response);

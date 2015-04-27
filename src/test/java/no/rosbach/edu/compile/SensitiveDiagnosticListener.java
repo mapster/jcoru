@@ -1,8 +1,9 @@
 package no.rosbach.edu.compile;
 
+import java.util.Locale;
+
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
-import java.util.Locale;
 
 /**
  * Created by mapster on 16.03.15.
@@ -10,7 +11,7 @@ import java.util.Locale;
 public class SensitiveDiagnosticListener implements DiagnosticListener {
     @Override
     public void report(Diagnostic diagnostic) {
-        throw new CompilationError("Failed to compile:  " +diagnostic.getMessage(Locale.ENGLISH));
+        throw new CompilationError("Failed to compile:  " + diagnostic.getMessage(Locale.ENGLISH));
     }
 
     public static class CompilationError extends Error {

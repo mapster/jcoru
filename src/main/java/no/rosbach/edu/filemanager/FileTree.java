@@ -1,7 +1,8 @@
 package no.rosbach.edu.filemanager;
 
-import javax.tools.JavaFileObject;
 import java.util.Collection;
+
+import javax.tools.JavaFileObject;
 
 /**
  * Created by mapster on 15.03.15.
@@ -10,6 +11,7 @@ public interface FileTree<T extends JavaFileObject> {
     String PATH_SEPARATOR = "/";
 
     public void add(T file);
+
     public Collection<T> listFiles(String path, boolean recurse);
 
 

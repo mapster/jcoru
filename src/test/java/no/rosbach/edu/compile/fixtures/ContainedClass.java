@@ -5,5 +5,6 @@ package no.rosbach.edu.compile.fixtures;
  */
 public interface ContainedClass {
     String actualValue = "the actual value to be returned";
+
     public String getActualValue();
 }

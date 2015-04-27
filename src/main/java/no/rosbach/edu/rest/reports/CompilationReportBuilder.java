@@ -1,10 +1,11 @@
 package no.rosbach.edu.rest.reports;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.SimpleJavaFileObject;
-import java.util.LinkedList;
-import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 

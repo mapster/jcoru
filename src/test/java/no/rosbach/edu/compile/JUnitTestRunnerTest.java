@@ -1,6 +1,5 @@
 package no.rosbach.edu.compile;
 
-import no.rosbach.edu.compile.fixtures.Fixtures;
 import org.junit.Test;
 import org.junit.runner.Result;
 
@@ -8,8 +7,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import no.rosbach.edu.compile.fixtures.Fixtures;
+
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by mapster on 06.04.15.

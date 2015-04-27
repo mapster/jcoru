@@ -1,11 +1,13 @@
 package no.rosbach.edu.compile;
 
-import no.rosbach.edu.filemanager.JavaSourceString;
 import org.junit.Before;
 import org.junit.runner.Result;
 
-import javax.tools.JavaFileObject;
 import java.util.List;
+
+import javax.tools.JavaFileObject;
+
+import no.rosbach.edu.filemanager.JavaSourceString;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -34,7 +36,7 @@ public class JUnitRunnerTestBase {
         try {
             return classLoader.loadClass(javaFile.getName());
         } catch (ClassNotFoundException e) {
-            throw new Error("Could not load class: "+javaFile.getName(), e);
+            throw new Error("Could not load class: " + javaFile.getName(), e);
         }
     }
 

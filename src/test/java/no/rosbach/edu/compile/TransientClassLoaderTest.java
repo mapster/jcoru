@@ -1,9 +1,5 @@
 package no.rosbach.edu.compile;
 
-import no.rosbach.edu.compile.fixtures.AggregationClass;
-import no.rosbach.edu.compile.fixtures.ContainedClass;
-import no.rosbach.edu.compile.fixtures.TestClass;
-import no.rosbach.edu.filemanager.InMemoryClassFile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +9,16 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import no.rosbach.edu.compile.fixtures.AggregationClass;
+import no.rosbach.edu.compile.fixtures.ContainedClass;
+import no.rosbach.edu.compile.fixtures.TestClass;
+import no.rosbach.edu.filemanager.InMemoryClassFile;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by mapster on 14.03.15.
