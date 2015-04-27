@@ -41,6 +41,7 @@ public class JUnitRunnerResourceTest extends CompilerResourceTestBase {
     protected CompilationReport compilationReportFromResponse(Response response) {
         return response.readEntity(Report.class).compilationReport;
     }
+
     /**
      * Perform a request where JUnitReport is the expected response.
      * @param javaSources the java sources to run tests on.
