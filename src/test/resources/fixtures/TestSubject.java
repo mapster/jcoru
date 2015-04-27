@@ -3,7 +3,7 @@
  */
 public class TestSubject {
 
-    public boolean returnTrue() {
-        return true;
-    }
+  public boolean returnTrue() {
+    return true;
+  }
 }

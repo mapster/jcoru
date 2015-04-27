@@ -1,11 +1,11 @@
 public class AggregationClass implements no.rosbach.edu.compile.fixtures.AggregationClass {
-    ContainedClass value = new ContainedClass();
+  ContainedClass value = new ContainedClass();
 
-    public ContainedClass getValue() {
-        return value;
-    }
+  public ContainedClass getValue() {
+    return value;
+  }
 
-    public String getContainedValue() {
-        return value.getActualValue();
-    }
+  public String getContainedValue() {
+    return value.getActualValue();
+  }
 }

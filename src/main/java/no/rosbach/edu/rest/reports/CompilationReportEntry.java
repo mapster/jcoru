@@ -8,41 +8,41 @@ import javax.xml.bind.annotation.XmlTransient;
  * Created by mapster on 24.04.15.
  */
 public class CompilationReportEntry {
-    public String message;
-    public String code;
-    public long lineNumber;
-    public long columnNumber;
-    public String sourceName;
-    private Diagnostic.Kind kind;
+  public String message;
+  public String code;
+  public long lineNumber;
+  public long columnNumber;
+  public String sourceName;
+  private Diagnostic.Kind kind;
 
-    public CompilationReportEntry() {
+  public CompilationReportEntry() {
 
-    }
+  }
 
-    /**
-     * Create a complete report entry from Diagnostic.
-     *
-     * @param diagnostic the diagnostic.
-     */
-    public CompilationReportEntry(Diagnostic<? extends SimpleJavaFileObject> diagnostic) {
-        message = diagnostic.getMessage(null);
-        code = diagnostic.getCode();
-        kind = diagnostic.getKind();
-        lineNumber = diagnostic.getLineNumber();
-        columnNumber = diagnostic.getColumnNumber();
-        sourceName = diagnostic.getSource().getName();
-    }
+  /**
+   * Create a complete report entry from Diagnostic.
+   *
+   * @param diagnostic the diagnostic.
+   */
+  public CompilationReportEntry(Diagnostic<? extends SimpleJavaFileObject> diagnostic) {
+    message = diagnostic.getMessage(null);
+    code = diagnostic.getCode();
+    kind = diagnostic.getKind();
+    lineNumber = diagnostic.getLineNumber();
+    columnNumber = diagnostic.getColumnNumber();
+    sourceName = diagnostic.getSource().getName();
+  }
 
-    public String getKind() {
-        return kind.name();
-    }
+  public String getKind() {
+    return kind.name();
+  }
 
-    public void setKind(String kind) {
-        this.kind = Diagnostic.Kind.valueOf(kind);
-    }
+  public void setKind(String kind) {
+    this.kind = Diagnostic.Kind.valueOf(kind);
+  }
 
-    @XmlTransient
-    public Diagnostic.Kind getDiagnosticKind() {
-        return kind;
-    }
+  @XmlTransient
+  public Diagnostic.Kind getDiagnosticKind() {
+    return kind;
+  }
 }

@@ -1,5 +1,7 @@
 package no.rosbach.edu.rest.facade;
 
+import no.rosbach.edu.rest.ErrorMessage;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,36 +14,34 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import no.rosbach.edu.rest.ErrorMessage;
-
 /**
  * Created by mapster on 25.04.15.
  */
 @Provider
 public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
-    private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LogManager.getLogger();
 
-    @Override
-    public Response toResponse(Throwable exception) {
-        ErrorMessage msg = new ErrorMessage();
-        setHttpStatus(exception, msg);
-        msg.message = exception.getMessage();
+  @Override
+  public Response toResponse(Throwable exception) {
+    ErrorMessage msg = new ErrorMessage();
+    setHttpStatus(exception, msg);
+    msg.message = exception.getMessage();
 
-        // Set developer message
-        StringWriter stackTrace = new StringWriter();
-        exception.printStackTrace(new PrintWriter(stackTrace));
-        msg.developerMessage = stackTrace.toString();
+    // Set developer message
+    StringWriter stackTrace = new StringWriter();
+    exception.printStackTrace(new PrintWriter(stackTrace));
+    msg.developerMessage = stackTrace.toString();
 
-        LOGGER.debug("Exception response.", exception);
-        return Response.status(msg.status).entity(msg).type(MediaType.APPLICATION_JSON).build();
+    LOGGER.debug("Exception response.", exception);
+    return Response.status(msg.status).entity(msg).type(MediaType.APPLICATION_JSON).build();
+  }
+
+  private void setHttpStatus(Throwable exception, ErrorMessage msg) {
+    if (exception instanceof WebApplicationException) {
+      msg.status = ((WebApplicationException) exception).getResponse().getStatus();
+    } else {
+      msg.status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+      LOGGER.error("Internal server error.", exception);
     }
-
-    private void setHttpStatus(Throwable exception, ErrorMessage msg) {
-        if (exception instanceof WebApplicationException) {
-            msg.status = ((WebApplicationException) exception).getResponse().getStatus();
-        } else {
-            msg.status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-            LOGGER.error("Internal server error.", exception);
-        }
-    }
+  }
 }

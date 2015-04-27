@@ -4,7 +4,7 @@ package no.rosbach.edu.compile.fixtures;
  * Created by mapster on 14.03.15.
  */
 public interface TestClass {
-    String testResult = "A string value";
+  String testResult = "A string value";
 
-    public String test();
+  public String test();
 }

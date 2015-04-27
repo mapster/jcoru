@@ -14,7 +14,7 @@ public class ResponseHandler {
                 throw new BadRequestException();
             case INTERNAL_SERVER_ERROR:
                 throw new InternalServerErrorException();
-        }
+    }
         if (response.getStatus() >= Response.Status.BAD_REQUEST.getStatusCode()) {
             throw new RuntimeException("Unhandled error response: " + response.getStatus());
         }

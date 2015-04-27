@@ -1,11 +1,17 @@
 package no.rosbach.edu.compile;
 
 /**
- * Created by mapster on 26.04.15.
+ * Exception indicating a non recoverable error. Used to wrap checked exceptions as runtime exceptions.
  */
 public class NonRecoverableError extends RuntimeException {
 
-    public NonRecoverableError(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+  /**
+   * Construct exception.
+   *
+   * @param msg   message.
+   * @param cause cause exception.
+   */
+  public NonRecoverableError(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

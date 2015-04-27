@@ -4,11 +4,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>no.rosbach.edu</groupId>
-    <artifactId>java-compile-service</artifactId>
+    <groupId>no.rosbach</groupId>
+    <artifactId>jcoru</artifactId>
     <packaging>war</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>Java Compile Service</name>
+    <name>Java Compile and Run Service</name>
 
     <profiles>
         <profile>
@@ -81,9 +81,8 @@
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
-                            <configLocation>google_checks-6.1.1.xml</configLocation>
                             <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
+                            <consoleOutput>false</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <!-- <linkXRef>false</linkXRef> -->
                         </configuration>
@@ -102,15 +101,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.15</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
             </plugin>
-
             <!--
                 ## Disable location checks in site report.
             -->
@@ -202,5 +193,6 @@
     <properties>
         <jersey.version>2.13</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <checkstyle.config.location>google_checks-6.1.1.xml</checkstyle.config.location>
     </properties>
 </project>

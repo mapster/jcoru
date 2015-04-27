@@ -8,25 +8,25 @@ import javax.tools.JavaFileObject;
  * Created by mapster on 15.03.15.
  */
 public interface FileTree<T extends JavaFileObject> {
-    String PATH_SEPARATOR = "/";
+  String PATH_SEPARATOR = "/";
 
-    public void add(T file);
+  public void add(T file);
 
-    public Collection<T> listFiles(String path, boolean recurse);
+  public Collection<T> listFiles(String path, boolean recurse);
 
 
-    enum PathSeparator {
-        FILESYSTEM(PATH_SEPARATOR), PACKAGE(".");
+  enum PathSeparator {
+    FILESYSTEM(PATH_SEPARATOR), PACKAGE(".");
 
-        private final String separator;
+    private final String separator;
 
-        private PathSeparator(String separator) {
-            this.separator = separator;
-        }
-
-        @Override
-        public String toString() {
-            return separator;
-        }
+    private PathSeparator(String separator) {
+      this.separator = separator;
     }
+
+    @Override
+    public String toString() {
+      return separator;
+    }
+  }
 }
