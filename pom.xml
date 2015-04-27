@@ -193,6 +193,6 @@
     <properties>
         <jersey.version>2.13</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <checkstyle.config.location>google_checks-6.1.1.xml</checkstyle.config.location>
+        <checkstyle.config.location>google_checks.xml</checkstyle.config.location>
     </properties>
 </project>
