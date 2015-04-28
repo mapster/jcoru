@@ -1,5 +1,6 @@
 package no.rosbach.edu.rest.reports;
 
+import static no.rosbach.edu.compile.fixtures.Fixtures.FAIL_TEST;
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
 
@@ -9,63 +10,45 @@ import no.rosbach.edu.compile.fixtures.Fixtures;
 import org.junit.Before;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 /**
  * Created by mapster on 26.04.15.
  */
 public class JUnitReportFailureTest extends JUnitRunnerTestBase {
 
-  private JUnitReport jUnitReport;
-  private Result result;
-  private Failure resultCmpFailure;
-  private JUnitReportFailure reportCmpFailure;
-
-  private static boolean isComparisonFailure(Failure f) {
-    return f.getException() instanceof ComparisonFailure;
-  }
+  public static final String TEST_NAME = "failingTest";
+  private JUnitReportFailure failure;
 
   @Before
   public void prepare() {
-    result = runTests(compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST)));
-    resultCmpFailure = result.getFailures().stream().filter(JUnitReportFailureTest::isComparisonFailure).findFirst().orElseThrow(
-        () -> new Error(
-            "Fixture contains no failing tests."));
-    jUnitReport = new JUnitReport(result);
-    reportCmpFailure = jUnitReport.getFailures().stream().filter(this::isSameFailureAsResultCmpFailure).findFirst().orElseThrow(
-        () -> new Error(
-            "Failure not copied into report."));
-  }
-
-  private boolean isSameFailureAsResultCmpFailure(JUnitReportFailure f) {
-    return String.format("%s(%s)", f.getTestMethodName(), f.getTestClassName()).equals(resultCmpFailure.getTestHeader());
+    failure = runTests(getFixtureSource(Fixtures.FAIL_TEST)).junitReport.getFailures().stream()
+        .filter(f -> f.getTestMethodName().equals(TEST_NAME)).findFirst()
+        .orElseThrow(() -> new Error("Fixture contains no failing tests."));
+    ;
   }
 
   @Test
   public void shouldCopyTestClassNameFromDescription() {
-    assertEquals(resultCmpFailure.getDescription().getClassName(), reportCmpFailure.getTestClassName());
+    assertEquals(FAIL_TEST.toString(), failure.getTestClassName());
   }
 
   @Test
   public void shouldCopyTestMethodNameFromDescription() {
-    assertEquals(resultCmpFailure.getDescription().getMethodName(), reportCmpFailure.getTestMethodName());
+    assertEquals(TEST_NAME, failure.getTestMethodName());
   }
 
   @Test
   public void shouldCopyFailureType() {
-    assertEquals(resultCmpFailure.getException().getClass().getSimpleName(), reportCmpFailure.getFailureType());
+    assertEquals(ComparisonFailure.class.getSimpleName(), failure.getFailureType());
   }
 
   @Test
   public void shouldCopyExpectedForComparisonFailure() {
-    ComparisonFailure exception = (ComparisonFailure) resultCmpFailure.getException();
-    assertEquals(exception.getExpected(), reportCmpFailure.getExpected());
+    assertEquals("true", failure.getExpected());
   }
 
   @Test
   public void shouldCopyActualForComparisonFailure() {
-    ComparisonFailure exception = (ComparisonFailure) resultCmpFailure.getException();
-    assertEquals(exception.getActual(), reportCmpFailure.getActual());
+    assertEquals("false", failure.getActual());
   }
 }

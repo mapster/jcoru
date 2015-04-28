@@ -4,7 +4,12 @@ import org.junit.ComparisonFailure;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public class JUnitReportFailure {
+  @XmlTransient
+  private Throwable exception;
+
   private String testClassName;
   private String testMethodName;
   private String failureType;
@@ -28,7 +33,7 @@ public class JUnitReportFailure {
     this.testClassName = desc.getClassName();
     this.testMethodName = desc.getMethodName();
 
-    Throwable exception = failure.getException();
+    this.exception = failure.getException();
     this.failureType = exception.getClass().getSimpleName();
     if (exception instanceof ComparisonFailure) {
       ComparisonFailure cmpFailure = (ComparisonFailure) exception;
@@ -125,5 +130,10 @@ public class JUnitReportFailure {
    */
   public void setActual(String actual) {
     this.actual = actual;
+  }
+
+  @XmlTransient
+  public Throwable getException() {
+    return exception;
   }
 }

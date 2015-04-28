@@ -23,6 +23,10 @@ public class JavaSourceStringDto {
     this.sourcecode = toTransfer.getCharContent(true).toString();
   }
 
+  public static JavaSourceString create(JavaSourceStringDto source) {
+    return source.transfer();
+  }
+
   public JavaSourceString transfer() {
     return new JavaSourceString(filename, sourcecode);
   }

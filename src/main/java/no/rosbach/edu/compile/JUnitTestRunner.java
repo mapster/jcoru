@@ -1,24 +1,62 @@
 package no.rosbach.edu.compile;
 
+import static java.util.stream.Collectors.toList;
+import static no.rosbach.edu.utils.Stream.stream;
+
+import no.rosbach.edu.filemanager.JavaSourceString;
+import no.rosbach.edu.rest.reports.CompilationReport;
+import no.rosbach.edu.rest.reports.CompilationReportBuilder;
+import no.rosbach.edu.rest.reports.JUnitReport;
+import no.rosbach.edu.rest.reports.Report;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class JUnitTestRunner {
-  private JUnitCore core = new JUnitCore();
+import javax.tools.JavaFileObject;
 
-  public JUnitTestRunner() {
+public class JUnitTestRunner implements Runnable {
+  public static final String TEST_CLASS_NAME_POSTFIX = "Test";
+  private final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
+  private final JavaCompiler compiler = new JavaCompiler(reportBuilder);
+  private final JUnitCore core = new JUnitCore();
+  private final List<JavaSourceString> javaSources;
+  private Report report;
 
+  public JUnitTestRunner(List<JavaSourceString> javaSources) {
+    this.javaSources = javaSources;
   }
 
-  public Result test(Class clazz) {
-    return test(Arrays.asList(clazz));
+  @Override
+  public void run() {
+    Iterable<? extends JavaFileObject> compiledClasses = compiler.compile(javaSources);
+
+    // If compilation failed the return compilation report
+    CompilationReport compilationReport = reportBuilder.buildReport();
+    if (!compilationReport.isSuccess()) {
+      this.report = new Report(compilationReport);
+    } else {
+      Stream<? extends Class<?>> loadedClasses = stream(compiledClasses).map(c -> loadClass(c));
+      Result testResult = runTests(loadedClasses.filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList()));
+      this.report = new Report(new JUnitReport(testResult));
+    }
   }
 
-  public Result test(List<Class> classes) {
+  public Report getReport() {
+    return report;
+  }
+
+  private Result runTests(List<Class> classes) {
     return core.run(classes.toArray(new Class[]{}));
   }
 
+  private Class<?> loadClass(JavaFileObject javaFile) {
+    try {
+      return compiler.getClassLoader().loadClass(javaFile.getName());
+    } catch (ClassNotFoundException e) {
+      throw new NonRecoverableError("Could not load class: " + javaFile.getName(), e);
+    }
+  }
 }

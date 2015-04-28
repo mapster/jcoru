@@ -1,18 +1,19 @@
 package no.rosbach.edu.compile;
 
 import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSource;
+import static no.rosbach.edu.compile.fixtures.Fixtures.getFixtureSources;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import no.rosbach.edu.compile.fixtures.Fixtures;
+import no.rosbach.edu.filemanager.JavaSourceString;
+import no.rosbach.edu.rest.reports.Report;
 
 import org.junit.Test;
-import org.junit.runner.Result;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by mapster on 06.04.15.
@@ -21,44 +22,33 @@ public class JUnitTestRunnerTest extends JUnitRunnerTestBase {
 
   @Test
   public void testAcceptsSuccessTestClassesAndReturnsResult() throws IOException, ClassNotFoundException {
-    List<Class> classes = compileAndLoadClasses(getFixtureSource(Fixtures.SUCCESS_TEST));
-    Result test = runTests(classes);
-    assertTrue(test.wasSuccessful());
+    Report report = runTests(getFixtureSource(Fixtures.SUCCESS_TEST));
+    assertTrue(report.junitReport.getFailures().isEmpty());
   }
 
   @Test
   public void testAcceptsFailTestClassesAndReturnsResult() {
-    List<Class> classes = compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST));
-    Result test = runTests(classes);
-    assertFalse(test.wasSuccessful());
+    Report report = runTests(getFixtureSource(Fixtures.FAIL_TEST));
+    assertFalse(report.junitReport.getFailures().isEmpty());
   }
 
   @Test
   public void testAcceptsListOfTestClassesAndReturnsResult() {
-    List<Class> classes = compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST), getFixtureSource(Fixtures.SUCCESS_TEST));
-    Result test = runTests(classes);
-    assertFalse(test.wasSuccessful());
-  }
-
-  @Test
-  public void testAcceptsSingleClass() {
-    Class clazz = compileAndLoadClasses(getFixtureSource(Fixtures.FAIL_TEST)).stream().findFirst().orElseThrow(() -> new Error("No class loaded."));
-    Result test = runTests(clazz);
-    assertFalse(test.wasSuccessful());
+    Report report = runTests(getFixtureSources(Fixtures.FAIL_TEST, Fixtures.SUCCESS_TEST));
+    assertFalse(report.junitReport.getFailures().isEmpty());
   }
 
   @Test
   public void testAcceptsEmptyList() {
-    Result r = runTests(new LinkedList<>());
-    assertEquals(0, r.getRunCount());
+    Report report = runTests(new LinkedList<JavaSourceString>());
+    assertEquals(0, report.junitReport.getTests());
   }
 
   @Test
   public void testAcceptsMixOfTestAndNonTestClasses() {
-    Class subjectClass = compileAndLoadClasses(getFixtureSource(Fixtures.TEST_SUBJECT)).get(0);
-    Class testClass = compileAndLoadClasses(getFixtureSource(Fixtures.TEST_SUBJECT_TEST)).get(0);
-    Result result = runTests(testClass);
-    assertEquals(1, result.getRunCount());
+    Report report = runTests(getFixtureSources(Fixtures.TEST_SUBJECT, Fixtures.TEST_SUBJECT_TEST));
+    assertEquals(1, report.junitReport.getTests());
+    assertTrue(report.junitReport.getFailures().isEmpty());
   }
 
 }
