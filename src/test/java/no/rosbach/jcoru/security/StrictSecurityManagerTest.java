@@ -1,4 +1,4 @@
-package no.rosbach.jcoru;
+package no.rosbach.jcoru.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +39,11 @@ public class StrictSecurityManagerTest {
   @Test
   public void canBeDisabledWithTheSecret() {
     assertTrue(sm.disable(SECRET));
+  }
+
+  @Test(expected = StrictAccessControlException.class)
+  public void testThatSecurityExceptionAlsoIsThrownWhenNotInvokedThroughReflection() {
+    sm.checkDelete("");
   }
 
   private void assertThrowsSecurityException(Method method) {
@@ -88,4 +93,5 @@ public class StrictSecurityManagerTest {
         String.format("%s: expected StrictSecuritManager to deny access, not pass along request.", method.getName()),
         StrictAccessControlException.class, actual.getClass());
   }
+
 }

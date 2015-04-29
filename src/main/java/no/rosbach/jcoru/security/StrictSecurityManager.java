@@ -1,4 +1,4 @@
-package no.rosbach.jcoru;
+package no.rosbach.jcoru.security;
 
 import sun.security.util.SecurityConstants;
 
@@ -7,13 +7,28 @@ import java.io.FilePermission;
 import java.net.InetAddress;
 import java.security.Permission;
 import java.security.SecurityPermission;
+import java.util.HashSet;
+import java.util.Set;
 
 public class StrictSecurityManager extends SecurityManager {
 
   private String secret;
+  private Set<String> pkgWhitelist = new HashSet<>();
 
   public StrictSecurityManager(String secret) {
     this.secret = secret;
+
+    readWhitelists();
+  }
+
+  private void readWhitelists() {
+    // packages
+    pkgWhitelist.add("java.lang");
+    // ?packages
+    pkgWhitelist.add("java.io");
+    pkgWhitelist.add("org.junit.internal.runners.model");
+    pkgWhitelist.add("org.junit.runner.notification");
+    pkgWhitelist.add("org.junit.runner.notification");
   }
 
   public boolean disable(String secret) {
@@ -202,7 +217,9 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkPackageAccess(String pkg) {
-    denyAccessIfActive(new RuntimePermission("accessClassInPackage." + pkg));
+    if (!pkgWhitelist.contains(pkg)) {
+      denyAccessIfActive(new RuntimePermission("accessClassInPackage." + pkg));
+    }
     super.checkPackageAccess(pkg);
   }
 

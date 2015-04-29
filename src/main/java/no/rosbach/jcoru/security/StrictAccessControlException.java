@@ -1,4 +1,4 @@
-package no.rosbach.jcoru;
+package no.rosbach.jcoru.security;
 
 import java.security.AccessControlException;
 import java.security.Permission;
