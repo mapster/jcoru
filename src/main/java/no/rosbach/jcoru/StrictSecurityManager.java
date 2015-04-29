@@ -5,7 +5,6 @@ import sun.security.util.SecurityConstants;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
 import java.net.InetAddress;
-import java.security.AccessControlException;
 import java.security.Permission;
 import java.security.SecurityPermission;
 
@@ -17,10 +16,12 @@ public class StrictSecurityManager extends SecurityManager {
     this.secret = secret;
   }
 
-  public void disable(String secret) {
+  public boolean disable(String secret) {
     if (this.secret == secret) {
       secret = null;
     }
+
+    return secret == null;
   }
 
   private void denyAccessIfActive() {
@@ -33,7 +34,7 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void denyAccessIfActive(Permission perm) {
     if (secret != null) {
-      throw new AccessControlException("access denied " + perm, perm);
+      throw new StrictAccessControlException("access denied " + perm, perm);
     }
   }
 
