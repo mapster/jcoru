@@ -1,4 +1,4 @@
-public class AggregationClass implements no.rosbach.edu.compile.fixtures.AggregationClass {
+public class AggregationClass implements no.rosbach.jcoru.compile.fixtures.AggregationClass {
   ContainedClass value = new ContainedClass();
 
   public ContainedClass getValue() {

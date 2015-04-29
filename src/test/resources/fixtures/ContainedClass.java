@@ -1,4 +1,4 @@
-public class ContainedClass implements no.rosbach.edu.compile.fixtures.ContainedClass {
+public class ContainedClass implements no.rosbach.jcoru.compile.fixtures.ContainedClass {
   public String getActualValue() {
     return actualValue;
   }
