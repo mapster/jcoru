@@ -12,11 +12,12 @@ import java.util.Set;
 
 public class StrictSecurityManager extends SecurityManager {
 
-  private String secret;
+  private String knownSecret;
   private Set<String> pkgWhitelist = new HashSet<>();
+  private Set<Permission> disabledPermissions = new HashSet<>();
 
   public StrictSecurityManager(String secret) {
-    this.secret = secret;
+    this.knownSecret = secret;
 
     readWhitelists();
   }
@@ -24,20 +25,23 @@ public class StrictSecurityManager extends SecurityManager {
   private void readWhitelists() {
     // packages
     pkgWhitelist.add("java.lang");
-    // ?packages
     pkgWhitelist.add("java.io");
-    pkgWhitelist.add("org.junit.internal.runners.model");
-    pkgWhitelist.add("org.junit.runner.notification");
-    pkgWhitelist.add("org.junit.runner.notification");
+
+    // permissions when disabled
+    disabledPermissions.add(new RuntimePermission("setSecurityManager"));
   }
 
-  public boolean disable(String secret) {
-    if (this.secret == secret) {
-      secret = null;
+  public boolean disable(String givenSecret) {
+    if (this.knownSecret == givenSecret) {
+      this.knownSecret = null;
     }
-
-    return secret == null;
+    return this.knownSecret == null;
   }
+
+  private boolean allowIfDisabled(Permission perm) {
+    return disabledPermissions.contains(perm);
+  }
+
 
   private void denyAccessIfActive() {
     denyAccessIfActive(new RuntimePermission("no args"));
@@ -48,7 +52,7 @@ public class StrictSecurityManager extends SecurityManager {
   }
 
   private void denyAccessIfActive(Permission perm) {
-    if (secret != null) {
+    if (knownSecret != null) {
       throw new StrictAccessControlException("access denied " + perm, perm);
     }
   }
@@ -62,7 +66,12 @@ public class StrictSecurityManager extends SecurityManager {
   @Override
   public void checkPermission(Permission perm) {
     denyAccessIfActive(perm);
-    super.checkPermission(perm);
+
+    // skip checking with super if listed as allowed when disabled.
+    // if not, check with super if this is allowed.
+    if (!allowIfDisabled(perm)) {
+      super.checkPermission(perm);
+    }
   }
 
   @Override
@@ -219,8 +228,8 @@ public class StrictSecurityManager extends SecurityManager {
   public void checkPackageAccess(String pkg) {
     if (!pkgWhitelist.contains(pkg)) {
       denyAccessIfActive(new RuntimePermission("accessClassInPackage." + pkg));
+      super.checkPackageAccess(pkg);
     }
-    super.checkPackageAccess(pkg);
   }
 
   @Override
