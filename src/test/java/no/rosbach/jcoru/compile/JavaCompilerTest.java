@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import com.sun.tools.javac.util.ClientCodeException;
@@ -83,7 +84,7 @@ public class JavaCompilerTest {
     assertEquals(Fixtures.FAIL_TEST.toString(), compiled.getName());
   }
 
-  private Iterable<? extends JavaFileObject> compile(JavaSourceString... source) {
+  private List<CompiledClassObject> compile(JavaSourceString... source) {
     return compiler.compile(Arrays.asList(source));
   }
 }

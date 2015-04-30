@@ -3,6 +3,7 @@ package no.rosbach.jcoru.rest.facade;
 import static java.lang.String.format;
 
 import no.rosbach.jcoru.compile.JUnitTestRunner;
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
@@ -15,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import javax.tools.JavaFileObject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -43,7 +43,7 @@ public class JUnitRunnerResource extends CompilerResourceBase {
   public Report runTests(List<JavaSourceStringDto> javaSources) {
     throwBadRequestIfSourcesAreInvalid(javaSources);
 
-    Iterable<? extends JavaFileObject> compiledClasses = compile(javaSources);
+    List<CompiledClassObject> compiledClasses = compile(javaSources);
     // If compilation failed the return compilation report
     CompilationReport compilationReport = reportBuilder.buildReport();
     if (!compilationReport.isSuccess()) {

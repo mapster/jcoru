@@ -70,7 +70,7 @@ public class InMemoryFileManagerTest {
   @Test
   public void getJavaFileForOutputShouldProvideInMemoryClassFileForClassOutputLocationAndJavaSourceStringSibling() throws IOException {
     JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
-    assertTrue(ManagedFileObject.getManagedFileObject(javaFileForOutput) instanceof InMemoryClassFile);
+    assertTrue(ManagedFileObject.getWrappedObject(javaFileForOutput) instanceof InMemoryClassFile);
   }
 
   /**

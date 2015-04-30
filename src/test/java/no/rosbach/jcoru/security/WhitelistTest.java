@@ -1,9 +1,5 @@
 package no.rosbach.jcoru.security;
 
-import no.rosbach.jcoru.compile.JUnitTestRunner;
-import no.rosbach.jcoru.compile.fixtures.Fixtures;
-
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -59,10 +55,10 @@ public class WhitelistTest extends SandboxTestBase {
         });
   }
 
-  @Test @Ignore
-  public void xx() {
-    JUnitTestRunner testRunner = new JUnitTestRunner(Fixtures.getFixtureSources(Fixtures.TEST_SUBJECT_TEST, Fixtures.TEST_SUBJECT));
-    assertIsWhitelisted(testRunner);
-  }
+//  @Test @Ignore
+//  public void xx() {
+//    JUnitTestRunner testRunner = new JUnitTestRunner(Fixtures.getFixtureSources(Fixtures.TEST_SUBJECT_TEST, Fixtures.TEST_SUBJECT));
+//    assertIsWhitelisted(testRunner);
+//  }
 
 }

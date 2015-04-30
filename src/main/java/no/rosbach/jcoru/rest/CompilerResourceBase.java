@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import no.rosbach.jcoru.compile.JavaCompiler;
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public abstract class CompilerResourceBase {
     }
   }
 
-  protected Iterable<? extends JavaFileObject> compile(List<JavaSourceStringDto> sources) {
+  protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
     return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
   }
 

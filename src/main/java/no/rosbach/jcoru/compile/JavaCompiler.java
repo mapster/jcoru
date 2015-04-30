@@ -1,5 +1,9 @@
 package no.rosbach.jcoru.compile;
 
+import static java.util.stream.Collectors.toList;
+import static no.rosbach.jcoru.utils.Stream.stream;
+
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 
 import com.sun.source.util.JavacTask;
@@ -31,18 +35,18 @@ public class JavaCompiler {
     this.diagnosticListener = diagnosticListener;
   }
 
-  public Iterable<? extends JavaFileObject> compile(JavaFileObject myTestSource) {
+  public List<CompiledClassObject> compile(JavaFileObject myTestSource) {
     return compile(Arrays.asList(myTestSource));
   }
 
   // TODO: Should verify type of files to be of kind source.
-  public Iterable<? extends JavaFileObject> compile(List<? extends JavaFileObject> files) {
+  public List<CompiledClassObject> compile(List<? extends JavaFileObject> files) {
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
 
     JavacTask javacTask = (JavacTask) task;
 
     try {
-      return javacTask.generate();
+      return stream(javacTask.generate()).map(CompiledClassObject::new).collect(toList());
     } catch (IOException e) {
       throw new NonRecoverableError("IOException occured while compiling sources.", e);
     }
