@@ -3,8 +3,6 @@ package no.rosbach.jcoru.compile;
 import static java.util.stream.Collectors.toList;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
-import no.rosbach.jcoru.filemanager.JavaSourceString;
-import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 import no.rosbach.jcoru.rest.reports.JUnitReport;
 import no.rosbach.jcoru.rest.reports.Report;
@@ -22,26 +20,19 @@ public class JUnitTestRunner implements Runnable {
   private final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
   private final JavaCompiler compiler = new JavaCompiler(reportBuilder);
   private final JUnitCore core = new JUnitCore();
-  private final List<JavaSourceString> javaSources;
+  private final Iterable<? extends JavaFileObject> javaClasses;
   private Report report;
 
-  public JUnitTestRunner(List<JavaSourceString> javaSources) {
-    this.javaSources = javaSources;
+  // TODO: Should verify javaClasses is of Kind class.
+  public JUnitTestRunner(Iterable<? extends JavaFileObject> javaClasses) {
+    this.javaClasses = javaClasses;
   }
 
   @Override
   public void run() {
-    Iterable<? extends JavaFileObject> compiledClasses = compiler.compile(javaSources);
-
-    // If compilation failed the return compilation report
-    CompilationReport compilationReport = reportBuilder.buildReport();
-    if (!compilationReport.isSuccess()) {
-      this.report = new Report(compilationReport);
-    } else {
-      Stream<? extends Class<?>> loadedClasses = stream(compiledClasses).map(c -> loadClass(c));
-      Result testResult = runTests(loadedClasses.filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList()));
-      this.report = new Report(new JUnitReport(testResult));
-    }
+    Stream<? extends Class<?>> loadedClasses = stream(javaClasses).map(c -> loadClass(c));
+    Result testResult = runTests(loadedClasses.filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList()));
+    this.report = new Report(new JUnitReport(testResult));
   }
 
   public Report getReport() {

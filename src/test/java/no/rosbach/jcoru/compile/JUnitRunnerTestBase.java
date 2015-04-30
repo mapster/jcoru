@@ -1,10 +1,16 @@
 package no.rosbach.jcoru.compile;
 
+import static org.junit.Assert.fail;
+
 import no.rosbach.jcoru.filemanager.JavaSourceString;
+import no.rosbach.jcoru.rest.reports.CompilationReport;
+import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 import no.rosbach.jcoru.rest.reports.Report;
 
 import java.util.Arrays;
 import java.util.List;
+
+import javax.tools.JavaFileObject;
 
 /**
  * Created by mapster on 26.04.15.
@@ -17,7 +23,18 @@ public class JUnitRunnerTestBase {
   }
 
   protected Report runTests(List<JavaSourceString> fixtureSources) {
-    JUnitTestRunner testRunner = new JUnitTestRunner(fixtureSources);
+    CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
+    JavaCompiler compiler = new JavaCompiler(reportBuilder);
+
+    Iterable<? extends JavaFileObject> compiledClasses = compiler.compile(fixtureSources);
+
+    // If compilation failed the return compilation report
+    CompilationReport compilationReport = reportBuilder.buildReport();
+    if (!compilationReport.isSuccess()) {
+      fail("Failed to compile fixtures.");
+    }
+
+    JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses);
     testRunner.run();
     return testRunner.getReport();
   }

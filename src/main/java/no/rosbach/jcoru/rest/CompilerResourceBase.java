@@ -33,6 +33,7 @@ public abstract class CompilerResourceBase {
     return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
   }
 
+  // TODO: Remove
   protected Class<?> loadClass(JavaFileObject javaFile) {
     try {
       return classLoader.loadClass(javaFile.getName());

@@ -35,6 +35,7 @@ public class JavaCompiler {
     return compile(Arrays.asList(myTestSource));
   }
 
+  // TODO: Should verify type of files to be of kind source.
   public Iterable<? extends JavaFileObject> compile(List<? extends JavaFileObject> files) {
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
 
