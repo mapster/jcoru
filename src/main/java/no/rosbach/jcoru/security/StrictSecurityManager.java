@@ -24,8 +24,10 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void readWhitelists() {
     // packages
-    pkgWhitelist.add("java.lang");
-    pkgWhitelist.add("java.io");
+    String[] pkgs = {"java.lang", "java.math", "java.io", "java.util", "java.util.function"};
+    for (String pkg : pkgs) {
+      pkgWhitelist.add(pkg);
+    }
 
     // permissions when disabled
     disabledPermissions.add(new RuntimePermission("setSecurityManager"));
@@ -41,7 +43,6 @@ public class StrictSecurityManager extends SecurityManager {
   private boolean allowIfDisabled(Permission perm) {
     return disabledPermissions.contains(perm);
   }
-
 
   private void denyAccessIfActive() {
     denyAccessIfActive(new RuntimePermission("no args"));

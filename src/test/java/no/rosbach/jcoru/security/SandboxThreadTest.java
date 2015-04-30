@@ -1,22 +1,8 @@
 package no.rosbach.jcoru.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created by mapster on 29.04.15.
- */
-public class SandboxThreadTest {
-
-  private SandboxThread sandbox;
-
-  @Before
-  public void prepare() {
-  }
+public class SandboxThreadTest extends SandboxTestBase {
 
   @Test
   public void canRun_createStringVariable() {
@@ -50,44 +36,13 @@ public class SandboxThreadTest {
 
 
   @Test
-  public void testThatAnyExceptionsFromSandboxEnvIsCaught() {
+  public void testThatExceptionsFromSandboxEnvIsCaught() {
     runInSandbox(
         null,
         () -> {
         }
     );
-
-    assertNotNull(sandbox.getThrownBySandbox());
-    assertEquals(NullPointerException.class, sandbox.getThrownBySandbox().getClass());
+    assertSandBoxThrew(NullPointerException.class);
   }
 
-  private void assertTargetThrew(Class type) {
-    assertEquals(type, sandbox.getThrownByTarget().getClass());
-  }
-
-  private void assertNoErrors() {
-    Throwable byTarget = sandbox.getThrownByTarget();
-    assertNull("Target threw an exception: " + byTarget, byTarget);
-    Throwable bySandbox = sandbox.getThrownBySandbox();
-    assertNull("Sandbox threw an exception: " + bySandbox, bySandbox);
-  }
-
-  private void runInSandbox(StrictSecurityManager smMock, Runnable target) {
-    this.sandbox = new SandboxThread(smMock, target);
-    runSandbox();
-  }
-
-  private void runInSandbox(Runnable target) {
-    this.sandbox = new SandboxThread(target);
-    runSandbox();
-  }
-
-  private void runSandbox() {
-    sandbox.start();
-    try {
-      sandbox.join();
-    } catch (InterruptedException e) {
-      throw new Error("SandboxThread interrupted.", e);
-    }
-  }
 }
