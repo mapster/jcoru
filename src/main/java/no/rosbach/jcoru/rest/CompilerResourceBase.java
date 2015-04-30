@@ -9,13 +9,11 @@ import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
 import java.util.List;
 
-import javax.tools.JavaFileObject;
 import javax.ws.rs.BadRequestException;
 
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
   private final JavaCompiler compiler = new JavaCompiler(reportBuilder);
-  private final ClassLoader classLoader = compiler.getClassLoader();
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {
@@ -32,14 +30,5 @@ public abstract class CompilerResourceBase {
 
   protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
     return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
-  }
-
-  // TODO: Remove
-  protected Class<?> loadClass(JavaFileObject javaFile) {
-    try {
-      return classLoader.loadClass(javaFile.getName());
-    } catch (ClassNotFoundException e) {
-      throw new Error("Could not load class: " + javaFile.getName(), e);
-    }
   }
 }
