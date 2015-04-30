@@ -5,6 +5,7 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
+import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import com.sun.source.util.JavacTask;
 
@@ -14,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
@@ -35,12 +35,11 @@ public class JavaCompiler {
     this.diagnosticListener = diagnosticListener;
   }
 
-  public List<CompiledClassObject> compile(JavaFileObject myTestSource) {
+  public List<CompiledClassObject> compile(JavaSourceString myTestSource) {
     return compile(Arrays.asList(myTestSource));
   }
 
-  // TODO: Should verify type of files to be of kind source.
-  public List<CompiledClassObject> compile(List<? extends JavaFileObject> files) {
+  public List<CompiledClassObject> compile(List<JavaSourceString> files) {
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
 
     JavacTask javacTask = (JavacTask) task;
