@@ -1,0 +1,15 @@
+[
+  "org.junit.*",
+  {
+    "org.junit": [
+      "Test",
+      "Before"
+    ]
+  },
+  {
+    "java": {
+      "util": [],
+      "lang": []
+    }
+  }
+]

@@ -2,8 +2,13 @@ package no.rosbach.jcoru.utils;
 
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class Whitelist {
   private final HashSet<String> entries;
@@ -42,6 +47,36 @@ public class Whitelist {
       return true;
     }
     return false;
+  }
+
+  public static Whitelist fromJson(ArrayNode jsonWhitelist) {
+    return new Whitelist(fromJson("", jsonWhitelist));
+  }
+
+  private static HashSet<String> fromJson(String parent, JsonNode current) {
+    HashSet<String> entries = new HashSet<>();
+    if (current.isTextual()) {
+      entries.add(concatName(parent, current.textValue()));
+    } else if (current.isArray()) {
+      for (JsonNode el : current) {
+        entries.addAll(fromJson(parent, el));
+      }
+    } else if (current.isObject()) {
+      for (Iterator<Entry<String, JsonNode>> entryIt = current.fields(); entryIt.hasNext(); ) {
+        Entry<String, JsonNode> child = entryIt.next();
+        entries.addAll(fromJson(concatName(parent, child.getKey()), child.getValue()));
+      }
+    } else {
+      throw new IllegalArgumentException("Illegal whitelist syntax.");
+    }
+    return entries;
+  }
+
+  private static String concatName(String parent, String child) {
+    if (parent == null || parent.isEmpty()) {
+      return child;
+    }
+    return parent + "." + child;
   }
 
   public boolean contains(String subject) {
