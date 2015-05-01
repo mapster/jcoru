@@ -17,20 +17,18 @@ public class JUnitTestRunner implements Runnable {
   private static final Logger LOGGER = LogManager.getLogger();
   private final JUnitCore core = new JUnitCore();
   private final List<Class> loadedClasses;
-  private final ClassLoader classLoader;
   private List<Class> testClasses;
   private Result result;
 
-  private JUnitTestRunner(List<Class> javaClasses, List<Class> testClasses, ClassLoader classLoader) {
+  private JUnitTestRunner(List<Class> javaClasses, List<Class> testClasses) {
     this.loadedClasses = javaClasses;
     this.testClasses = testClasses;
-    this.classLoader = classLoader;
   }
 
   public static JUnitTestRunner getRunner(List<CompiledClassObject> javaClasses, ClassLoader classLoader) {
     List<Class> loadedClasses = stream(javaClasses).map(c -> loadClass(c, classLoader)).collect(toList());
     List<Class> testClasses = loadedClasses.stream().filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList());
-    return new JUnitTestRunner(loadedClasses, testClasses, classLoader);
+    return new JUnitTestRunner(loadedClasses, testClasses);
   }
 
   private static Class<?> loadClass(CompiledClassObject javaFile, ClassLoader classLoader) {
