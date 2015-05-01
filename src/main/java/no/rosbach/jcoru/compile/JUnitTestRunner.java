@@ -5,8 +5,6 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
@@ -14,7 +12,6 @@ import java.util.List;
 
 public class JUnitTestRunner implements Runnable {
   public static final String TEST_CLASS_NAME_POSTFIX = "Test";
-  private static final Logger LOGGER = LogManager.getLogger();
   private final JUnitCore core = new JUnitCore();
   private final List<Class> loadedClasses;
   private List<Class> testClasses;

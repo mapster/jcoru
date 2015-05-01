@@ -4,12 +4,16 @@ package no.rosbach.jcoru.compile;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class TransientClassLoader extends ClassLoader {
+  private static Logger LOGGER = LogManager.getLogger();
 
+  // TODO: use FileManager instead
   private Map<String, InMemoryClassFile> classStore;
 
   public TransientClassLoader(Map<String, InMemoryClassFile> classStore) {
@@ -23,6 +27,7 @@ public class TransientClassLoader extends ClassLoader {
 
   @Override
   public Class<?> loadClass(String name) throws ClassNotFoundException {
+    LOGGER.debug("Loading class: " + name);
     if (classStore.containsKey(name)) {
       return findClass(name);
     }
@@ -41,7 +46,7 @@ public class TransientClassLoader extends ClassLoader {
       byte[] bytes = IOUtils.toByteArray(javaClass.openInputStream());
       return defineClass(name, bytes, 0, bytes.length);
     } catch (IOException e) {
-      throw new Error(e);
+      throw new NonRecoverableError("Failed to read compiled class object.", e);
     }
   }
 }

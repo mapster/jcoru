@@ -30,6 +30,6 @@ public class CompilationReport {
   }
 
   public boolean isSuccess() {
-    return entries.isEmpty();
+    return reportLevel == null || !reportLevel.equals(Diagnostic.Kind.ERROR);
   }
 }

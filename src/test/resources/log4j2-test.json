@@ -1,0 +1,19 @@
+{
+  "configuration": {
+    "status": "error",
+    "name": "Log4jTestConfig",
+    "packages": "org.apache.logging.log4j.test",
+    "appenders": {
+      "Console": {
+        "name": "STDOUT",
+        "PatternLayout": {"pattern": "%m%n"}
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "debug",
+        "AppenderRef": {"ref": "STDOUT"}
+      }
+    }
+  }
+}

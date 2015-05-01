@@ -9,6 +9,9 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -30,6 +33,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 public class InMemoryFileManager implements JavaFileManager {
+  private static final Logger LOGGER = LogManager.getLogger();
   private static final String PROPERTIES_PATH = "filemanager.properties";
   private static final String PROPERTIES_LIST_DELIMITER = ",";
   private static final String DELELEGATE_TO_PARENT = "delegate_to_parent.packages";
@@ -62,7 +66,7 @@ public class InMemoryFileManager implements JavaFileManager {
     try {
       properties.load(InMemoryFileManager.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH));
     } catch (IOException e) {
-      //TODO: log entry
+      LOGGER.error("Failed to read properties: " + PROPERTIES_PATH, e);
       return new Properties();
     }
 
