@@ -6,8 +6,8 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
-import no.rosbach.jcoru.rest.reports.JUnitReport;
-import no.rosbach.jcoru.rest.reports.Report;
+
+import org.junit.runner.Result;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,11 +18,11 @@ import java.util.List;
 public class JUnitRunnerTestBase {
   private JUnitTestRunner testRunner;
 
-  protected Report runTests(JavaSourceString fixtureSource) {
+  protected Result runTests(JavaSourceString fixtureSource) {
     return runTests(Arrays.asList(fixtureSource));
   }
 
-  protected Report runTests(List<JavaSourceString> fixtureSources) {
+  protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
     JavaCompiler compiler = new JavaCompiler(reportBuilder);
 
@@ -36,7 +36,6 @@ public class JUnitRunnerTestBase {
 
     JUnitTestRunner testRunner = JUnitTestRunner.getRunner(compiledClasses, compiler.getClassLoader());
     testRunner.run();
-    // TODO: Should return unwrapped results.
-    return new Report(new JUnitReport(testRunner.getResult()));
+    return testRunner.getResult();
   }
 }

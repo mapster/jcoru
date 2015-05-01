@@ -22,7 +22,7 @@ public class JUnitReportTest extends JUnitRunnerTestBase {
 
   @Before
   public void prepare() {
-    jUnitReport = runTests(getFixtureSource(Fixtures.FAIL_TEST)).junitReport;
+    jUnitReport = new JUnitReport(runTests(getFixtureSource(Fixtures.FAIL_TEST)));
   }
 
   @Test

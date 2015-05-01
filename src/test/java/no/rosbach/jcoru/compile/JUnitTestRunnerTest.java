@@ -8,9 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
-import no.rosbach.jcoru.rest.reports.Report;
 
 import org.junit.Test;
+import org.junit.runner.Result;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -22,33 +22,34 @@ public class JUnitTestRunnerTest extends JUnitRunnerTestBase {
 
   @Test
   public void testAcceptsSuccessTestClassesAndReturnsResult() throws IOException, ClassNotFoundException {
-    Report report = runTests(getFixtureSource(Fixtures.SUCCESS_TEST));
-    assertTrue(report.junitReport.getFailures().isEmpty());
+    Result result = runTests(getFixtureSource(Fixtures.SUCCESS_TEST));
+    assertTrue(result.wasSuccessful());
   }
 
   @Test
   public void testAcceptsFailTestClassesAndReturnsResult() {
-    Report report = runTests(getFixtureSource(Fixtures.FAIL_TEST));
-    assertFalse(report.junitReport.getFailures().isEmpty());
+    Result result = runTests(getFixtureSource(Fixtures.FAIL_TEST));
+    assertFalse(result.wasSuccessful());
   }
 
   @Test
   public void testAcceptsListOfTestClassesAndReturnsResult() {
-    Report report = runTests(getFixtureSources(Fixtures.FAIL_TEST, Fixtures.SUCCESS_TEST));
-    assertFalse(report.junitReport.getFailures().isEmpty());
+    Result result = runTests(getFixtureSources(Fixtures.FAIL_TEST, Fixtures.SUCCESS_TEST));
+    assertFalse(result.wasSuccessful());
+    assertTrue(result.getRunCount() > 1);
   }
 
   @Test
   public void testAcceptsEmptyList() {
-    Report report = runTests(new LinkedList<JavaSourceString>());
-    assertEquals(0, report.junitReport.getTests());
+    Result result = runTests(new LinkedList<JavaSourceString>());
+    assertEquals(0, result.getRunCount());
   }
 
   @Test
   public void testAcceptsMixOfTestAndNonTestClasses() {
-    Report report = runTests(getFixtureSources(Fixtures.TEST_SUBJECT, Fixtures.TEST_SUBJECT_TEST));
-    assertEquals(1, report.junitReport.getTests());
-    assertTrue(report.junitReport.getFailures().isEmpty());
+    Result result = runTests(getFixtureSources(Fixtures.TEST_SUBJECT, Fixtures.TEST_SUBJECT_TEST));
+    assertEquals(1, result.getRunCount());
+    assertTrue(result.wasSuccessful());
   }
 
 }

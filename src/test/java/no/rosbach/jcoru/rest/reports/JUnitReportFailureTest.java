@@ -21,7 +21,7 @@ public class JUnitReportFailureTest extends JUnitRunnerTestBase {
 
   @Before
   public void prepare() {
-    failure = runTests(getFixtureSource(Fixtures.FAIL_TEST)).junitReport.getFailures().stream()
+    failure = new JUnitReport(runTests(getFixtureSource(Fixtures.FAIL_TEST))).getFailures().stream()
         .filter(f -> f.getTestMethodName().equals(TEST_NAME)).findFirst()
         .orElseThrow(() -> new Error("Fixture contains no failing tests."));
     ;
