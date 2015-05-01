@@ -33,7 +33,7 @@ public class JUnitRunnerTestBase {
       fail("Failed to compile fixtures.");
     }
 
-    JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses);
+    JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses, compiler.getClassLoader());
     testRunner.run();
     return testRunner.getReport();
   }

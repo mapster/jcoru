@@ -31,4 +31,8 @@ public abstract class CompilerResourceBase {
   protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
     return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
   }
+
+  protected ClassLoader getClassLoader() {
+    return compiler.getClassLoader();
+  }
 }

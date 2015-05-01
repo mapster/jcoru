@@ -50,7 +50,7 @@ public class JUnitRunnerResource extends CompilerResourceBase {
       return new Report(compilationReport);
     }
 
-    final JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses);
+    final JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses, getClassLoader());
     testRunner.run();
     final Report report = testRunner.getReport();
 

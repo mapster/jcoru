@@ -19,7 +19,8 @@ public class StrictSecurityManager extends SecurityManager {
 
   private String knownSecret;
   private Set<String> pkgWhitelist = new HashSet<>();
-  private Set<Permission> disabledPermissions = new HashSet<>();
+  private Set<Permission> permissionWhitelist = new HashSet<>();
+  private Set<Permission> permissionsWhenDisabled = new HashSet<>();
 
   public StrictSecurityManager(String secret) {
     this.knownSecret = secret;
@@ -28,14 +29,17 @@ public class StrictSecurityManager extends SecurityManager {
   }
 
   private void readWhitelists() {
-    // packages
+    // whitelisted packages
     String[] pkgs = {"java.lang", "java.math", "java.io", "java.util", "java.util.function"};
     for (String pkg : pkgs) {
       pkgWhitelist.add(pkg);
     }
 
+    //whitelisted permissions
+    permissionWhitelist.add(new RuntimePermission("accessDeclaredMembers"));
+
     // permissions when disabled
-    disabledPermissions.add(new RuntimePermission("setSecurityManager"));
+    permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));
   }
 
   public boolean disable(String givenSecret) {
@@ -46,7 +50,7 @@ public class StrictSecurityManager extends SecurityManager {
   }
 
   private boolean allowIfDisabled(Permission perm) {
-    return disabledPermissions.contains(perm);
+    return permissionsWhenDisabled.contains(perm);
   }
 
   private void denyAccessIfActive(String validatingMethod) {
@@ -59,7 +63,6 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void denyAccessIfActive(String validatingMethod, Permission perm) {
     if (knownSecret != null) {
-      LOGGER.error("Access denied by %s for permission %s.", validatingMethod, perm.toString());
       throw new StrictAccessControlException(validatingMethod + " denied access: " + perm, perm);
     }
   }
@@ -72,6 +75,9 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkPermission(Permission perm) {
+    if (permissionWhitelist.contains(perm)) {
+      return;
+    }
     denyAccessIfActive("checkPermission", perm);
 
     // skip checking with super if listed as allowed when disabled.
