@@ -12,7 +12,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public class JUnitTestRunner implements Runnable {
   public static final String TEST_CLASS_NAME_POSTFIX = "Test";
@@ -28,8 +27,8 @@ public class JUnitTestRunner implements Runnable {
 
   @Override
   public void run() {
-    Stream<? extends Class<?>> loadedClasses = stream(javaClasses).map(c -> loadClass(c));
-    Result testResult = runTests(loadedClasses.filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList()));
+    List<Class> collect = stream(javaClasses).map(c -> loadClass(c)).filter(c -> c.getSimpleName().endsWith(TEST_CLASS_NAME_POSTFIX)).collect(toList());
+    Result testResult = runTests(collect);
     this.report = new Report(new JUnitReport(testResult));
   }
 

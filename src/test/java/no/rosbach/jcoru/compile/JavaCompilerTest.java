@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
+import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import com.sun.tools.javac.util.ClientCodeException;
@@ -80,8 +81,20 @@ public class JavaCompilerTest {
 
   @Test
   public void ableToCompileSingleClass() {
-    JavaFileObject compiled = compiler.compile(getFixtureSource(Fixtures.FAIL_TEST)).iterator().next();
+    JavaFileObject compiled = compile(getFixtureSource(Fixtures.FAIL_TEST)).iterator().next();
     assertEquals(Fixtures.FAIL_TEST.toString(), compiled.getName());
+  }
+
+  @Test
+  public void objectsReturnedShouldBeInMemoryClassFilesWrappedIn_CompiledClassObject() {
+    CompiledClassObject compiled = compile(getFixtureSource(Fixtures.TEST_SUBJECT)).get(0);
+    assertEquals(InMemoryClassFile.class, compiled.getWrappedObject().getClass());
+  }
+
+  @Test
+  public void packagedClassObjectShouldBeInMemoryClassFilesWrappedIn_CompiledClassObject() {
+    CompiledClassObject compiled = compile(getFixtureSource(Fixtures.PACKAGED_CLASS)).get(0);
+    assertEquals(InMemoryClassFile.class, compiled.getWrappedObject().getClass());
   }
 
   private List<CompiledClassObject> compile(JavaSourceString... source) {

@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
@@ -45,7 +46,10 @@ public class JavaCompiler {
     JavacTask javacTask = (JavacTask) task;
 
     try {
-      return stream(javacTask.generate()).map(CompiledClassObject::new).collect(toList());
+      return stream(javacTask.generate())
+          .map(generated -> fileManager.getJavaFileForInput(StandardLocation.CLASS_OUTPUT, generated.getName(), JavaFileObject.Kind.CLASS))
+          .map(CompiledClassObject::new)
+          .collect(toList());
     } catch (IOException e) {
       throw new NonRecoverableError("IOException occured while compiling sources.", e);
     }

@@ -18,11 +18,17 @@ import java.util.List;
  * Created by mapster on 05.04.15.
  */
 public enum Fixtures {
-  AGGREGATION_CLASS("AggregationClass"), CONTAINED_CLASS("ContainedClass"), TEST_CLASS("TestClass"), FAIL_TEST("FailTest"), SUCCESS_TEST("SuccessTest"),
-  TEST_SUBJECT("TestSubject"), TEST_SUBJECT_TEST("TestSubjectTest"), ILLEGAL_SYNTAX(
-      "IllegalSyntax",
-      true), NOT_REALLY_TEST("NotReallyTest"), NOT_NAMED_AS_TEST_CLASS(
-      "NotNamedAsTestClass");
+  AGGREGATION_CLASS("AggregationClass"),
+  CONTAINED_CLASS("ContainedClass"),
+  FAIL_TEST("FailTest"),
+  ILLEGAL_SYNTAX("IllegalSyntax", true),
+  NOT_NAMED_AS_TEST_CLASS("NotNamedAsTestClass"),
+  NOT_REALLY_TEST("NotReallyTest"),
+  PACKAGED_CLASS("mypackage.PackagedClass"),
+  SUCCESS_TEST("SuccessTest"),
+  TEST_CLASS("TestClass"),
+  TEST_SUBJECT("TestSubject"),
+  TEST_SUBJECT_TEST("TestSubjectTest");
 
   private final String name;
   private final boolean notCompilable;
@@ -42,7 +48,7 @@ public enum Fixtures {
   }
 
   public static JavaSourceString getFixtureSource(Fixtures fixture) {
-    String fileName = fixture + ".java";
+    String fileName = getRelativeFilename(fixture);
     try (InputStream sourceStream = Fixtures.class.getClassLoader().getResourceAsStream(getSourceDirectory(fixture) + File.separatorChar + fileName)) {
       return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
     } catch (IOException e) {
@@ -50,8 +56,12 @@ public enum Fixtures {
     }
   }
 
+  private static String getRelativeFilename(Fixtures fixture) {
+    return fixture.toString().replace('.', File.separatorChar) + ".java";
+  }
+
   public static JavaSourceString getFixtureInterfaceSource(Fixtures className) {
-    String fileName = className + ".java";
+    String fileName = getRelativeFilename(className);
     try (InputStream sourceStream = new FileInputStream(
         compactPath(
             "src",

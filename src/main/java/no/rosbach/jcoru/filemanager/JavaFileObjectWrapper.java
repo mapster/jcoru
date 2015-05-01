@@ -25,7 +25,7 @@ public abstract class JavaFileObjectWrapper implements JavaFileObject {
     return object;
   }
 
-  public JavaFileObject getFileObject() {
+  public JavaFileObject getWrappedObject() {
     return fileObject;
   }
 

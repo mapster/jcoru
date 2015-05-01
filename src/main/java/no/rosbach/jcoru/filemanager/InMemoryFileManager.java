@@ -99,7 +99,7 @@ public class InMemoryFileManager implements JavaFileManager {
   public String inferBinaryName(Location location, JavaFileObject file) {
     if (file instanceof ManagedFileObject) {
       ManagedFileObject managedFileObject = (ManagedFileObject) file;
-      return managedFileObject.getFileManager().inferBinaryName(location, managedFileObject.getFileObject());
+      return managedFileObject.getFileManager().inferBinaryName(location, managedFileObject.getWrappedObject());
     }
     if (location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
       return systemFileManager.inferBinaryName(location, file);
@@ -141,7 +141,10 @@ public class InMemoryFileManager implements JavaFileManager {
   }
 
   @Override
-  public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) throws IOException {
+  public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) {
+    if (location.equals(CLASS_OUTPUT) && kind.equals(JavaFileObject.Kind.CLASS)) {
+      return classStore.get(className);
+    }
     throw new UnsupportedOperationException(String.format("getJavaFileForInput is not yet supported."));
   }
 
