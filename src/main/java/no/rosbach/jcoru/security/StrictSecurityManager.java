@@ -30,13 +30,16 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void readWhitelists() {
     // whitelisted packages
-    String[] pkgs = {"java.lang", "java.math", "java.io", "java.util", "java.util.function"};
+    String[] pkgs = {"java.lang", "java.math", "java.io", "java.util", "java.util.function",
+//        "org.apache.commons.io", "org.apache.commons.io.input",
+        "org.junit.runner", "org.junit.internal.runners", "org.junit.internal.runners.model", "org.junit.runner.notification",
+    };
     for (String pkg : pkgs) {
       pkgWhitelist.add(pkg);
     }
 
     //whitelisted permissions
-    permissionWhitelist.add(new RuntimePermission("accessDeclaredMembers"));
+//    permissionWhitelist.add(new RuntimePermission("accessDeclaredMembers"));
 
     // permissions when disabled
     permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));

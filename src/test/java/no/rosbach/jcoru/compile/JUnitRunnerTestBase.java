@@ -6,6 +6,7 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
+import no.rosbach.jcoru.rest.reports.JUnitReport;
 import no.rosbach.jcoru.rest.reports.Report;
 
 import java.util.Arrays;
@@ -33,8 +34,9 @@ public class JUnitRunnerTestBase {
       fail("Failed to compile fixtures.");
     }
 
-    JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses, compiler.getClassLoader());
+    JUnitTestRunner testRunner = JUnitTestRunner.getRunner(compiledClasses, compiler.getClassLoader());
     testRunner.run();
-    return testRunner.getReport();
+    // TODO: Should return unwrapped results.
+    return new Report(new JUnitReport(testRunner.getResult()));
   }
 }

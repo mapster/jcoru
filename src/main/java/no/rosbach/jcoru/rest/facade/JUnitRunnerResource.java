@@ -7,6 +7,7 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
+import no.rosbach.jcoru.rest.reports.JUnitReport;
 import no.rosbach.jcoru.rest.reports.JUnitReportFailure;
 import no.rosbach.jcoru.rest.reports.Report;
 
@@ -50,16 +51,16 @@ public class JUnitRunnerResource extends CompilerResourceBase {
       return new Report(compilationReport);
     }
 
-    final JUnitTestRunner testRunner = new JUnitTestRunner(compiledClasses, getClassLoader());
+    final JUnitTestRunner testRunner = JUnitTestRunner.getRunner(compiledClasses, getClassLoader());
     testRunner.run();
-    final Report report = testRunner.getReport();
+    final JUnitReport junitReport = new JUnitReport(testRunner.getResult());
 
     // Verify that tests ran successfully.
-    if (report.junitReport != null) {
-      report.junitReport.getFailures().stream().forEach(JUnitRunnerResource::throwExceptionIfInitializationError);
+    if (junitReport != null) {
+      junitReport.getFailures().stream().forEach(JUnitRunnerResource::throwExceptionIfInitializationError);
     }
 
-    return report;
+    return new Report(junitReport);
   }
 
   @GET
