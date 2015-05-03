@@ -43,6 +43,12 @@ public enum Fixtures {
     this.notCompilable = notCompilable;
   }
 
+  public static List<JavaSourceString> getFixtureAndInterfaceSources(Fixtures... fixtures) {
+    List<JavaSourceString> interfaces = stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList());
+    interfaces.addAll(getFixtureSources(fixtures));
+    return interfaces;
+  }
+
   public static List<JavaSourceString> getFixtureSources(Fixtures... fixtures) {
     return stream(fixtures).map(Fixtures::getFixtureSource).collect(toList());
   }

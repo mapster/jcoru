@@ -45,29 +45,6 @@
                 </configuration>
             </plugin>
 
-            <!--
-                ## Generate class files from fixtures for tests.
-            -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9.1</version>
-                <executions>
-                    <execution>
-                        <id>add-test-fixtures-source</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-
-                        <configuration>
-                            <sources>
-                                <source>src/test/resources/fixtures</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
             <!--
                 ## Add Checkstyle to Validation phase.

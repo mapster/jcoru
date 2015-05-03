@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import no.rosbach.jcoru.compile.fixtures.AggregationClass;
 import no.rosbach.jcoru.compile.fixtures.ContainedClass;
+import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.compile.fixtures.TestClass;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 
@@ -31,10 +32,11 @@ public class TransientClassLoaderTest {
 
   @Before
   public void setStage() throws IOException {
-    classStore = new HashMap<String, InMemoryClassFile>();
-    addClass(classStore, TestClass.class);
-    addClass(classStore, AggregationClass.class);
-    addClass(classStore, ContainedClass.class);
+    classStore = new HashMap<>();
+    JavaCompiler compiler = new JavaCompiler(new SensitiveDiagnosticListener());
+    compiler.compile(Fixtures.getFixtureAndInterfaceSources(Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS))
+        .stream().forEach(clazz -> classStore.put(clazz.getName(), (InMemoryClassFile) clazz.getWrappedObject()));
+
     classLoader = new TransientClassLoader(classStore);
 
     loadedTestClass = loadClass(TestClass.class);
