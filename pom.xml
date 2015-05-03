@@ -16,7 +16,7 @@
             <activation>
                 <property>
                     <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
+                    <value>Oracle Corporation</value>
                 </property>
             </activation>
             <dependencies>
@@ -214,7 +214,13 @@
             <version>2.5.1</version>
         </dependency>
 
-
+        <!-- CDI Support
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        -->
 
     </dependencies>
     <properties>

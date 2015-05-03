@@ -3,8 +3,6 @@ package no.rosbach.jcoru.security;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sun.security.util.SecurityConstants;
-
 import java.io.FileDescriptor;
 import java.io.FilePermission;
 import java.net.InetAddress;
@@ -104,13 +102,13 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkAccess(Thread t) {
-    denyAccessIfActive("checkAccess", SecurityConstants.MODIFY_THREAD_PERMISSION);
+    denyAccessIfActive("checkAccess", "modifyThread");
     super.checkAccess(t);
   }
 
   @Override
   public void checkAccess(ThreadGroup g) {
-    denyAccessIfActive("checkAccess", SecurityConstants.MODIFY_THREAD_PERMISSION);
+    denyAccessIfActive("checkAccess", "modifyThread");
     super.checkAccess(g);
   }
 
@@ -122,7 +120,7 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkExec(String cmd) {
-    denyAccessIfActive("checkExec", new FilePermission(cmd, SecurityConstants.FILE_EXECUTE_ACTION));
+    denyAccessIfActive("checkExec", new FilePermission(cmd, "execute"));
     super.checkExec(cmd);
   }
 
@@ -140,13 +138,13 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkRead(String file) {
-    denyAccessIfActive("checkRead", new FilePermission(file, SecurityConstants.FILE_READ_ACTION));
+    denyAccessIfActive("checkRead", new FilePermission(file, "read"));
     super.checkRead(file);
   }
 
   @Override
   public void checkRead(String file, Object context) {
-    denyAccessIfActive("checkRead", new FilePermission(file, SecurityConstants.FILE_READ_ACTION));
+    denyAccessIfActive("checkRead", new FilePermission(file, "read"));
     super.checkRead(file, context);
   }
 
@@ -158,13 +156,13 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkWrite(String file) {
-    denyAccessIfActive("checkWrite", new FilePermission(file, SecurityConstants.FILE_WRITE_ACTION));
+    denyAccessIfActive("checkWrite", new FilePermission(file, "write"));
     super.checkWrite(file);
   }
 
   @Override
   public void checkDelete(String file) {
-    denyAccessIfActive("checkDelete", new FilePermission(file, SecurityConstants.FILE_DELETE_ACTION));
+    denyAccessIfActive("checkDelete", new FilePermission(file, "delete"));
     super.checkDelete(file);
   }
 
@@ -262,7 +260,7 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkMemberAccess(Class<?> clazz, int which) {
-    denyAccessIfActive("checkMemberAccess", SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
+    denyAccessIfActive("checkMemberAccess", "accessDeclaredMembers");
     super.checkMemberAccess(clazz, which);
   }
 }
