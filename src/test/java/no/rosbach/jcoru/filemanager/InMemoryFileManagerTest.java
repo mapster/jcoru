@@ -160,6 +160,11 @@ public class InMemoryFileManagerTest {
     verify(systemFileManager).inferBinaryName(StandardLocation.SOURCE_PATH, JAVA_SOURCE);
   }
 
+  @Test
+  public void inferBinaryNameShouldReplaceSlashAndDotJavaForSourceKind() {
+    String infered = inMemoryFileManager.inferBinaryName(StandardLocation.CLASS_OUTPUT, SOURCE_IN_PACKAGE);
+    assertEquals(SOURCE_IN_PACKAGE.toUri().toString().replace("/", ".").replace(".java", ""), infered);
+  }
   //
   //  list
   //

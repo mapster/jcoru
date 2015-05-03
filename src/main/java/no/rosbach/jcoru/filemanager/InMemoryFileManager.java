@@ -12,6 +12,7 @@ import no.rosbach.jcoru.compile.TransientClassLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -99,6 +100,7 @@ public class InMemoryFileManager implements JavaFileManager {
             location));
   }
 
+  // TODO: Should infer names of compiled sources
   @Override
   public String inferBinaryName(Location location, JavaFileObject file) {
     if (file instanceof ManagedFileObject) {
@@ -107,6 +109,9 @@ public class InMemoryFileManager implements JavaFileManager {
     }
     if (location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
       return systemFileManager.inferBinaryName(location, file);
+    }
+    if (location.equals(CLASS_OUTPUT) && file.getKind().equals(JavaFileObject.Kind.SOURCE)) {
+      return file.toUri().toString().replace(File.separatorChar, '.').replace(".java", "");
     }
     if (location.equals(SOURCE_PATH) || location.equals(CLASS_PATH)) {
       return file.toUri().toString();

@@ -16,8 +16,6 @@ import java.util.List;
  * Created by mapster on 26.04.15.
  */
 public class JUnitRunnerTestBase {
-  private JUnitTestRunner testRunner;
-
   protected Result runTests(JavaSourceString fixtureSource) {
     return runTests(Arrays.asList(fixtureSource));
   }

@@ -7,9 +7,6 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
-import com.sun.source.util.JavacTask;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,16 +40,16 @@ public class JavaCompiler {
   public List<CompiledClassObject> compile(List<JavaSourceString> files) {
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
 
-    JavacTask javacTask = (JavacTask) task;
-
-    try {
-      return stream(javacTask.generate())
-          .map(generated -> fileManager.getJavaFileForInput(StandardLocation.CLASS_OUTPUT, generated.getName(), JavaFileObject.Kind.CLASS))
-          .map(CompiledClassObject::new)
-          .collect(toList());
-    } catch (IOException e) {
-      throw new NonRecoverableError("IOException occured while compiling sources.", e);
-    }
+    task.call();
+    return stream(files)
+        .map(
+            source -> fileManager.getJavaFileForInput(
+                StandardLocation.CLASS_OUTPUT,
+                fileManager.inferBinaryName(StandardLocation.CLASS_OUTPUT, source),
+                JavaFileObject.Kind.CLASS))
+        .filter(compiled -> compiled != null)
+        .map(CompiledClassObject::new)
+        .collect(toList());
   }
 
   public ClassLoader getClassLoader() {

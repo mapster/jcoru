@@ -9,12 +9,9 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
-import com.sun.tools.javac.util.ClientCodeException;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,10 +56,10 @@ public class JavaCompilerTest {
   }
 
   @Test
-  public void compilerUsesDiagnosticListener() throws IOException {
+  public void compilerUsesDiagnosticListener() {
     try {
       compile(new JavaSourceString("WrongName.java", MY_TEST_SOURCE.getCharContent(true).toString()));
-    } catch (ClientCodeException ex) {
+    } catch (RuntimeException ex) {
       assertTrue(ex.getCause() instanceof SensitiveDiagnosticListener.CompilationError);
     }
   }
