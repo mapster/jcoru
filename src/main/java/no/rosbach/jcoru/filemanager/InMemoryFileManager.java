@@ -126,7 +126,7 @@ public class InMemoryFileManager implements JavaFileManager {
 
   @Override
   public boolean handleOption(String current, Iterator<String> remaining) {
-    throw new UnsupportedOperationException("handleOption not implemented yet.");
+    return systemFileManager.handleOption(current, remaining);
   }
 
   @Override

@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -91,6 +92,16 @@ public class InMemoryFileManagerTest {
   public void getJavaFileForOutputShouldProvideManagedFileObjects() throws IOException {
     JavaFileObject javaFileForOutput = inMemoryFileManager.getJavaFileForOutput(StandardLocation.CLASS_OUTPUT, CLASS_NAME, Kind.CLASS, JAVA_SOURCE);
     assertTrue(javaFileForOutput instanceof ManagedFileObject);
+  }
+
+  //
+  //  handleOption
+  //
+  @Test
+  public void shouldDefer() {
+    Iterator<String> args = Arrays.asList("junit-4.11.jar").iterator();
+    inMemoryFileManager.handleOption("-classpath", args);
+    verify(systemFileManager).handleOption("-classpath", args);
   }
 
   //
@@ -228,12 +239,13 @@ public class InMemoryFileManagerTest {
     List<JavaFileObject> list = list(StandardLocation.CLASS_PATH, "mypackage", set(Kind.CLASS), false);
     assertTrue(list.contains(newClass));
   }
-//    @Test
-//    public void listShouldReturnClassesInRoot() {
-//        List<JavaFileObject> classes = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);
-//        assertEquals(1, classes.size());
-//        assertSame(classInRoot, classes.get(0));
-//    }
+
+  @Test
+  public void listShouldReturnClassesInRoot() {
+    List<JavaFileObject> classes = list(StandardLocation.CLASS_PATH, "", set(Kind.CLASS), false);
+    assertEquals(1, classes.size());
+    assertEquals(TEST_CLASS, classes.get(0));
+  }
 
   private <T> Set<T> set(T... elements) {
     return new HashSet<>(Arrays.asList(elements));
