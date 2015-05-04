@@ -1,4 +1,4 @@
-package no.rosbach.jcoru.utils;
+package no.rosbach.jcoru.security;
 
 import static java.util.stream.Collectors.toList;
 
@@ -10,12 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class Whitelist {
+public class WhitelistAccessManager implements AccessManager {
   private final HashSet<String> entries;
   private final List<String> wildcardEntries;
 
-  public Whitelist(HashSet<String> entries) {
-    entries.stream().filter(Whitelist::isIllegalEntry)
+  public WhitelistAccessManager(HashSet<String> entries) {
+    entries.stream().filter(WhitelistAccessManager::isIllegalEntry)
         .map(illegal -> illegal == null ? "null" : illegal)
         .findFirst().ifPresent(
         illegal -> {
@@ -49,8 +49,8 @@ public class Whitelist {
     return false;
   }
 
-  public static Whitelist fromJson(ArrayNode jsonWhitelist) {
-    return new Whitelist(fromJson("", jsonWhitelist));
+  public static WhitelistAccessManager fromJson(ArrayNode jsonWhitelist) {
+    return new WhitelistAccessManager(fromJson("", jsonWhitelist));
   }
 
   private static HashSet<String> fromJson(String parent, JsonNode current) {
@@ -79,12 +79,12 @@ public class Whitelist {
     return parent + "." + child;
   }
 
-  public boolean contains(String subject) {
-    if (entries.contains(subject)) {
+  public boolean hasAccess(String name) {
+    if (entries.contains(name)) {
       return true;
     }
     for (String entry : wildcardEntries) {
-      if (subject.startsWith(entry) && !subject.substring(entry.length()).contains(".")) {
+      if (name.startsWith(entry) && !name.substring(entry.length()).contains(".")) {
         return true;
       }
     }

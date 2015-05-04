@@ -1,4 +1,4 @@
-package no.rosbach.jcoru.utils;
+package no.rosbach.jcoru.security;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,25 +13,25 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class WhitelistTest {
+public class WhitelistAccessManagerTest {
 
-  private Whitelist whitelist(String... entries) {
-    return new Whitelist(new HashSet<String>(Arrays.asList(entries)));
+  private WhitelistAccessManager whitelist(String... entries) {
+    return new WhitelistAccessManager(new HashSet<String>(Arrays.asList(entries)));
   }
 
   @Test
   public void shouldAnswerYesForLiteral() {
-    assertTrue(whitelist("org.test.Klasse").contains("org.test.Klasse"));
+    assertTrue(whitelist("org.test.Klasse").hasAccess("org.test.Klasse"));
   }
 
   @Test
   public void shouldAnswerYesForLiteralNotSame() {
-    assertTrue(whitelist("org.test.Klasse").contains(new String("org.test.Klasse")));
+    assertTrue(whitelist("org.test.Klasse").hasAccess(new String("org.test.Klasse")));
   }
 
   @Test
   public void shouldAnswerYesForClassInPackage() {
-    assertTrue(whitelist("org.test.*").contains("org.test.Klasse"));
+    assertTrue(whitelist("org.test.*").hasAccess("org.test.Klasse"));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -51,12 +51,12 @@ public class WhitelistTest {
 
   @Test
   public void shouldAnswerNoForClassInSubPackageOfWildcardEntry() {
-    assertFalse(whitelist("org.*").contains("org.test.Klasse"));
+    assertFalse(whitelist("org.*").hasAccess("org.test.Klasse"));
   }
 
   @Test
   public void shouldAnswerNoForClassNotWhitelisted() {
-    assertFalse(whitelist("org.Klasse").contains("Klasse"));
+    assertFalse(whitelist("org.Klasse").hasAccess("Klasse"));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -75,47 +75,47 @@ public class WhitelistTest {
 
    */
 
-  private Whitelist getWhitelist(final String name) {
+  private WhitelistAccessManager getWhitelist(final String name) {
     String resource = "whitelists/fixtures/" + name;
     try (InputStream fixtureStream = getClass().getClassLoader().getResourceAsStream(resource)) {
       ObjectMapper mapper = new ObjectMapper();
-      return Whitelist.fromJson(mapper.readValue(fixtureStream, ArrayNode.class));
+      return WhitelistAccessManager.fromJson(mapper.readValue(fixtureStream, ArrayNode.class));
     } catch (IOException e) {
       throw new Error("Failed to read whitelist fixture: " + resource, e);
     }
   }
 
-  private void assertContainsJUnit(Whitelist whitelist) {
-    assertTrue(whitelist.contains("org.unit.Test"));
-    assertTrue(whitelist.contains("org.unit.After"));
-    assertTrue(whitelist.contains("org.unit.Before"));
+  private void assertContainsJUnit(WhitelistAccessManager whitelist) {
+    assertTrue(whitelist.hasAccess("org.unit.Test"));
+    assertTrue(whitelist.hasAccess("org.unit.After"));
+    assertTrue(whitelist.hasAccess("org.unit.Before"));
   }
 
   @Test
   public void acceptsBasicList() {
-    Whitelist whitelist = getWhitelist("basic_list.json");
+    WhitelistAccessManager whitelist = getWhitelist("basic_list.json");
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithList() {
-    Whitelist whitelist = getWhitelist("map_with_list.json");
+    WhitelistAccessManager whitelist = getWhitelist("map_with_list.json");
     ;
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithMap() {
-    Whitelist whitelist = getWhitelist("map_with_map.json");
+    WhitelistAccessManager whitelist = getWhitelist("map_with_map.json");
     ;
     Arrays.asList("java.util.List", "java.util.Date", "java.lang.String", "java.lang.System").stream()
-        .forEach(clazz -> assertTrue(whitelist.contains(clazz)));
+        .forEach(clazz -> assertTrue(whitelist.hasAccess(clazz)));
   }
 
   @Test
   public void acceptsMapWithValue() {
-    Whitelist whitelist = getWhitelist("map_with_value.json");
-    assertTrue(whitelist.contains("org.junit.Test"));
+    WhitelistAccessManager whitelist = getWhitelist("map_with_value.json");
+    assertTrue(whitelist.hasAccess("org.junit.Test"));
   }
 
 }
