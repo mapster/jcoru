@@ -14,6 +14,7 @@ import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
@@ -112,6 +113,7 @@ public class JavaCompilerTest {
   //TODO: Test that all declared libraries are loaded as classpath args
   //TODO: Test that an empty list of libraries also works
   @Test
+  @Ignore
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
     compiler = new JavaCompiler(mock, new SensitiveDiagnosticListener());

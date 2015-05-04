@@ -134,6 +134,8 @@
             <artifactId>jersey-media-moxy</artifactId>
         </dependency>
 
+        <!-- util libraries -->
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -154,16 +156,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
-            <version>5.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
         </dependency>
+
+        <!-- Log4j2 - including support for json parsing via Jackson -->
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

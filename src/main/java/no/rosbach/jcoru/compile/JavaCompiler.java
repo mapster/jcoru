@@ -7,6 +7,7 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class JavaCompiler {
 
     List<String> options = new LinkedList<>();
     options.add("-classpath");
-    options.add(JavaCompiler.class.getClassLoader().getResource("junit-4.11.jar").getFile());
+    options.add(JavaCompiler.class.getClassLoader().getResource(LIB_RESOURCE_DIRECTORY + File.separatorChar + "junit-4.11.jar").getFile());
 
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
 
