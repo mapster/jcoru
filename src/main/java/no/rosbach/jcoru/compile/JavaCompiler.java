@@ -17,6 +17,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 public class JavaCompiler {
+  public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
   private final javax.tools.JavaCompiler compiler;
   InMemoryFileManager fileManager;
@@ -33,12 +34,26 @@ public class JavaCompiler {
     this.diagnosticListener = diagnosticListener;
   }
 
+  JavaCompiler(javax.tools.JavaCompiler compiler, DiagnosticListener diagnosticListener) {
+    fileManager = new InMemoryFileManager(new LinkedList<>());
+    this.compiler = compiler;
+    this.diagnosticListener = diagnosticListener;
+  }
+
   public List<CompiledClassObject> compile(JavaSourceString myTestSource) {
     return compile(Arrays.asList(myTestSource));
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> files) {
-    javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, null, null, files);
+    if (files.isEmpty()) {
+      return new LinkedList<>();
+    }
+
+    List<String> options = new LinkedList<>();
+    options.add("-classpath");
+    options.add(JavaCompiler.class.getClassLoader().getResource("junit-4.11.jar").getFile());
+
+    javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
 
     task.call();
     return stream(files)

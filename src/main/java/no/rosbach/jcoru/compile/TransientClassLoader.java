@@ -14,7 +14,7 @@ public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
 
   // TODO: use FileManager instead
-  private Map<String, InMemoryClassFile> classStore;
+  private final Map<String, InMemoryClassFile> classStore;
 
   public TransientClassLoader(Map<String, InMemoryClassFile> classStore) {
     super(TransientClassLoader.class.getClassLoader());

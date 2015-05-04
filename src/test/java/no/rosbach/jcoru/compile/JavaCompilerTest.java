@@ -3,6 +3,10 @@ package no.rosbach.jcoru.compile;
 import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
@@ -11,11 +15,16 @@ import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 
@@ -92,6 +101,32 @@ public class JavaCompilerTest {
   public void packagedClassObjectShouldBeInMemoryClassFilesWrappedIn_CompiledClassObject() {
     CompiledClassObject compiled = compile(getFixtureSource(Fixtures.PACKAGED_CLASS)).get(0);
     assertEquals(InMemoryClassFile.class, compiled.getWrappedObject().getClass());
+  }
+
+  @Test
+  public void shouldReturnEmptyListIfNoSourcesArePassed() {
+    assertTrue(compile().isEmpty());
+  }
+
+
+  //TODO: Test that all declared libraries are loaded as classpath args
+  //TODO: Test that an empty list of libraries also works
+  @Test
+  public void shouldAddAllLibJarsToClassPath() {
+    javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
+    compiler = new JavaCompiler(mock, new SensitiveDiagnosticListener());
+    compiler.compile(getFixtureSource(Fixtures.TEST_CLASS));
+
+    verify(mock).getTask(
+        any(PrintWriter.class), any(JavaFileManager.class), any(DiagnosticListener.class), argThat(
+            new ArgumentMatcher<Iterable<String>>() {
+              @Override
+              public boolean matches(Object o) {
+                Iterator<String> iterator = ((Iterable<String>) o).iterator();
+                assertEquals("-classpath", iterator.next());
+                return false;
+              }
+            }), any(Iterable.class), any(Iterable.class));
   }
 
   private List<CompiledClassObject> compile(JavaSourceString... source) {
