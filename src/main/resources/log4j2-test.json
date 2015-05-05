@@ -1,0 +1,24 @@
+{
+  "configuration": {
+    "status": "error",
+    "name": "Log4jTestConfig",
+    "packages": "org.apache.logging.log4j.test",
+    "appenders": {
+      "Console": {
+        "name": "STDOUT",
+        "PatternLayout": {"pattern": "%m%n"}
+      },
+      "File": {
+        "name": "File",
+        "fileName": "${sys:catalina.home}/logs/jcoru.log",
+        "PatternLayout": {"pattern": "%d %level{length=1} %c{1} [%t] %m%n"}
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "debug",
+        "AppenderRef": {"ref": "STDOUT"}
+      }
+    }
+  }
+}
