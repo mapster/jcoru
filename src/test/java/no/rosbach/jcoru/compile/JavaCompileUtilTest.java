@@ -32,7 +32,7 @@ import javax.tools.JavaFileObject.Kind;
 /**
  * Created by mapster on 25.11.14.
  */
-public class JavaCompilerTest {
+public class JavaCompileUtilTest {
 
   private static final JavaSourceString MY_TEST_SOURCE = new JavaSourceString(
       "MyTest.java",
@@ -43,7 +43,7 @@ public class JavaCompilerTest {
   private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString(
       "Contained.java",
       "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
-  private JavaCompiler compiler;
+  private JavaCompileUtil compiler;
 
   private static <T> List<T> collect(Iterable<T> it) {
     List<T> list = new LinkedList<>();
@@ -55,7 +55,7 @@ public class JavaCompilerTest {
 
   @Before
   public void setStage() {
-    compiler = new JavaCompiler(new SensitiveDiagnosticListener());
+    compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
   }
 
   @Test
@@ -116,7 +116,7 @@ public class JavaCompilerTest {
   @Ignore
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
-    compiler = new JavaCompiler(mock, new SensitiveDiagnosticListener());
+    compiler = new JavaCompileUtil(mock, new SensitiveDiagnosticListener());
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS));
 
     verify(mock).getTask(

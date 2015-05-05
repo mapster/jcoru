@@ -33,7 +33,7 @@ public class TransientClassLoaderTest {
   @Before
   public void setStage() throws IOException {
     classStore = new HashMap<>();
-    JavaCompiler compiler = new JavaCompiler(new SensitiveDiagnosticListener());
+    JavaCompileUtil compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
     compiler.compile(Fixtures.getFixtureAndInterfaceSources(Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS))
         .stream().forEach(clazz -> classStore.put(clazz.getName(), (InMemoryClassFile) clazz.getWrappedObject()));
 

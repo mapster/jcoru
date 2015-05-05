@@ -22,7 +22,7 @@ public class JUnitRunnerTestBase {
 
   protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    JavaCompiler compiler = new JavaCompiler(reportBuilder);
+    JavaCompileUtil compiler = new JavaCompileUtil(reportBuilder);
 
     List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources);
 

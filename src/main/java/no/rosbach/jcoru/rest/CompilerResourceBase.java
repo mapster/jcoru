@@ -3,7 +3,7 @@ package no.rosbach.jcoru.rest;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import no.rosbach.jcoru.compile.JavaCompiler;
+import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
@@ -13,7 +13,7 @@ import javax.ws.rs.BadRequestException;
 
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-  private final JavaCompiler compiler = new JavaCompiler(reportBuilder);
+  private final JavaCompileUtil compiler = new JavaCompileUtil(reportBuilder);
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {

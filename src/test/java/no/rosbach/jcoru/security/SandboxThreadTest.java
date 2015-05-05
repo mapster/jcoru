@@ -3,7 +3,7 @@ package no.rosbach.jcoru.security;
 import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSources;
 
 import no.rosbach.jcoru.compile.JUnitTestRunner;
-import no.rosbach.jcoru.compile.JavaCompiler;
+import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.SensitiveDiagnosticListener;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
@@ -65,7 +65,7 @@ public class SandboxThreadTest extends SandboxTestBase {
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
-    JavaCompiler compiler = new JavaCompiler(new SensitiveDiagnosticListener());
+    JavaCompileUtil compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
     classLoader = compiler.getClassLoader();
     return compiler.compile(sources);
   }

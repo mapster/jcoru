@@ -17,25 +17,25 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-public class JavaCompiler {
+public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
   private final javax.tools.JavaCompiler compiler;
   InMemoryFileManager fileManager;
   private DiagnosticListener diagnosticListener;
 
-  public JavaCompiler() {
+  public JavaCompileUtil() {
     fileManager = new InMemoryFileManager(new LinkedList<>());
     compiler = ToolProvider.getSystemJavaCompiler();
   }
 
-  public JavaCompiler(DiagnosticListener diagnosticListener) {
+  public JavaCompileUtil(DiagnosticListener diagnosticListener) {
     fileManager = new InMemoryFileManager(new LinkedList<>());
     this.compiler = ToolProvider.getSystemJavaCompiler();
     this.diagnosticListener = diagnosticListener;
   }
 
-  JavaCompiler(javax.tools.JavaCompiler compiler, DiagnosticListener diagnosticListener) {
+  JavaCompileUtil(javax.tools.JavaCompiler compiler, DiagnosticListener diagnosticListener) {
     fileManager = new InMemoryFileManager(new LinkedList<>());
     this.compiler = compiler;
     this.diagnosticListener = diagnosticListener;
@@ -52,7 +52,7 @@ public class JavaCompiler {
 
     List<String> options = new LinkedList<>();
     options.add("-classpath");
-    options.add(JavaCompiler.class.getClassLoader().getResource(LIB_RESOURCE_DIRECTORY + File.separatorChar + "junit-4.11.jar").getFile());
+    options.add(JavaCompileUtil.class.getClassLoader().getResource(LIB_RESOURCE_DIRECTORY + File.separatorChar + "junit-4.11.jar").getFile());
 
     javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
 
