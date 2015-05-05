@@ -189,17 +189,34 @@
             <version>2.5.1</version>
         </dependency>
 
-        <!-- CDI Support
-        <dependency>
+        <!-- CDI Support -->
+
+        <!-- <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
+        </dependency> -->
+        <dependency>
+            <groupId>org.glassfish.hk2.external</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>2.3.0</version>
         </dependency>
-        -->
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.cdi</groupId>
+            <artifactId>jersey-cdi1x</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.cdi</groupId>
+            <artifactId>jersey-cdi1x-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet</artifactId>
+            <version>2.2.11.Final</version>
+        </dependency>
 
     </dependencies>
     <properties>
-        <jersey.version>2.13</jersey.version>
+        <jersey.version>2.17</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>google_checks.xml</checkstyle.config.location>
     </properties>
