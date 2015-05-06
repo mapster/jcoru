@@ -9,12 +9,13 @@ import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
 import java.util.List;
 
-import javax.tools.ToolProvider;
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-  private JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
+  @Inject
+  private JavaCompileUtil compiler;
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {
