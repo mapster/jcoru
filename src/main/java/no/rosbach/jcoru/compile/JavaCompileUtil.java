@@ -12,40 +12,29 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
 public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
-  private final javax.tools.JavaCompiler compiler;
+  private final JavaCompiler compiler;
   InMemoryFileManager fileManager;
-  private DiagnosticListener diagnosticListener;
 
-  public JavaCompileUtil() {
-    fileManager = new InMemoryFileManager(new LinkedList<>());
-    compiler = ToolProvider.getSystemJavaCompiler();
-  }
-
-  public JavaCompileUtil(DiagnosticListener diagnosticListener) {
-    fileManager = new InMemoryFileManager(new LinkedList<>());
-    this.compiler = ToolProvider.getSystemJavaCompiler();
-    this.diagnosticListener = diagnosticListener;
-  }
-
-  JavaCompileUtil(javax.tools.JavaCompiler compiler, DiagnosticListener diagnosticListener) {
+  @Inject
+  public JavaCompileUtil(JavaCompiler compiler) {
     fileManager = new InMemoryFileManager(new LinkedList<>());
     this.compiler = compiler;
-    this.diagnosticListener = diagnosticListener;
   }
 
-  public List<CompiledClassObject> compile(JavaSourceString myTestSource) {
-    return compile(Arrays.asList(myTestSource));
+  public List<CompiledClassObject> compile(JavaSourceString myTestSource, DiagnosticListener diagnosticListener) {
+    return compile(Arrays.asList(myTestSource), diagnosticListener);
   }
 
-  public List<CompiledClassObject> compile(List<JavaSourceString> files) {
+  public List<CompiledClassObject> compile(List<JavaSourceString> files, DiagnosticListener diagnosticListener) {
     if (files.isEmpty()) {
       return new LinkedList<>();
     }

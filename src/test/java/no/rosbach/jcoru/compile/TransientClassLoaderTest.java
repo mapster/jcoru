@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
 
+import javax.tools.ToolProvider;
+
 /**
  * Created by mapster on 14.03.15.
  */
@@ -33,8 +35,8 @@ public class TransientClassLoaderTest {
   @Before
   public void setStage() throws IOException {
     classStore = new HashMap<>();
-    JavaCompileUtil compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
-    compiler.compile(Fixtures.getFixtureAndInterfaceSources(Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS))
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
+    compiler.compile(Fixtures.getFixtureAndInterfaceSources(Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS), new SensitiveDiagnosticListener())
         .stream().forEach(clazz -> classStore.put(clazz.getName(), (InMemoryClassFile) clazz.getWrappedObject()));
 
     classLoader = new TransientClassLoader(classStore);

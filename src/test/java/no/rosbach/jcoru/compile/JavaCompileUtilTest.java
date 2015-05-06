@@ -28,6 +28,7 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
+import javax.tools.ToolProvider;
 
 /**
  * Created by mapster on 25.11.14.
@@ -55,7 +56,7 @@ public class JavaCompileUtilTest {
 
   @Before
   public void setStage() {
-    compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
   }
 
   @Test
@@ -116,8 +117,8 @@ public class JavaCompileUtilTest {
   @Ignore
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
-    compiler = new JavaCompileUtil(mock, new SensitiveDiagnosticListener());
-    compiler.compile(getFixtureSource(Fixtures.TEST_CLASS));
+    compiler = new JavaCompileUtil(mock);
+    compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(
         any(PrintWriter.class), any(JavaFileManager.class), any(DiagnosticListener.class), argThat(
@@ -132,6 +133,6 @@ public class JavaCompileUtilTest {
   }
 
   private List<CompiledClassObject> compile(JavaSourceString... source) {
-    return compiler.compile(Arrays.asList(source));
+    return compiler.compile(Arrays.asList(source), new SensitiveDiagnosticListener());
   }
 }

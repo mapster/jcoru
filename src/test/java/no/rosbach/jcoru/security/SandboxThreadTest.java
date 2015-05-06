@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.util.List;
 
+import javax.tools.ToolProvider;
+
 public class SandboxThreadTest extends SandboxTestBase {
 
   private ClassLoader classLoader;
@@ -65,8 +67,8 @@ public class SandboxThreadTest extends SandboxTestBase {
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
-    JavaCompileUtil compiler = new JavaCompileUtil(new SensitiveDiagnosticListener());
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
     classLoader = compiler.getClassLoader();
-    return compiler.compile(sources);
+    return compiler.compile(sources, new SensitiveDiagnosticListener());
   }
 }

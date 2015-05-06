@@ -9,11 +9,12 @@ import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
 import java.util.List;
 
+import javax.tools.ToolProvider;
 import javax.ws.rs.BadRequestException;
 
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-  private final JavaCompileUtil compiler = new JavaCompileUtil(reportBuilder);
+  private JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {
@@ -29,7 +30,7 @@ public abstract class CompilerResourceBase {
   }
 
   protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
-    return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()));
+    return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()), reportBuilder);
   }
 
   protected ClassLoader getClassLoader() {

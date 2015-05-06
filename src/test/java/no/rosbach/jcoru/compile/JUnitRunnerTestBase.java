@@ -12,6 +12,8 @@ import org.junit.runner.Result;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.tools.ToolProvider;
+
 /**
  * Created by mapster on 26.04.15.
  */
@@ -22,9 +24,9 @@ public class JUnitRunnerTestBase {
 
   protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    JavaCompileUtil compiler = new JavaCompileUtil(reportBuilder);
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
 
-    List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources);
+    List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources, reportBuilder);
 
     // If compilation failed the return compilation report
     CompilationReport compilationReport = reportBuilder.buildReport();
