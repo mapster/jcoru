@@ -22,11 +22,11 @@ public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
   private final JavaCompiler compiler;
-  InMemoryFileManager fileManager;
+  private final InMemoryFileManager fileManager;
 
   @Inject
-  public JavaCompileUtil(JavaCompiler compiler) {
-    fileManager = new InMemoryFileManager(new LinkedList<>());
+  public JavaCompileUtil(JavaCompiler compiler, InMemoryFileManager fileManager) {
+    this.fileManager = fileManager;
     this.compiler = compiler;
   }
 

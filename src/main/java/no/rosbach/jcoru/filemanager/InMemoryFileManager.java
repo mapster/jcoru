@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,14 @@ public class InMemoryFileManager implements JavaFileManager {
   private final FileTree sources;
   private final FileTree compiledClasses;
   Map<String, InMemoryClassFile> classStore;
+
+  public InMemoryFileManager() {
+    this.classStore = new HashMap<>();
+    classPathLoader = new TransientClassLoader(this.classStore);
+    this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
+    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, new LinkedList<>());
+    this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
+  }
 
   public InMemoryFileManager(List<JavaFileObject> sources) {
     this.classStore = new HashMap<>();

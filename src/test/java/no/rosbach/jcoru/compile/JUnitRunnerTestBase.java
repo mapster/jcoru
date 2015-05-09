@@ -3,6 +3,7 @@ package no.rosbach.jcoru.compile;
 import static org.junit.Assert.fail;
 
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
+import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
@@ -24,7 +25,7 @@ public class JUnitRunnerTestBase {
 
   protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
 
     List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources, reportBuilder);
 

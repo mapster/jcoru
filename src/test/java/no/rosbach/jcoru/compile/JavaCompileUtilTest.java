@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
+import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class JavaCompileUtilTest {
 
   @Before
   public void setStage() {
-    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
   }
 
   @Test
@@ -117,7 +118,7 @@ public class JavaCompileUtilTest {
   @Ignore
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
-    compiler = new JavaCompileUtil(mock);
+    compiler = new JavaCompileUtil(mock, new InMemoryFileManager());
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(

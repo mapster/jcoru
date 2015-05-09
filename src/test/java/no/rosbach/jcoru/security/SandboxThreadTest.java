@@ -7,6 +7,7 @@ import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.SensitiveDiagnosticListener;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
+import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
 import org.junit.Test;
@@ -67,7 +68,7 @@ public class SandboxThreadTest extends SandboxTestBase {
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler());
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
     classLoader = compiler.getClassLoader();
     return compiler.compile(sources, new SensitiveDiagnosticListener());
   }
