@@ -214,6 +214,12 @@
             <version>2.2.11.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.cdi</groupId>
+            <artifactId>jersey-weld2-se</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
     <properties>
         <jersey.version>2.17</jersey.version>

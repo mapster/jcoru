@@ -7,25 +7,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import no.rosbach.jcoru.factory.JavaCompilerFactory;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.rest.ErrorMessage;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
+import javax.tools.JavaCompiler;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,21 +32,22 @@ import javax.ws.rs.core.Response;
 /**
  * Created by mapster on 26.04.15.
  */
-public abstract class CompilerResourceTestBase extends JerseyTest {
+public abstract class CompilerResourceTestBase extends ResourceTestBase {
 
   protected static final JavaSourceStringDto TEST_CLASS_SOURCE = new JavaSourceStringDto(getFixtureSource(Fixtures.TEST_CLASS));
   protected static final JavaSourceStringDto TEST_CLASS_I_SOURCE = new JavaSourceStringDto(getFixtureInterfaceSource(Fixtures.TEST_CLASS));
-  private static final Class[] RESPONSE_MAPPERS = {DefaultExceptionMapper.class};
-
-  protected abstract Class[] getFacadesToTest();
-
-  protected abstract Invocation.Builder request();
 
   protected abstract CompilationReport compilationReportFromResponse(Response response);
 
   @Override
-  final protected Application configure() {
-    return new ResourceConfig(ArrayUtils.addAll(getFacadesToTest(), RESPONSE_MAPPERS));
+  protected AbstractBinder getCDIBindings() {
+    return new AbstractBinder() {
+      @Override
+      protected void configure() {
+        bindFactory(JavaCompilerFactory.class).to(JavaCompiler.class);
+        bind(JavaCompileUtil.class).to(JavaCompileUtil.class);
+      }
+    };
   }
 
   protected Response stringRequest(String s) {
