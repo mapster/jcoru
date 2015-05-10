@@ -60,4 +60,8 @@ public class JavaCompileUtil {
   public ClassLoader getClassLoader() {
     return fileManager.getClassLoader(StandardLocation.CLASS_PATH);
   }
+
+  public InMemoryFileManager getFileManager() {
+    return fileManager;
+  }
 }

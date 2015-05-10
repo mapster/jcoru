@@ -1,24 +1,27 @@
 package no.rosbach.jcoru.compile;
 
 
-import no.rosbach.jcoru.filemanager.InMemoryClassFile;
+import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.Map;
+
+import javax.inject.Inject;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
+  private InMemoryFileManager fileManager;
 
-  // TODO: use FileManager instead
-  private final Map<String, InMemoryClassFile> classStore;
 
-  public TransientClassLoader(Map<String, InMemoryClassFile> classStore) {
+  @Inject
+  public TransientClassLoader(InMemoryFileManager fileManager) {
     super(TransientClassLoader.class.getClassLoader());
-    this.classStore = classStore;
+    this.fileManager = fileManager;
   }
 
   public boolean isClassLoaded(String name) {
@@ -28,10 +31,11 @@ public class TransientClassLoader extends ClassLoader {
   @Override
   public Class<?> loadClass(String name) throws ClassNotFoundException {
     LOGGER.debug("Loading class: " + name);
-    if (classStore.containsKey(name)) {
-      return findClass(name);
+    Class clazz = findClass(name);
+    if (clazz == null) {
+      clazz = super.loadClass(name);
     }
-    return super.loadClass(name);
+    return clazz;
   }
 
   @Override
@@ -41,12 +45,16 @@ public class TransientClassLoader extends ClassLoader {
       return clazz;
     }
 
-    try {
-      InMemoryClassFile javaClass = classStore.get(name);
-      byte[] bytes = IOUtils.toByteArray(javaClass.openInputStream());
-      return defineClass(name, bytes, 0, bytes.length);
-    } catch (IOException e) {
-      throw new NonRecoverableError("Failed to read compiled class object.", e);
+    JavaFileObject clazzFile = fileManager.getJavaFileForInput(StandardLocation.CLASS_OUTPUT, name, JavaFileObject.Kind.CLASS);
+    if (clazzFile != null) {
+      try {
+        byte[] bytes = IOUtils.toByteArray(clazzFile.openInputStream());
+        return defineClass(name, bytes, 0, bytes.length);
+      } catch (IOException e) {
+        throw new NonRecoverableError("Failed to read compiled class object.", e);
+      }
     }
+
+    return null;
   }
 }

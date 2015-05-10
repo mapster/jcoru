@@ -17,13 +17,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,31 +42,28 @@ public class InMemoryFileManager implements JavaFileManager {
   private final ClassLoader classPathLoader;
   private final JavaFileManager systemFileManager;
   private final FileTree sources;
-  private final FileTree compiledClasses;
-  Map<String, InMemoryClassFile> classStore;
+  private final FileTree outputClasses;
+  private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
   public InMemoryFileManager() {
-    this.classStore = new HashMap<>();
-    classPathLoader = new TransientClassLoader(this.classStore);
+    classPathLoader = new TransientClassLoader(this);
     this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, new LinkedList<>());
-    this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
+    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   }
 
   public InMemoryFileManager(List<JavaFileObject> sources) {
-    this.classStore = new HashMap<>();
-    classPathLoader = new TransientClassLoader(this.classStore);
+    classPathLoader = new TransientClassLoader(this);
     this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
-    this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
+    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   }
 
-  InMemoryFileManager(List<JavaFileObject> sources, Map<String, InMemoryClassFile> classStore, JavaFileManager systemFileManager) {
-    this.classStore = classStore;
-    classPathLoader = new TransientClassLoader(classStore);
+  InMemoryFileManager(List<JavaFileObject> sources, List<InMemoryClassFile> outputClasses, JavaFileManager systemFileManager) {
+    classPathLoader = new TransientClassLoader(this);
     this.systemFileManager = systemFileManager;
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
-    this.compiledClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, classStore.values());
+    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, outputClasses);
   }
 
   private static Properties loadProperties() {
@@ -95,12 +90,23 @@ public class InMemoryFileManager implements JavaFileManager {
     if (delegate_packages.contains(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
       Iterable<JavaFileObject> list = systemFileManager.list(location, packageName, kinds, recurse);
       return stream(list).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
-    } else if (location.equals(SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)) {
+    }
+
+    if (location.equals(SOURCE_PATH) && kinds.contains(JavaFileObject.Kind.SOURCE)) {
       Collection<JavaFileObject> files = sources.listFiles(packageName.replace(".", "/"), recurse);
       return files;
-    } else if (location.equals(CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
-      return compiledClasses.listFiles(packageName, false);
     }
+
+    if (location.equals(CLASS_PATH) && kinds.contains(JavaFileObject.Kind.CLASS)) {
+      Collection files = classPathClasses.listFiles(packageName, recurse);
+      return files;
+    }
+
+    if (location.equals(CLASS_OUTPUT) && kinds.contains(JavaFileObject.Kind.CLASS)) {
+      Collection collection = outputClasses.listFiles(packageName, recurse);
+      return collection;
+    }
+
     throw new UnsupportedLocation(
         String.format(
             "Cannot list files of kinds (%s) for package %s on location %s.",
@@ -161,7 +167,10 @@ public class InMemoryFileManager implements JavaFileManager {
   @Override
   public JavaFileObject getJavaFileForInput(Location location, String className, JavaFileObject.Kind kind) {
     if (location.equals(CLASS_OUTPUT) && kind.equals(JavaFileObject.Kind.CLASS)) {
-      return classStore.get(className);
+      return outputClasses.get(className);
+    }
+    if (location.equals(CLASS_PATH) && kind.equals(JavaFileObject.Kind.CLASS)) {
+      return classPathClasses.get(className);
     }
     throw new UnsupportedOperationException(String.format("getJavaFileForInput is not yet supported."));
   }
@@ -170,7 +179,7 @@ public class InMemoryFileManager implements JavaFileManager {
   public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
     if (location.equals(CLASS_OUTPUT)) {
       InMemoryClassFile inMemoryFile = new InMemoryClassFile(className);
-      classStore.put(inMemoryFile.getName(), inMemoryFile);
+      outputClasses.add(inMemoryFile);
       return new ManagedFileObject(this, inMemoryFile);
     }
     throw new UnsupportedLocation(String.format("Cannot get java file for output for location %s.", location.getName()));
@@ -199,5 +208,23 @@ public class InMemoryFileManager implements JavaFileManager {
   @Override
   public int isSupportedOption(String option) {
     throw new UnsupportedOperationException("isSupportedOption not implemented yet.");
+  }
+
+  public void addSources(JavaFileObject... newSources) {
+    for (JavaFileObject source : newSources) {
+      sources.add(source);
+    }
+  }
+
+  public void addClassPathClass(JavaFileObject... newClassPathClass) {
+    for (JavaFileObject clazz : newClassPathClass) {
+      classPathClasses.add(clazz);
+    }
+  }
+
+  public void addOutputClass(JavaFileObject... newOutputClass) {
+    for (JavaFileObject clazz : newOutputClass) {
+      outputClasses.add(clazz);
+    }
   }
 }

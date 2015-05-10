@@ -67,17 +67,12 @@ public enum Fixtures {
   }
 
   public static JavaSourceString getFixtureInterfaceSource(Fixtures className) {
-    String fileName = getRelativeFilename(className);
+    String fileName = compactPath("no", "rosbach", "jcoru", "compile", "fixtures", getRelativeFilename(className));
     try (InputStream sourceStream = new FileInputStream(
         compactPath(
             "src",
             "test",
             "java",
-            "no",
-            "rosbach",
-            "jcoru",
-            "compile",
-            "fixtures",
             fileName))) {
       return new JavaSourceString(fileName, IOUtils.toString(sourceStream));
     } catch (FileNotFoundException e) {

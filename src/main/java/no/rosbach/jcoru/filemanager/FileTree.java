@@ -11,6 +11,8 @@ public interface FileTree<T extends JavaFileObject> {
 
   public Collection<T> listFiles(String path, boolean recurse);
 
+  T get(String className);
+
 
   enum PathSeparator {
     FILESYSTEM(PATH_SEPARATOR), PACKAGE(".");

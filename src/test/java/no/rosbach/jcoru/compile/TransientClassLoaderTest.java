@@ -1,5 +1,7 @@
 package no.rosbach.jcoru.compile;
 
+import static java.util.stream.Collectors.toList;
+import static no.rosbach.jcoru.utils.Stream.stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
@@ -10,6 +12,7 @@ import no.rosbach.jcoru.compile.fixtures.AggregationClass;
 import no.rosbach.jcoru.compile.fixtures.ContainedClass;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.compile.fixtures.TestClass;
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 
@@ -21,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.tools.ToolProvider;
 
@@ -31,17 +35,25 @@ public class TransientClassLoaderTest {
 
   private TransientClassLoader classLoader;
   private Class<TestClass> loadedTestClass;
-  private HashMap<String, InMemoryClassFile> classStore;
+  private JavaCompileUtil compiler;
 
   @Before
   public void setStage() throws IOException {
-    classStore = new HashMap<>();
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
-    compiler.compile(Fixtures.getFixtureAndInterfaceSources(Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS), new SensitiveDiagnosticListener())
-        .stream().forEach(clazz -> classStore.put(clazz.getName(), (InMemoryClassFile) clazz.getWrappedObject()));
+    Fixtures[] fixtures = {Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS};
 
-    classLoader = new TransientClassLoader(classStore);
+    // First compile fixture interfaces to make them available as java byte code classes.
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
+    List<CompiledClassObject> compiledInterfaces = compiler.compile(
+        stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList()),
+        new SensitiveDiagnosticListener());
 
+    // Then compile the fixtures to test.
+    InMemoryFileManager fileManager = new InMemoryFileManager();
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), fileManager);
+    compiledInterfaces.forEach(f -> fileManager.addClassPathClass(f));
+    compiler.compile(Fixtures.getFixtureSources(fixtures), new SensitiveDiagnosticListener());
+
+    classLoader = (TransientClassLoader) compiler.getClassLoader();
     loadedTestClass = loadClass(TestClass.class);
   }
 
@@ -103,8 +115,8 @@ public class TransientClassLoaderTest {
   }
 
   @Test
-  public void newClassLoadedShouldBeAbleToLoadPreviouslyLoadedClass() {
-    classLoader = new TransientClassLoader(classStore);
+  public void newClassLoaderShouldBeAbleToLoadPreviouslyLoadedClass() {
+    classLoader = new TransientClassLoader(compiler.getFileManager());
     Class<TestClass> newClass = loadClass(TestClass.class);
     assertNotSame(loadedTestClass, newClass);
   }
