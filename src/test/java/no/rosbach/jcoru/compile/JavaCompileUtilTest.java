@@ -14,6 +14,7 @@ import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
+import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import com.sun.source.util.JavacTask;
@@ -32,10 +33,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
-import javax.tools.ToolProvider;
 
 /**
  * Created by mapster on 25.11.14.
@@ -50,7 +51,10 @@ public class JavaCompileUtilTest {
   private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString(
       "Contained.java",
       "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
-  WhitelistProvider provider = new WhitelistProvider();
+
+  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
+  private final JavaCompilerProvider compilerProvider = new JavaCompilerProvider();
+
   private JavaCompileUtil compiler;
 
   private static <T> List<T> collect(Iterable<T> it) {
@@ -64,8 +68,11 @@ public class JavaCompileUtilTest {
   @Before
   public void setStage() {
     compiler = new JavaCompileUtil(
-        ToolProvider.getSystemJavaCompiler(),
-        new InMemoryFileManager(new TransientClassLoader(provider.getClassloaderWhitelist()), provider.getFileManagerPackagesWhitelist()));
+        compilerProvider.getJavaCompiler(),
+        new InMemoryFileManager(
+            compilerProvider.getSystemFileManager(),
+            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
+            whitelistProvider.getFileManagerPackagesWhitelist()));
   }
 
   @Test
@@ -121,7 +128,7 @@ public class JavaCompileUtilTest {
 
   @Test
   public void shouldAddAllLibJarsToClassPath() {
-    javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
+    JavaCompiler mock = mock(JavaCompiler.class);
     when(
         mock.getTask(
             any(Writer.class),
@@ -135,8 +142,9 @@ public class JavaCompileUtilTest {
     compiler = new JavaCompileUtil(
         mock,
         new InMemoryFileManager(
-            new TransientClassLoader(provider.getClassloaderWhitelist()),
-            provider.getFileManagerPackagesWhitelist()));
+            compilerProvider.getSystemFileManager(),
+            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
+            whitelistProvider.getFileManagerPackagesWhitelist()));
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(

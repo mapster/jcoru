@@ -17,16 +17,13 @@ import javax.tools.StandardLocation;
 
 public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
+  private final WhitelistAccessManager classesWhitelist;
   private InMemoryFileManager fileManager;
 
   @Inject
   public TransientClassLoader(@ClassloaderWhitelist WhitelistAccessManager classesWhitelist) {
     super(TransientClassLoader.class.getClassLoader());
-  }
-
-  public TransientClassLoader(InMemoryFileManager fileManager) {
-    super(TransientClassLoader.class.getClassLoader());
-    this.fileManager = fileManager;
+    this.classesWhitelist = classesWhitelist;
   }
 
   public boolean isClassLoaded(String name) {

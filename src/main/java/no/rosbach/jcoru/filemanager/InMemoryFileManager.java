@@ -9,6 +9,7 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.provider.FileManagerPackageWhitelist;
+import no.rosbach.jcoru.provider.SystemFileManager;
 import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,12 +17,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,11 +28,10 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
 public class InMemoryFileManager implements JavaFileManager {
   private static final Logger LOGGER = LogManager.getLogger();
-  private final TransientClassLoader clasOutputLoader;
+  private final TransientClassLoader classOutputLoader;
   private final WhitelistAccessManager packageWhitelist;
   private final JavaFileManager systemFileManager;
   private final FileTree sources;
@@ -42,30 +39,21 @@ public class InMemoryFileManager implements JavaFileManager {
   private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
   @Inject
-  public InMemoryFileManager(TransientClassLoader classLoader, @FileManagerPackageWhitelist WhitelistAccessManager packageWhitelist) {
-    this.clasOutputLoader = classLoader;
+  public InMemoryFileManager(@SystemFileManager JavaFileManager systemFileManager,
+                             TransientClassLoader classLoader,
+                             @FileManagerPackageWhitelist WhitelistAccessManager packageWhitelist) {
+    this.classOutputLoader = classLoader;
     this.packageWhitelist = packageWhitelist;
-    this.clasOutputLoader.setFileManager(this);
+    this.classOutputLoader.setFileManager(this);
 
-    this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
+    this.systemFileManager = systemFileManager;
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM);
     this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   }
 
-  InMemoryFileManager(List<JavaFileObject> sources,
-                      List<InMemoryClassFile> outputClasses,
-                      JavaFileManager systemFileManager,
-                      WhitelistAccessManager packageWhitelist) {
-    this.packageWhitelist = packageWhitelist;
-    this.clasOutputLoader = new TransientClassLoader(this);
-    this.systemFileManager = systemFileManager;
-    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
-    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, outputClasses);
-  }
-
   @Override
   public ClassLoader getClassLoader(Location location) {
-    return clasOutputLoader;
+    return classOutputLoader;
   }
 
   @Override

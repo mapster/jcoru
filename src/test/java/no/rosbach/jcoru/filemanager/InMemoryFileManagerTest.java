@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Before;
@@ -34,7 +35,6 @@ import javax.tools.StandardLocation;
  * Created by mapster on 09.03.15.
  */
 public class InMemoryFileManagerTest {
-
   public static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
   private static final String PACKAGE = "package/sub";
   private static final String CLASS_NAME = "MyClass";
@@ -55,10 +55,12 @@ public class InMemoryFileManagerTest {
             anyBoolean())).thenReturn(Arrays.asList(new InMemoryClassFile("heisann")));
 
     inMemoryFileManager = new InMemoryFileManager(
-        Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE),
-        Arrays.asList(TEST_CLASS),
         systemFileManager,
+        new TransientClassLoader(provider.getClassloaderWhitelist()),
         provider.getFileManagerPackagesWhitelist());
+
+    inMemoryFileManager.addSources(JAVA_SOURCE, SOURCE_IN_PACKAGE);
+    inMemoryFileManager.addOutputClass(TEST_CLASS);
   }
 
   //

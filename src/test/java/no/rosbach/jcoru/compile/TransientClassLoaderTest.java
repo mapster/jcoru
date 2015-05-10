@@ -15,6 +15,7 @@ import no.rosbach.jcoru.compile.fixtures.TestClass;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
+import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Before;
@@ -33,7 +34,9 @@ import javax.tools.ToolProvider;
  * Created by mapster on 14.03.15.
  */
 public class TransientClassLoaderTest {
-  private WhitelistProvider provider = new WhitelistProvider();
+  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
+  private final JavaCompilerProvider compilerProvider = new JavaCompilerProvider();
+
   private TransientClassLoader classLoader;
   private Class<TestClass> loadedTestClass;
   private JavaCompileUtil compiler;
@@ -45,15 +48,19 @@ public class TransientClassLoaderTest {
     // First compile fixture interfaces to make them available as java byte code classes.
     compiler = new JavaCompileUtil(
         ToolProvider.getSystemJavaCompiler(),
-        new InMemoryFileManager(new TransientClassLoader(provider.getClassloaderWhitelist()), provider.getFileManagerPackagesWhitelist()));
+        new InMemoryFileManager(
+            compilerProvider.getSystemFileManager(),
+            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
+            whitelistProvider.getFileManagerPackagesWhitelist()));
     List<CompiledClassObject> compiledInterfaces = compiler.compile(
         stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList()),
         new SensitiveDiagnosticListener());
 
     // Then compile the fixtures to test.
     InMemoryFileManager fileManager = new InMemoryFileManager(
-        new TransientClassLoader(provider.getClassloaderWhitelist()),
-        provider.getFileManagerPackagesWhitelist());
+        compilerProvider.getSystemFileManager(),
+        new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
+        whitelistProvider.getFileManagerPackagesWhitelist());
     compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), fileManager);
     compiledInterfaces.forEach(f -> fileManager.addClassPathClass(f));
     compiler.compile(Fixtures.getFixtureSources(fixtures), new SensitiveDiagnosticListener());
@@ -121,9 +128,18 @@ public class TransientClassLoaderTest {
 
   @Test
   public void newClassLoaderShouldBeAbleToLoadPreviouslyLoadedClass() {
-    classLoader = new TransientClassLoader(compiler.getFileManager());
+    // stage
+    classLoader = new TransientClassLoader(whitelistProvider.getClassloaderWhitelist());
+    classLoader.setFileManager(compiler.getFileManager());
+
+    // act
     Class<TestClass> newClass = loadClass(TestClass.class);
     assertNotSame(loadedTestClass, newClass);
+  }
+
+  @Test
+  public void classLoaderRespectsWhitelist() {
+//    class
   }
 
   private Object invoke(Method method, Object instance) {
