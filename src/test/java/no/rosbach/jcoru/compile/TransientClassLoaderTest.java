@@ -12,6 +12,7 @@ import no.rosbach.jcoru.compile.fixtures.AggregationClass;
 import no.rosbach.jcoru.compile.fixtures.ContainedClass;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.compile.fixtures.TestClass;
+import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
@@ -32,7 +33,7 @@ import javax.tools.ToolProvider;
  * Created by mapster on 14.03.15.
  */
 public class TransientClassLoaderTest {
-
+  private JavaCompilerProvider provider = new JavaCompilerProvider();
   private TransientClassLoader classLoader;
   private Class<TestClass> loadedTestClass;
   private JavaCompileUtil compiler;
@@ -42,13 +43,15 @@ public class TransientClassLoaderTest {
     Fixtures[] fixtures = {Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS};
 
     // First compile fixture interfaces to make them available as java byte code classes.
-    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
+    compiler = new JavaCompileUtil(
+        ToolProvider.getSystemJavaCompiler(),
+        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
     List<CompiledClassObject> compiledInterfaces = compiler.compile(
         stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList()),
         new SensitiveDiagnosticListener());
 
     // Then compile the fixtures to test.
-    InMemoryFileManager fileManager = new InMemoryFileManager(new TransientClassLoader());
+    InMemoryFileManager fileManager = new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist());
     compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), fileManager);
     compiledInterfaces.forEach(f -> fileManager.addClassPathClass(f));
     compiler.compile(Fixtures.getFixtureSources(fixtures), new SensitiveDiagnosticListener());

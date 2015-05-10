@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
@@ -40,7 +41,6 @@ import javax.tools.ToolProvider;
  * Created by mapster on 25.11.14.
  */
 public class JavaCompileUtilTest {
-
   private static final JavaSourceString MY_TEST_SOURCE = new JavaSourceString(
       "MyTest.java",
       "public class MyTest { public String test(String arg) { return (\"Hello world \" + arg); }}");
@@ -50,6 +50,7 @@ public class JavaCompileUtilTest {
   private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString(
       "Contained.java",
       "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
+  JavaCompilerProvider provider = new JavaCompilerProvider();
   private JavaCompileUtil compiler;
 
   private static <T> List<T> collect(Iterable<T> it) {
@@ -62,7 +63,9 @@ public class JavaCompileUtilTest {
 
   @Before
   public void setStage() {
-    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
+    compiler = new JavaCompileUtil(
+        ToolProvider.getSystemJavaCompiler(),
+        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
   }
 
   @Test
@@ -129,7 +132,7 @@ public class JavaCompileUtilTest {
             any(Iterable.class)))
         .thenReturn(mock(JavacTask.class));
 
-    compiler = new JavaCompileUtil(mock, new InMemoryFileManager(new TransientClassLoader()));
+    compiler = new JavaCompileUtil(mock, new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(
@@ -137,7 +140,14 @@ public class JavaCompileUtilTest {
             new ArgumentMatcher<Iterable<String>>() {
               @Override
               public boolean matches(Object o) {
+                File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
                 Iterator<String> iterator = ((Iterable<String>) o).iterator();
+
+                // if no libs, then options should be empty.
+                if (libs.length == 0) {
+                  return !iterator.hasNext();
+                }
+
                 // verify starts with -classpath
                 if (!"-classpath".equals(iterator.next())) {
                   return false;
@@ -145,12 +155,9 @@ public class JavaCompileUtilTest {
 
                 // build set of classpath entries
                 HashSet<String> cp = new HashSet<String>();
-                while (iterator.hasNext()) {
-                  cp.add(iterator.next());
-                }
+                cp.addAll(Arrays.asList(iterator.next().split(":")));
 
                 // verify that all files in lib dir are in classpath
-                File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
                 for (File lib : libs) {
                   if (!cp.contains(lib.getPath())) {
                     return false;

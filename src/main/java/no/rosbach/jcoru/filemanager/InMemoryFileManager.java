@@ -8,6 +8,8 @@ import static javax.tools.StandardLocation.SOURCE_PATH;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
+import no.rosbach.jcoru.factory.FileManagerPackageWhitelist;
+import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +35,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+// TODO: replace delegate_packages with packageWhitelist.
 public class InMemoryFileManager implements JavaFileManager {
   private static final Logger LOGGER = LogManager.getLogger();
   private static final String PROPERTIES_PATH = "filemanager.properties";
@@ -47,7 +50,7 @@ public class InMemoryFileManager implements JavaFileManager {
   private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
   @Inject
-  public InMemoryFileManager(TransientClassLoader classLoader) {
+  public InMemoryFileManager(TransientClassLoader classLoader, @FileManagerPackageWhitelist WhitelistAccessManager packageWhitelist) {
     this.classPathLoader = classLoader;
     this.classPathLoader.setFileManager(this);
 

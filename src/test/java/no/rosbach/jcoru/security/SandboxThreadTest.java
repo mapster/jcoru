@@ -7,6 +7,7 @@ import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.SensitiveDiagnosticListener;
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
@@ -18,6 +19,7 @@ import java.util.List;
 import javax.tools.ToolProvider;
 
 public class SandboxThreadTest extends SandboxTestBase {
+  JavaCompilerProvider provider = new JavaCompilerProvider();
 
   private ClassLoader classLoader;
 
@@ -69,7 +71,9 @@ public class SandboxThreadTest extends SandboxTestBase {
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
+    JavaCompileUtil compiler = new JavaCompileUtil(
+        ToolProvider.getSystemJavaCompiler(),
+        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
     classLoader = compiler.getClassLoader();
     return compiler.compile(sources, new SensitiveDiagnosticListener());
   }

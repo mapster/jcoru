@@ -2,6 +2,7 @@ package no.rosbach.jcoru.compile;
 
 import static org.junit.Assert.fail;
 
+import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
@@ -19,13 +20,17 @@ import javax.tools.ToolProvider;
  * Created by mapster on 26.04.15.
  */
 public class JUnitRunnerTestBase {
+  JavaCompilerProvider provider = new JavaCompilerProvider();
+
   protected Result runTests(JavaSourceString fixtureSource) {
     return runTests(Arrays.asList(fixtureSource));
   }
 
   protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
+    JavaCompileUtil compiler = new JavaCompileUtil(
+        ToolProvider.getSystemJavaCompiler(),
+        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
 
     List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources, reportBuilder);
 
