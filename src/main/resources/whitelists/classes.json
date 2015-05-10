@@ -1,5 +1,7 @@
 [
   "org.junit.*",
+  "junit.framework.*",
+  "sun.reflect.*",
   "org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor",
   {
     "java": {
