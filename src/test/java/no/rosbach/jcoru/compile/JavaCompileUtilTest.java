@@ -116,9 +116,6 @@ public class JavaCompileUtilTest {
     assertTrue(compile().isEmpty());
   }
 
-
-  //TODO: Test that all declared libraries are loaded as classpath args
-  //TODO: Test that an empty list of libraries also works
   @Test
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
