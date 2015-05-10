@@ -7,6 +7,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
@@ -14,13 +15,17 @@ import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
+import com.sun.source.util.JavacTask;
+
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
+import java.io.File;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +62,7 @@ public class JavaCompileUtilTest {
 
   @Before
   public void setStage() {
-    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
   }
 
   @Test
@@ -115,10 +120,19 @@ public class JavaCompileUtilTest {
   //TODO: Test that all declared libraries are loaded as classpath args
   //TODO: Test that an empty list of libraries also works
   @Test
-  @Ignore
   public void shouldAddAllLibJarsToClassPath() {
     javax.tools.JavaCompiler mock = mock(javax.tools.JavaCompiler.class);
-    compiler = new JavaCompileUtil(mock, new InMemoryFileManager());
+    when(
+        mock.getTask(
+            any(Writer.class),
+            any(JavaFileManager.class),
+            any(DiagnosticListener.class),
+            any(Iterable.class),
+            any(Iterable.class),
+            any(Iterable.class)))
+        .thenReturn(mock(JavacTask.class));
+
+    compiler = new JavaCompileUtil(mock, new InMemoryFileManager(new TransientClassLoader()));
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(
@@ -127,8 +141,25 @@ public class JavaCompileUtilTest {
               @Override
               public boolean matches(Object o) {
                 Iterator<String> iterator = ((Iterable<String>) o).iterator();
-                assertEquals("-classpath", iterator.next());
-                return false;
+                // verify starts with -classpath
+                if (!"-classpath".equals(iterator.next())) {
+                  return false;
+                }
+
+                // build set of classpath entries
+                HashSet<String> cp = new HashSet<String>();
+                while (iterator.hasNext()) {
+                  cp.add(iterator.next());
+                }
+
+                // verify that all files in lib dir are in classpath
+                File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
+                for (File lib : libs) {
+                  if (!cp.contains(lib.getPath())) {
+                    return false;
+                  }
+                }
+                return true;
               }
             }), any(Iterable.class), any(Iterable.class));
   }

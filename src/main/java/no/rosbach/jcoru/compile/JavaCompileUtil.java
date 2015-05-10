@@ -39,13 +39,17 @@ public class JavaCompileUtil {
       return new LinkedList<>();
     }
 
+    // build classpath
     List<String> options = new LinkedList<>();
-    options.add("-classpath");
-    options.add(JavaCompileUtil.class.getClassLoader().getResource(LIB_RESOURCE_DIRECTORY + File.separatorChar + "junit-4.11.jar").getFile());
+    File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
+    if (libs.length > 0) {
+      options.add("-classpath");
+      options.addAll(stream(libs).map(lib -> lib.getPath()).collect(toList()));
+    }
 
-    javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
-
+    JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
     task.call();
+
     return stream(files)
         .map(
             source -> fileManager.getJavaFileForInput(

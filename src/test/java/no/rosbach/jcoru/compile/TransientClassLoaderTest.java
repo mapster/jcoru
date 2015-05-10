@@ -42,13 +42,13 @@ public class TransientClassLoaderTest {
     Fixtures[] fixtures = {Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS};
 
     // First compile fixture interfaces to make them available as java byte code classes.
-    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
+    compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
     List<CompiledClassObject> compiledInterfaces = compiler.compile(
         stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList()),
         new SensitiveDiagnosticListener());
 
     // Then compile the fixtures to test.
-    InMemoryFileManager fileManager = new InMemoryFileManager();
+    InMemoryFileManager fileManager = new InMemoryFileManager(new TransientClassLoader());
     compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), fileManager);
     compiledInterfaces.forEach(f -> fileManager.addClassPathClass(f));
     compiler.compile(Fixtures.getFixtureSources(fixtures), new SensitiveDiagnosticListener());

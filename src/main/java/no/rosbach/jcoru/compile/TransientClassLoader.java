@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
@@ -17,8 +16,10 @@ public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
   private InMemoryFileManager fileManager;
 
+  public TransientClassLoader() {
+    super(TransientClassLoader.class.getClassLoader());
+  }
 
-  @Inject
   public TransientClassLoader(InMemoryFileManager fileManager) {
     super(TransientClassLoader.class.getClassLoader());
     this.fileManager = fileManager;
@@ -26,6 +27,10 @@ public class TransientClassLoader extends ClassLoader {
 
   public boolean isClassLoaded(String name) {
     return findLoadedClass(name) != null;
+  }
+
+  public void setFileManager(InMemoryFileManager fileManager) {
+    this.fileManager = fileManager;
   }
 
   @Override

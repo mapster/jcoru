@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -39,23 +40,19 @@ public class InMemoryFileManager implements JavaFileManager {
   private static final String DELELEGATE_TO_PARENT = "delegate_to_parent.packages";
   private static Set<String> delegate_packages;
   private static Properties properties = loadProperties();
-  private final ClassLoader classPathLoader;
+  private final TransientClassLoader classPathLoader;
   private final JavaFileManager systemFileManager;
   private final FileTree sources;
   private final FileTree outputClasses;
   private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
-  public InMemoryFileManager() {
-    classPathLoader = new TransientClassLoader(this);
-    this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
-    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, new LinkedList<>());
-    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
-  }
+  @Inject
+  public InMemoryFileManager(TransientClassLoader classLoader) {
+    this.classPathLoader = classLoader;
+    this.classPathLoader.setFileManager(this);
 
-  public InMemoryFileManager(List<JavaFileObject> sources) {
-    classPathLoader = new TransientClassLoader(this);
     this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
-    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
+    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM);
     this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   }
 

@@ -25,7 +25,7 @@ public class JUnitRunnerTestBase {
 
   protected Result runTests(List<JavaSourceString> fixtureSources) {
     CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager());
+    JavaCompileUtil compiler = new JavaCompileUtil(ToolProvider.getSystemJavaCompiler(), new InMemoryFileManager(new TransientClassLoader()));
 
     List<CompiledClassObject> compiledClasses = compiler.compile(fixtureSources, reportBuilder);
 
