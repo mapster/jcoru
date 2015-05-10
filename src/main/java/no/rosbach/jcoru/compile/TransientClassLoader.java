@@ -3,6 +3,7 @@ package no.rosbach.jcoru.compile;
 
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.provider.ClassloaderWhitelist;
+import no.rosbach.jcoru.security.StrictAccessControlException;
 import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.commons.io.IOUtils;
@@ -36,12 +37,17 @@ public class TransientClassLoader extends ClassLoader {
 
   @Override
   public Class<?> loadClass(String name) throws ClassNotFoundException {
-    LOGGER.debug("Loading class: " + name);
-    Class clazz = findClass(name);
-    if (clazz == null) {
-      clazz = super.loadClass(name);
+    if (classesWhitelist.hasAccess(name) || isKnownSource(name)) {
+      LOGGER.debug("Loading class: " + name);
+      Class clazz = findClass(name);
+      if (clazz == null) {
+        clazz = super.loadClass(name);
+      }
+      return clazz;
+    } else {
+      LOGGER.error("Attempted to load non-whitlisted class: {}.", name);
+      throw new StrictAccessControlException("Attempted to load non-whitlisted class: " + name);
     }
-    return clazz;
   }
 
   @Override
@@ -62,5 +68,10 @@ public class TransientClassLoader extends ClassLoader {
     }
 
     return null;
+  }
+
+  private boolean isKnownSource(String name) {
+    return fileManager.getJavaFileForInput(StandardLocation.SOURCE_PATH, name, JavaFileObject.Kind.SOURCE) != null ||
+        fileManager.getJavaFileForInput(StandardLocation.CLASS_OUTPUT, name, JavaFileObject.Kind.CLASS) != null;
   }
 }

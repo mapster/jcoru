@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.collect.Sets;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +28,10 @@ public class WhitelistAccessManager implements AccessManager {
         .filter(e -> e.endsWith("*"))
         .map(e -> e.substring(0, e.length() - 1))
         .collect(toList());
+  }
+
+  public WhitelistAccessManager(WhitelistAccessManager from, HashSet<String> additional) {
+    this(new HashSet<>(Sets.union(from.entries, additional)));
   }
 
   public static boolean isIllegalEntry(String entry) {

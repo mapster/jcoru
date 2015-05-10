@@ -140,8 +140,13 @@ public class InMemoryFileManager implements JavaFileManager {
     if (location.equals(CLASS_OUTPUT) && kind.equals(JavaFileObject.Kind.CLASS)) {
       return outputClasses.get(className);
     }
+
     if (location.equals(CLASS_PATH) && kind.equals(JavaFileObject.Kind.CLASS)) {
       return classPathClasses.get(className);
+    }
+
+    if (location.equals(SOURCE_PATH) && kind.equals(JavaFileObject.Kind.SOURCE)) {
+      return sources.get(className);
     }
     throw new UnsupportedOperationException(String.format("getJavaFileForInput is not yet supported."));
   }

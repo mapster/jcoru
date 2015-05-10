@@ -1,15 +1,10 @@
 [
   "org.junit.*",
-  {
-    "org.junit": [
-      "Test",
-      "Before"
-    ]
-  },
+  "org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor",
   {
     "java": {
-      "util": [],
-      "lang": []
+      "util": "*",
+      "lang": "*"
     }
   }
 ]
