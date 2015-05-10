@@ -12,13 +12,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import no.rosbach.jcoru.factory.JavaCompilerProvider;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,9 +40,9 @@ public class InMemoryFileManagerTest {
   private static final String CLASS_NAME = "MyClass";
   private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
   private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
+  private final JavaCompilerProvider provider = new JavaCompilerProvider();
   private JavaFileManager systemFileManager;
   private InMemoryFileManager inMemoryFileManager;
-  private HashMap<String, InMemoryClassFile> classStore;
 
   @Before
   public void setStage() throws IOException {
@@ -53,7 +54,11 @@ public class InMemoryFileManagerTest {
             anySet(),
             anyBoolean())).thenReturn(Arrays.asList(new InMemoryClassFile("heisann")));
 
-    inMemoryFileManager = new InMemoryFileManager(Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE), Arrays.asList(TEST_CLASS), systemFileManager);
+    inMemoryFileManager = new InMemoryFileManager(
+        Arrays.asList(JAVA_SOURCE, SOURCE_IN_PACKAGE),
+        Arrays.asList(TEST_CLASS),
+        systemFileManager,
+        provider.getFileManagerPackagesWhitelist());
   }
 
   //
@@ -187,6 +192,12 @@ public class InMemoryFileManagerTest {
   public void listShouldDeferAnnotationProcessorPathToSystemFileManager() throws IOException {
     inMemoryFileManager.list(StandardLocation.ANNOTATION_PROCESSOR_PATH, "", set(Kind.CLASS), false);
     verify(systemFileManager).list(StandardLocation.ANNOTATION_PROCESSOR_PATH, "", set(Kind.CLASS), false);
+  }
+
+  @Test
+  public void listShouldDeferWhitelistedPackageToSystemFileManager() throws IOException {
+    inMemoryFileManager.list(StandardLocation.CLASS_PATH, "org.junit", set(Kind.CLASS), false);
+    verify(systemFileManager).list(StandardLocation.CLASS_PATH, "org.junit", set(Kind.CLASS), false);
   }
 
   @Test

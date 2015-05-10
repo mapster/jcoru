@@ -17,14 +17,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,15 +32,10 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-// TODO: replace delegate_packages with packageWhitelist.
 public class InMemoryFileManager implements JavaFileManager {
   private static final Logger LOGGER = LogManager.getLogger();
-  private static final String PROPERTIES_PATH = "filemanager.properties";
-  private static final String PROPERTIES_LIST_DELIMITER = ",";
-  private static final String DELELEGATE_TO_PARENT = "delegate_to_parent.packages";
-  private static Set<String> delegate_packages;
-  private static Properties properties = loadProperties();
-  private final TransientClassLoader classPathLoader;
+  private final TransientClassLoader clasOutputLoader;
+  private final WhitelistAccessManager packageWhitelist;
   private final JavaFileManager systemFileManager;
   private final FileTree sources;
   private final FileTree outputClasses;
@@ -51,43 +43,34 @@ public class InMemoryFileManager implements JavaFileManager {
 
   @Inject
   public InMemoryFileManager(TransientClassLoader classLoader, @FileManagerPackageWhitelist WhitelistAccessManager packageWhitelist) {
-    this.classPathLoader = classLoader;
-    this.classPathLoader.setFileManager(this);
+    this.clasOutputLoader = classLoader;
+    this.packageWhitelist = packageWhitelist;
+    this.clasOutputLoader.setFileManager(this);
 
     this.systemFileManager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, Locale.ENGLISH, Charset.defaultCharset());
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM);
     this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   }
 
-  InMemoryFileManager(List<JavaFileObject> sources, List<InMemoryClassFile> outputClasses, JavaFileManager systemFileManager) {
-    classPathLoader = new TransientClassLoader(this);
+  InMemoryFileManager(List<JavaFileObject> sources,
+                      List<InMemoryClassFile> outputClasses,
+                      JavaFileManager systemFileManager,
+                      WhitelistAccessManager packageWhitelist) {
+    this.packageWhitelist = packageWhitelist;
+    this.clasOutputLoader = new TransientClassLoader(this);
     this.systemFileManager = systemFileManager;
     this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM, sources);
     this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE, outputClasses);
   }
 
-  private static Properties loadProperties() {
-    Properties properties = new Properties();
-    try {
-      properties.load(InMemoryFileManager.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH));
-    } catch (IOException e) {
-      LOGGER.error("Failed to read properties: " + PROPERTIES_PATH, e);
-      return new Properties();
-    }
-
-    delegate_packages = new HashSet<String>(Arrays.asList(properties.getProperty(DELELEGATE_TO_PARENT).split(PROPERTIES_LIST_DELIMITER)));
-
-    return properties;
-  }
-
   @Override
   public ClassLoader getClassLoader(Location location) {
-    return classPathLoader;
+    return clasOutputLoader;
   }
 
   @Override
   public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
-    if (delegate_packages.contains(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
+    if (packageWhitelist.hasAccess(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
       Iterable<JavaFileObject> list = systemFileManager.list(location, packageName, kinds, recurse);
       return stream(list).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
     }
