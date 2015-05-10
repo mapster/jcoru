@@ -9,14 +9,24 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
+@ApplicationScoped
 public class WhitelistProvider {
+  private final WhitelistAccessManager classloader = getWhitelistFromFile("classes.json");
+  private WhitelistAccessManager fileManagerPackages = getWhitelistFromFile("filemanager-packages.json");
+
+  @Produces
+  @ClassloaderWhitelist
+  public WhitelistAccessManager getClassloaderWhitelist() {
+    return classloader;
+  }
 
   @Produces
   @FileManagerPackageWhitelist
   public WhitelistAccessManager getFileManagerPackagesWhitelist() {
-    return getWhitelistFromFile("filemanager-packages.json");
+    return fileManagerPackages;
   }
 
   private WhitelistAccessManager getWhitelistFromFile(String name) {

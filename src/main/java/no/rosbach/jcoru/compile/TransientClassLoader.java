@@ -2,6 +2,8 @@ package no.rosbach.jcoru.compile;
 
 
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
+import no.rosbach.jcoru.provider.ClassloaderWhitelist;
+import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
@@ -16,7 +19,8 @@ public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
   private InMemoryFileManager fileManager;
 
-  public TransientClassLoader() {
+  @Inject
+  public TransientClassLoader(@ClassloaderWhitelist WhitelistAccessManager classesWhitelist) {
     super(TransientClassLoader.class.getClassLoader());
   }
 

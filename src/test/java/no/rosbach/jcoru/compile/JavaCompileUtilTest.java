@@ -65,7 +65,7 @@ public class JavaCompileUtilTest {
   public void setStage() {
     compiler = new JavaCompileUtil(
         ToolProvider.getSystemJavaCompiler(),
-        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
+        new InMemoryFileManager(new TransientClassLoader(provider.getClassloaderWhitelist()), provider.getFileManagerPackagesWhitelist()));
   }
 
   @Test
@@ -132,7 +132,11 @@ public class JavaCompileUtilTest {
             any(Iterable.class)))
         .thenReturn(mock(JavacTask.class));
 
-    compiler = new JavaCompileUtil(mock, new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
+    compiler = new JavaCompileUtil(
+        mock,
+        new InMemoryFileManager(
+            new TransientClassLoader(provider.getClassloaderWhitelist()),
+            provider.getFileManagerPackagesWhitelist()));
     compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(

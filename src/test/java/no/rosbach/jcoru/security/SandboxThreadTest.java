@@ -73,7 +73,7 @@ public class SandboxThreadTest extends SandboxTestBase {
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
     JavaCompileUtil compiler = new JavaCompileUtil(
         ToolProvider.getSystemJavaCompiler(),
-        new InMemoryFileManager(new TransientClassLoader(), provider.getFileManagerPackagesWhitelist()));
+        new InMemoryFileManager(new TransientClassLoader(provider.getClassloaderWhitelist()), provider.getFileManagerPackagesWhitelist()));
     classLoader = compiler.getClassLoader();
     return compiler.compile(sources, new SensitiveDiagnosticListener());
   }
