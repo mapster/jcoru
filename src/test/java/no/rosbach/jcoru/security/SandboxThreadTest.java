@@ -7,10 +7,10 @@ import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.SensitiveDiagnosticListener;
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
-import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
+import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import javax.tools.ToolProvider;
 
 public class SandboxThreadTest extends SandboxTestBase {
-  JavaCompilerProvider provider = new JavaCompilerProvider();
+  WhitelistProvider provider = new WhitelistProvider();
 
   private ClassLoader classLoader;
 

@@ -10,11 +10,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
-import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
+import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import com.sun.source.util.JavacTask;
 
@@ -50,7 +50,7 @@ public class JavaCompileUtilTest {
   private static final JavaSourceString CONTAINED_CLASS_SOURCE = new JavaSourceString(
       "Contained.java",
       "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
-  JavaCompilerProvider provider = new JavaCompilerProvider();
+  WhitelistProvider provider = new WhitelistProvider();
   private JavaCompileUtil compiler;
 
   private static <T> List<T> collect(Iterable<T> it) {

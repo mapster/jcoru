@@ -1,4 +1,4 @@
-package no.rosbach.jcoru.factory;
+package no.rosbach.jcoru.provider;
 
 import no.rosbach.jcoru.compile.NonRecoverableError;
 import no.rosbach.jcoru.security.WhitelistAccessManager;
@@ -10,16 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.enterprise.inject.Produces;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 
-public class JavaCompilerProvider {
-  private JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
-
-  @Produces
-  public JavaCompiler getJavaCompiler() {
-    return javaCompiler;
-  }
+public class WhitelistProvider {
 
   @Produces
   @FileManagerPackageWhitelist

@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import no.rosbach.jcoru.factory.JavaCompilerProvider;
+import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class InMemoryFileManagerTest {
   private static final String CLASS_NAME = "MyClass";
   private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
   private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
-  private final JavaCompilerProvider provider = new JavaCompilerProvider();
+  private final WhitelistProvider provider = new WhitelistProvider();
   private JavaFileManager systemFileManager;
   private InMemoryFileManager inMemoryFileManager;
 

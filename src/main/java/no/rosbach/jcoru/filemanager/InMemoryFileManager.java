@@ -8,7 +8,7 @@ import static javax.tools.StandardLocation.SOURCE_PATH;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
-import no.rosbach.jcoru.factory.FileManagerPackageWhitelist;
+import no.rosbach.jcoru.provider.FileManagerPackageWhitelist;
 import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.logging.log4j.LogManager;

@@ -2,10 +2,10 @@ package no.rosbach.jcoru.compile;
 
 import static org.junit.Assert.fail;
 
-import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
+import no.rosbach.jcoru.provider.WhitelistProvider;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
 
@@ -20,7 +20,7 @@ import javax.tools.ToolProvider;
  * Created by mapster on 26.04.15.
  */
 public class JUnitRunnerTestBase {
-  JavaCompilerProvider provider = new JavaCompilerProvider();
+  WhitelistProvider provider = new WhitelistProvider();
 
   protected Result runTests(JavaSourceString fixtureSource) {
     return runTests(Arrays.asList(fixtureSource));

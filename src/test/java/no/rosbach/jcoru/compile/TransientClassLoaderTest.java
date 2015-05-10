@@ -12,10 +12,10 @@ import no.rosbach.jcoru.compile.fixtures.AggregationClass;
 import no.rosbach.jcoru.compile.fixtures.ContainedClass;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.compile.fixtures.TestClass;
-import no.rosbach.jcoru.factory.JavaCompilerProvider;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
+import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import javax.tools.ToolProvider;
  * Created by mapster on 14.03.15.
  */
 public class TransientClassLoaderTest {
-  private JavaCompilerProvider provider = new JavaCompilerProvider();
+  private WhitelistProvider provider = new WhitelistProvider();
   private TransientClassLoader classLoader;
   private Class<TestClass> loadedTestClass;
   private JavaCompileUtil compiler;
