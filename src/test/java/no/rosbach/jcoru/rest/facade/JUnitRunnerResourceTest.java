@@ -30,11 +30,6 @@ import javax.ws.rs.core.Response;
 public class JUnitRunnerResourceTest extends CompilerResourceTestBase {
 
   @Override
-  protected Class[] getFacadesToTest() {
-    return new Class[]{JUnitRunnerResource.class};
-  }
-
-  @Override
   protected Invocation.Builder request() {
     return target(JUnitRunnerResource.TEST_PATH).request();
   }

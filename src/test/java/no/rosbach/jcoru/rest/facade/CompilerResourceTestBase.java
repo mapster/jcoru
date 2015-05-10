@@ -7,22 +7,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
-import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
-import no.rosbach.jcoru.factory.JavaCompilerFactory;
-import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.rest.ErrorMessage;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
 
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import javax.tools.JavaCompiler;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
@@ -36,25 +31,12 @@ import javax.ws.rs.core.Response;
  */
 public abstract class CompilerResourceTestBase extends ResourceTestBase {
 
-  public static final AbstractBinder COMPILER_RESOURCE_BINDINGS = new AbstractBinder() {
-    @Override
-    protected void configure() {
-      bindFactory(JavaCompilerFactory.class).to(JavaCompiler.class);
-      bind(JavaCompileUtil.class).to(JavaCompileUtil.class);
-      bind(InMemoryFileManager.class).to(InMemoryFileManager.class);
-    }
-  };
   protected static final JavaSourceStringDto TEST_CLASS_SOURCE = new JavaSourceStringDto(getFixtureSource(Fixtures.TEST_CLASS));
   protected static final JavaSourceStringDto TEST_CLASS_I_SOURCE = new JavaSourceStringDto(getFixtureInterfaceSource(Fixtures.TEST_CLASS));
 
   protected abstract CompilationReport compilationReportFromResponse(Response response);
 
   protected abstract Invocation.Builder request();
-
-  @Override
-  AbstractBinder getCDIBindings() {
-    return COMPILER_RESOURCE_BINDINGS;
-  }
 
   protected Response stringRequest(String s) {
     Entity entity = null;

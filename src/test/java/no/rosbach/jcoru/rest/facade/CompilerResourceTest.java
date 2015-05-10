@@ -16,11 +16,6 @@ import javax.ws.rs.core.Response;
 public class CompilerResourceTest extends CompilerResourceTestBase {
 
   @Override
-  protected Class[] getFacadesToTest() {
-    return new Class[]{CompilerResource.class};
-  }
-
-  @Override
   protected Invocation.Builder request() {
     return target(CompilerResource.COMPILER_PATH).request();
   }
