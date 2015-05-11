@@ -1,5 +1,9 @@
 package no.rosbach.jcoru.security;
 
+import static no.rosbach.jcoru.utils.Stream.stream;
+
+import no.rosbach.jcoru.provider.SecurityManagerWhitelist;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,18 +15,20 @@ import java.security.SecurityPermission;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 public class StrictSecurityManager extends SecurityManager {
 
   private static final Logger LOGGER = LogManager.getFormatterLogger(StrictSecurityManager.class);
-
-  private String knownSecret;
+  private final WhitelistAccessManager permissionWhitelist;
+  private Object knownSecret;
   private Set<String> pkgWhitelist = new HashSet<>();
-  private Set<Permission> permissionWhitelist = new HashSet<>();
   private Set<Permission> permissionsWhenDisabled = new HashSet<>();
 
-  public StrictSecurityManager(String secret) {
-    this.knownSecret = secret;
-
+  @Inject
+  public StrictSecurityManager(@SecurityManagerWhitelist WhitelistAccessManager permissionWhitelist) {
+    this.permissionWhitelist = permissionWhitelist;
+    permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));
     readWhitelists();
   }
 
@@ -36,15 +42,16 @@ public class StrictSecurityManager extends SecurityManager {
     for (String pkg : pkgs) {
       pkgWhitelist.add(pkg);
     }
-
-    //whitelisted permissions
-//    permissionWhitelist.add(new RuntimePermission("accessDeclaredMembers"));
-
-    // permissions when disabled
-    permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));
   }
 
-  public boolean disable(String givenSecret) {
+  public boolean enable(Object secret) {
+    if (this.knownSecret == null) {
+      this.knownSecret = secret;
+    }
+    return this.knownSecret == secret;
+  }
+
+  public boolean disable(Object givenSecret) {
     if (this.knownSecret == givenSecret) {
       this.knownSecret = null;
     }
@@ -65,8 +72,23 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void denyAccessIfActive(String validatingMethod, Permission perm) {
     if (knownSecret != null) {
+      LOGGER.error(validatingMethod + " denied access: " + perm);
       throw new StrictAccessControlException(validatingMethod + " denied access: " + perm, perm);
     }
+  }
+
+  private boolean isWhitelisted(Permission perm) {
+    String[] permissions;
+
+    String accessName = String.format("%s.%s", perm.getClass().getName(), perm.getName());
+    String actions = perm.getActions();
+    if (actions != null && actions.length() > 0) {
+      permissions = stream(actions.split(",")).map(action -> accessName + "." + action).toArray(String[]::new);
+    } else {
+      permissions = new String[]{accessName};
+    }
+
+    return stream(permissions).allMatch(p -> permissionWhitelist.hasAccess(p));
   }
 
   @Override
@@ -77,15 +99,14 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkPermission(Permission perm) {
-    if (permissionWhitelist.contains(perm)) {
-      return;
-    }
-    denyAccessIfActive("checkPermission", perm);
+    if (!isWhitelisted(perm)) {
+      denyAccessIfActive("checkPermission", perm);
 
-    // skip checking with super if listed as allowed when disabled.
-    // if not, check with super if this is allowed.
-    if (!allowIfDisabled(perm)) {
-      super.checkPermission(perm);
+      // skip checking with super if listed as allowed when disabled.
+      // if not, check with super if this is allowed.
+      if (!allowIfDisabled(perm)) {
+        super.checkPermission(perm);
+      }
     }
   }
 
@@ -241,8 +262,9 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkPackageAccess(String pkg) {
-    if (!pkgWhitelist.contains(pkg)) {
-      denyAccessIfActive("checkPackageAccess", new RuntimePermission("accessClassInPackage." + pkg));
+    RuntimePermission perm = new RuntimePermission("accessClassInPackage." + pkg);
+    if (!isWhitelisted(perm)) {
+      denyAccessIfActive("checkPackageAccess", perm);
       super.checkPackageAccess(pkg);
     }
   }

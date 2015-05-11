@@ -3,15 +3,21 @@ package no.rosbach.jcoru.security;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import no.rosbach.jcoru.provider.WhitelistProvider;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FilePermission;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.security.Permission;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mapster on 28.04.15.
@@ -19,11 +25,13 @@ import java.util.Arrays;
 public class StrictSecurityManagerTest {
 
   public static final String SECRET = "abc";
+  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
   private StrictSecurityManager sm;
 
   @Before
   public void prepare() {
-    sm = new StrictSecurityManager(SECRET);
+    sm = new StrictSecurityManager(new WhitelistAccessManager(new HashSet<>(Arrays.asList("java.lang.RuntimePermission.accessDeclaredMembers"))));
+    sm.enable(SECRET);
   }
 
   @Test
@@ -41,9 +49,55 @@ public class StrictSecurityManagerTest {
     assertTrue(sm.disable(SECRET));
   }
 
+  @Test
+  public void canBeEnabled() {
+    sm = new StrictSecurityManager(null);
+    assertTrue(sm.enable(UUID.randomUUID()));
+    try {
+      sm.checkExit(1);
+      fail("SecurityManager is not active.");
+    } catch (StrictAccessControlException e) {
+    }
+  }
+
+  @Test
+  public void cannotBeEnabledWhenAlreadyEnabled() {
+    assertFalse(sm.enable(UUID.randomUUID()));
+  }
+
   @Test(expected = StrictAccessControlException.class)
   public void testThatSecurityExceptionAlsoIsThrownWhenNotInvokedThroughReflection() {
     sm.checkDelete("");
+  }
+
+  @Test
+  public void whitelistIsEnabled() {
+    sm.checkPermission(new RuntimePermission("accessDeclaredMembers"));
+  }
+
+  @Test(expected = StrictAccessControlException.class)
+  public void whitelistChecksMultipleActions() {
+    sm = new StrictSecurityManager(new WhitelistAccessManager(new HashSet<>(Arrays.asList("java.io.FilePermission.Test.java.read"))));
+    sm.enable(UUID.randomUUID());
+    sm.checkPermission(new FilePermission("Test.java", "read,write"));
+  }
+
+  @Test
+  public void whitelistAllowsMultipleActions() {
+    sm = new StrictSecurityManager(
+        new WhitelistAccessManager(
+            new HashSet<>(
+                Arrays.asList(
+                    "java.io.FilePermission.Test.java.read",
+                    "java.io.FilePermission.Test.java.write"))));
+    sm.enable(UUID.randomUUID());
+    sm.checkPermission(new FilePermission("Test.java", "read,write"));
+  }
+
+  @Test
+  public void setSecurityManagerIsAllowedWhenDisabled() {
+    sm.disable(SECRET);
+    sm.checkPermission(new RuntimePermission("setSecurityManager"));
   }
 
   private void assertThrowsSecurityException(Method method) {

@@ -118,4 +118,10 @@ public class WhitelistAccessManagerTest {
     assertTrue(whitelist.hasAccess("org.junit.Test"));
   }
 
+  @Test
+  public void acceptsListWithEmptyStringAsSelf() {
+    WhitelistAccessManager whitelist = getWhitelist("list_with_emptystring.json");
+    assertTrue(whitelist.hasAccess("org.junit"));
+  }
+
 }

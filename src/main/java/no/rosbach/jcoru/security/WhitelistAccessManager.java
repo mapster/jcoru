@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+// TODO: Need a better scheme for permission access checking, see java.io.FilePermission
 public class WhitelistAccessManager implements AccessManager {
   private final HashSet<String> entries;
   private final List<String> wildcardEntries;
@@ -61,7 +62,12 @@ public class WhitelistAccessManager implements AccessManager {
   private static HashSet<String> fromJson(String parent, JsonNode current) {
     HashSet<String> entries = new HashSet<>();
     if (current.isTextual()) {
-      entries.add(concatName(parent, current.textValue()));
+      // add parent if current is empty string.
+      if (current.textValue().isEmpty()) {
+        entries.add(parent);
+      } else {
+        entries.add(concatName(parent, current.textValue()));
+      }
     } else if (current.isArray()) {
       for (JsonNode el : current) {
         entries.addAll(fromJson(parent, el));

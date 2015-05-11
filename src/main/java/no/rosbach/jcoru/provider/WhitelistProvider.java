@@ -15,7 +15,8 @@ import javax.enterprise.inject.Produces;
 @ApplicationScoped
 public class WhitelistProvider {
   private final WhitelistAccessManager classloader = getWhitelistFromFile("classes.json");
-  private WhitelistAccessManager fileManagerPackages = getWhitelistFromFile("filemanager-packages.json");
+  private final WhitelistAccessManager fileManagerPackages = getWhitelistFromFile("filemanager-packages.json");
+  private final WhitelistAccessManager securityManager = getWhitelistFromFile("security-access.json");
 
   @Produces
   @ClassloaderWhitelist
@@ -27,6 +28,12 @@ public class WhitelistProvider {
   @FileManagerPackageWhitelist
   public WhitelistAccessManager getFileManagerPackagesWhitelist() {
     return fileManagerPackages;
+  }
+
+  @Produces
+  @SecurityManagerWhitelist
+  public WhitelistAccessManager getSecurityManagerWhitelist() {
+    return securityManager;
   }
 
   private WhitelistAccessManager getWhitelistFromFile(String name) {

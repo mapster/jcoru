@@ -3,6 +3,7 @@ package no.rosbach.jcoru.rest.facade;
 import static java.lang.String.format;
 
 import no.rosbach.jcoru.compile.JUnitTestRunner;
+import no.rosbach.jcoru.compile.NonRecoverableError;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
@@ -10,26 +11,29 @@ import no.rosbach.jcoru.rest.reports.CompilationReport;
 import no.rosbach.jcoru.rest.reports.JUnitReport;
 import no.rosbach.jcoru.rest.reports.JUnitReportFailure;
 import no.rosbach.jcoru.rest.reports.Report;
+import no.rosbach.jcoru.security.SandboxThread;
+import no.rosbach.jcoru.security.StrictSecurityManager;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 @Path(JUnitRunnerResource.TEST_PATH)
 public class JUnitRunnerResource extends CompilerResourceBase {
   public static final String TEST_PATH = "/test";
   public static final String INITIALIZATION_ERROR_FAILURE = "initializationError";
+  private final StrictSecurityManager securityManager;
+
+  @Inject
+  public JUnitRunnerResource(StrictSecurityManager securityManager) {
+    this.securityManager = securityManager;
+  }
 
   private static void throwExceptionIfInitializationError(JUnitReportFailure failure) {
     if (failure.getTestMethodName().equals(INITIALIZATION_ERROR_FAILURE)) {
@@ -52,7 +56,14 @@ public class JUnitRunnerResource extends CompilerResourceBase {
     }
 
     final JUnitTestRunner testRunner = JUnitTestRunner.getRunner(compiledClasses, getClassLoader());
-    testRunner.run();
+    SandboxThread sandboxThread = new SandboxThread(testRunner);
+    sandboxThread.start();
+    try {
+      sandboxThread.join();
+    } catch (InterruptedException e) {
+      throw new NonRecoverableError("Sandbox was interrupted.", e);
+    }
+
     final JUnitReport junitReport = new JUnitReport(testRunner.getResult());
 
     // Verify that tests ran successfully.
@@ -63,9 +74,4 @@ public class JUnitRunnerResource extends CompilerResourceBase {
     return new Report(junitReport);
   }
 
-  @GET
-  public String testing(@QueryParam("f") String filename) throws IOException {
-    System.exit(1);
-    return IOUtils.toString(new FileInputStream(filename));
-  }
 }

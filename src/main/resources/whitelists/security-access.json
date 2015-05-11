@@ -1,0 +1,18 @@
+[
+  {
+    "java.lang.RuntimePermission": [
+      "accessDeclaredMembers",
+      {
+        "accessClassInPackage": [
+          {
+            "org.junit": [
+              "",
+              "runner"
+            ]
+          },
+          "java.lang"
+        ]
+      }
+    ]
+  }
+]

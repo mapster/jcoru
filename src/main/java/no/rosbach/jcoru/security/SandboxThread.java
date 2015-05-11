@@ -1,17 +1,20 @@
 package no.rosbach.jcoru.security;
 
+import no.rosbach.jcoru.provider.WhitelistProvider;
+
 import java.util.UUID;
 
 public class SandboxThread extends Thread {
-
-  private final String secret = UUID.randomUUID().toString();
+  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
+  private final Object secret = UUID.randomUUID();
   private final StrictSecurityManager strictSecurityManager;
   private Runnable target;
   private Throwable thrownByTarget = null;
   private Throwable thrownBySandbox = null;
 
   public SandboxThread(Runnable target) {
-    this.strictSecurityManager = new StrictSecurityManager(secret);
+    this.strictSecurityManager = new StrictSecurityManager(whitelistProvider.getSecurityManagerWhitelist());
+    this.strictSecurityManager.enable(secret);
     this.target = target;
   }
 
