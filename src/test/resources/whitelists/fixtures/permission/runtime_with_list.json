@@ -1,0 +1,12 @@
+[
+  {
+    "java.lang.RuntimePermission": [
+      {
+        "loadLibrary": [
+          "junit-4.11.jar",
+          "commons-io-2.4.jar"
+        ]
+      }
+    ]
+  }
+]

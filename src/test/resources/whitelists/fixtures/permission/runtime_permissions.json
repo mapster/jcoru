@@ -1,0 +1,8 @@
+[
+  {
+    "java.lang.RuntimePermission": [
+      "accessMembers",
+      "getClassLoader"
+    ]
+  }
+]

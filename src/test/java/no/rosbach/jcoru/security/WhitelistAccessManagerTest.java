@@ -73,8 +73,8 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase {
    */
 
   @Override
-  protected ArrayNode getWhitelist(String name) {
-    return super.getWhitelist("whitelists/fixtures/simple/" + name);
+  protected ArrayNode getWhitelistJson(String name) {
+    return super.getWhitelistJson("whitelists/fixtures/simple/" + name);
   }
 
   private void assertContainsJUnit(WhitelistAccessManager whitelist) {
@@ -85,20 +85,20 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase {
 
   @Test
   public void acceptsBasicList() {
-    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("basic_list.json"));
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("basic_list.json"));
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithList() {
-    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_list.json"));
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("map_with_list.json"));
     ;
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithMap() {
-    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_map.json"));
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("map_with_map.json"));
     ;
     Arrays.asList("java.util.List", "java.util.Date", "java.lang.String", "java.lang.System").stream()
         .forEach(clazz -> assertTrue(whitelist.hasAccess(clazz)));
@@ -106,13 +106,13 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase {
 
   @Test
   public void acceptsMapWithValue() {
-    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_value.json"));
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("map_with_value.json"));
     assertTrue(whitelist.hasAccess("org.junit.Test"));
   }
 
   @Test
   public void acceptsListWithEmptyStringAsSelf() {
-    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("list_with_emptystring.json"));
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("list_with_emptystring.json"));
     assertTrue(whitelist.hasAccess("org.junit"));
   }
 
