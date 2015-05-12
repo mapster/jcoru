@@ -30,7 +30,7 @@ public class StrictSecurityManagerTest {
 
   @Before
   public void prepare() {
-    sm = new StrictSecurityManager(new WhitelistAccessManager(new HashSet<>(Arrays.asList("java.lang.RuntimePermission.accessDeclaredMembers"))));
+    sm = new StrictSecurityManager(new PermissionWhitelist(new HashSet<>(Arrays.asList(new RuntimePermission("accessDeclaredMembers")))));
     sm.enable(SECRET);
   }
 
@@ -77,19 +77,14 @@ public class StrictSecurityManagerTest {
 
   @Test(expected = StrictAccessControlException.class)
   public void whitelistChecksMultipleActions() {
-    sm = new StrictSecurityManager(new WhitelistAccessManager(new HashSet<>(Arrays.asList("java.io.FilePermission.Test.java.read"))));
+    sm = new StrictSecurityManager(new PermissionWhitelist(new HashSet<>(Arrays.asList(new FilePermission("Test.java", "read")))));
     sm.enable(UUID.randomUUID());
     sm.checkPermission(new FilePermission("Test.java", "read,write"));
   }
 
   @Test
   public void whitelistAllowsMultipleActions() {
-    sm = new StrictSecurityManager(
-        new WhitelistAccessManager(
-            new HashSet<>(
-                Arrays.asList(
-                    "java.io.FilePermission.Test.java.read",
-                    "java.io.FilePermission.Test.java.write"))));
+    sm = new StrictSecurityManager(new PermissionWhitelist(new HashSet<>(Arrays.asList(new FilePermission("Test.java", "read,write")))));
     sm.enable(UUID.randomUUID());
     sm.checkPermission(new FilePermission("Test.java", "read,write"));
   }

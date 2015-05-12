@@ -62,11 +62,21 @@ public class PermissionWhitelist extends AccessManager<Permission> {
 
   @Override
   public boolean hasAccess(Permission name) {
+//    String[] permissions;
+//
+//    String accessName = String.format("%s.%s", perm.getClass().getName(), perm.getName());
+//    String actions = perm.getActions();
+//    if (actions != null && actions.length() > 0) {
+//      permissions = stream(actions.split(",")).map(action -> accessName + "." + action).toArray(String[]::new);
+//    } else {
+//      permissions = new String[]{accessName};
+//    }
+
     return entries.contains(name);
   }
 
   @Override
-  public AccessManager<Permission> extend(AccessManager<Permission> from, HashSet<Permission> additional) {
-    return new PermissionWhitelist(from, additional);
+  public AccessManager<Permission> extend(HashSet<Permission> additional) {
+    return new PermissionWhitelist(this, additional);
   }
 }

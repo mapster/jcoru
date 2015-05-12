@@ -3,8 +3,8 @@ package no.rosbach.jcoru.compile;
 
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.provider.ClassloaderWhitelist;
+import no.rosbach.jcoru.security.AccessManager;
 import no.rosbach.jcoru.security.StrictAccessControlException;
-import no.rosbach.jcoru.security.WhitelistAccessManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -18,11 +18,11 @@ import javax.tools.StandardLocation;
 
 public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LogManager.getLogger();
-  private final WhitelistAccessManager classesWhitelist;
+  private final AccessManager<String> classesWhitelist;
   private InMemoryFileManager fileManager;
 
   @Inject
-  public TransientClassLoader(@ClassloaderWhitelist WhitelistAccessManager classesWhitelist) {
+  public TransientClassLoader(@ClassloaderWhitelist AccessManager<String> classesWhitelist) {
     super(TransientClassLoader.class.getClassLoader());
     this.classesWhitelist = classesWhitelist;
   }

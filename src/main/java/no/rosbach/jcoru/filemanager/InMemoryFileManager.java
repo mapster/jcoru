@@ -10,7 +10,7 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.provider.FileManagerPackageWhitelist;
 import no.rosbach.jcoru.provider.SystemFileManager;
-import no.rosbach.jcoru.security.WhitelistAccessManager;
+import no.rosbach.jcoru.security.AccessManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ import javax.tools.StandardLocation;
 public class InMemoryFileManager implements JavaFileManager {
   private static final Logger LOGGER = LogManager.getLogger();
   private final TransientClassLoader classOutputLoader;
-  private final WhitelistAccessManager packageWhitelist;
+  private final AccessManager<String> packageWhitelist;
   private final JavaFileManager systemFileManager;
   private final FileTree sources;
   private final FileTree outputClasses;
@@ -41,7 +41,7 @@ public class InMemoryFileManager implements JavaFileManager {
   @Inject
   public InMemoryFileManager(@SystemFileManager JavaFileManager systemFileManager,
                              TransientClassLoader classLoader,
-                             @FileManagerPackageWhitelist WhitelistAccessManager packageWhitelist) {
+                             @FileManagerPackageWhitelist AccessManager<String> packageWhitelist) {
     this.classOutputLoader = classLoader;
     this.packageWhitelist = packageWhitelist;
     this.classOutputLoader.setFileManager(this);

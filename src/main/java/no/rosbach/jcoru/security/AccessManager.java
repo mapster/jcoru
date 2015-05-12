@@ -84,5 +84,5 @@ public abstract class AccessManager<T> {
 
   public abstract boolean hasAccess(T name);
 
-  public abstract AccessManager<T> extend(AccessManager<T> from, HashSet<T> additional);
+  public abstract AccessManager<T> extend(HashSet<T> additional);
 }

@@ -10,7 +10,13 @@
               "runner"
             ]
           },
-          "java.lang"
+          {
+            "java": [
+              "io",
+              "lang",
+              "math"
+            ]
+          }
         ]
       }
     ]

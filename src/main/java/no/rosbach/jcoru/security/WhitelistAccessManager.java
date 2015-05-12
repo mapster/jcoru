@@ -37,8 +37,8 @@ public class WhitelistAccessManager extends AccessManager<String> {
   }
 
   @Override
-  public AccessManager<String> extend(AccessManager<String> from, HashSet<String> additional) {
-    return new WhitelistAccessManager(from, additional);
+  public AccessManager<String> extend(HashSet<String> additional) {
+    return new WhitelistAccessManager(this, additional);
   }
 
   public boolean hasAccess(String name) {

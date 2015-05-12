@@ -1,7 +1,5 @@
 package no.rosbach.jcoru.security;
 
-import static no.rosbach.jcoru.utils.Stream.stream;
-
 import no.rosbach.jcoru.provider.SecurityManagerWhitelist;
 
 import org.apache.logging.log4j.LogManager;
@@ -12,22 +10,27 @@ import java.io.FilePermission;
 import java.net.InetAddress;
 import java.security.Permission;
 import java.security.SecurityPermission;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 public class StrictSecurityManager extends SecurityManager {
+  private static final HashSet<Permission> REQUIRED_PERMISSIONS = new HashSet<>(
+      Arrays.asList(
+          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j"),
+          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message")));
 
   private static final Logger LOGGER = LogManager.getFormatterLogger(StrictSecurityManager.class);
-  private final WhitelistAccessManager permissionWhitelist;
+  private final AccessManager<Permission> permissionWhitelist;
   private Object knownSecret;
   private Set<String> pkgWhitelist = new HashSet<>();
   private Set<Permission> permissionsWhenDisabled = new HashSet<>();
 
   @Inject
-  public StrictSecurityManager(@SecurityManagerWhitelist WhitelistAccessManager permissionWhitelist) {
-    this.permissionWhitelist = permissionWhitelist;
+  public StrictSecurityManager(@SecurityManagerWhitelist AccessManager<Permission> permissionWhitelist) {
+    this.permissionWhitelist = permissionWhitelist.extend(REQUIRED_PERMISSIONS);
     permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));
     readWhitelists();
   }
@@ -72,6 +75,7 @@ public class StrictSecurityManager extends SecurityManager {
 
   private void denyAccessIfActive(String validatingMethod, Permission perm) {
     if (knownSecret != null) {
+      // This is a potential danger sone! Causes stack overflow if manager is prevented from logging.
       LOGGER.error(validatingMethod + " denied access: " + perm);
       throw new StrictAccessControlException(validatingMethod + " denied access: " + perm, perm);
     }
@@ -79,18 +83,8 @@ public class StrictSecurityManager extends SecurityManager {
 
   // TODO: Need better pattern for checking whitelist.
   private boolean isWhitelisted(Permission perm) {
-    String[] permissions;
-
-    String accessName = String.format("%s.%s", perm.getClass().getName(), perm.getName());
-    String actions = perm.getActions();
-    if (actions != null && actions.length() > 0) {
-      permissions = stream(actions.split(",")).map(action -> accessName + "." + action).toArray(String[]::new);
-    } else {
-      permissions = new String[]{accessName};
-    }
-
     // TODO: Need a info level log that permission was granted.
-    return stream(permissions).allMatch(p -> permissionWhitelist.hasAccess(p));
+    return permissionWhitelist.hasAccess(perm);
   }
 
   @Override
