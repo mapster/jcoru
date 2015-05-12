@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class WhitelistAccessManagerTest extends WhitelistTestBase {
+public class WhitelistAccessManagerTest extends WhitelistTestBase<String> {
 
   private WhitelistAccessManager whitelist(String... entries) {
     return new WhitelistAccessManager(new HashSet<String>(Arrays.asList(entries)));
@@ -72,17 +72,6 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase {
 
    */
 
-  @Override
-  protected ArrayNode getWhitelistJson(String name) {
-    return super.getWhitelistJson("whitelists/fixtures/simple/" + name);
-  }
-
-  private void assertContainsJUnit(WhitelistAccessManager whitelist) {
-    assertTrue(whitelist.hasAccess("org.unit.Test"));
-    assertTrue(whitelist.hasAccess("org.unit.After"));
-    assertTrue(whitelist.hasAccess("org.unit.Before"));
-  }
-
   @Test
   public void acceptsBasicList() {
     WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelistJson("basic_list.json"));
@@ -116,4 +105,24 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase {
     assertTrue(whitelist.hasAccess("org.junit"));
   }
 
+  @Override
+  protected ArrayNode getWhitelistJson(String name) {
+    return super.getWhitelistJson("whitelists/fixtures/simple/" + name);
+  }
+
+  @Override
+  protected String[] getTwoDistinctEntries() {
+    return new String[]{"A", "B"};
+  }
+
+  @Override
+  protected AccessManager<String> createAccessManager(HashSet<String> entries) {
+    return new WhitelistAccessManager(entries);
+  }
+
+  private void assertContainsJUnit(WhitelistAccessManager whitelist) {
+    assertTrue(whitelist.hasAccess("org.unit.Test"));
+    assertTrue(whitelist.hasAccess("org.unit.After"));
+    assertTrue(whitelist.hasAccess("org.unit.Before"));
+  }
 }

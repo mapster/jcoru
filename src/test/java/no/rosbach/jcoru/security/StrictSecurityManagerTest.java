@@ -51,7 +51,7 @@ public class StrictSecurityManagerTest {
 
   @Test
   public void canBeEnabled() {
-    sm = new StrictSecurityManager(null);
+    sm = new StrictSecurityManager(new PermissionWhitelist(new HashSet<>()));
     assertTrue(sm.enable(UUID.randomUUID()));
     try {
       sm.checkExit(1);
