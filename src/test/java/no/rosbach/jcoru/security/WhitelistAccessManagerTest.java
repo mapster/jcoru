@@ -3,17 +3,14 @@ package no.rosbach.jcoru.security;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class WhitelistAccessManagerTest {
+public class WhitelistAccessManagerTest extends WhitelistTestBase {
 
   private WhitelistAccessManager whitelist(String... entries) {
     return new WhitelistAccessManager(new HashSet<String>(Arrays.asList(entries)));
@@ -75,14 +72,9 @@ public class WhitelistAccessManagerTest {
 
    */
 
-  private WhitelistAccessManager getWhitelist(final String name) {
-    String resource = "whitelists/fixtures/" + name;
-    try (InputStream fixtureStream = getClass().getClassLoader().getResourceAsStream(resource)) {
-      ObjectMapper mapper = new ObjectMapper();
-      return WhitelistAccessManager.fromJson(mapper.readValue(fixtureStream, ArrayNode.class));
-    } catch (IOException e) {
-      throw new Error("Failed to read whitelist fixture: " + resource, e);
-    }
+  @Override
+  protected ArrayNode getWhitelist(String name) {
+    return super.getWhitelist("whitelists/fixtures/simple/" + name);
   }
 
   private void assertContainsJUnit(WhitelistAccessManager whitelist) {
@@ -93,20 +85,20 @@ public class WhitelistAccessManagerTest {
 
   @Test
   public void acceptsBasicList() {
-    WhitelistAccessManager whitelist = getWhitelist("basic_list.json");
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("basic_list.json"));
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithList() {
-    WhitelistAccessManager whitelist = getWhitelist("map_with_list.json");
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_list.json"));
     ;
     assertContainsJUnit(whitelist);
   }
 
   @Test
   public void acceptsMapWithMap() {
-    WhitelistAccessManager whitelist = getWhitelist("map_with_map.json");
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_map.json"));
     ;
     Arrays.asList("java.util.List", "java.util.Date", "java.lang.String", "java.lang.System").stream()
         .forEach(clazz -> assertTrue(whitelist.hasAccess(clazz)));
@@ -114,13 +106,13 @@ public class WhitelistAccessManagerTest {
 
   @Test
   public void acceptsMapWithValue() {
-    WhitelistAccessManager whitelist = getWhitelist("map_with_value.json");
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("map_with_value.json"));
     assertTrue(whitelist.hasAccess("org.junit.Test"));
   }
 
   @Test
   public void acceptsListWithEmptyStringAsSelf() {
-    WhitelistAccessManager whitelist = getWhitelist("list_with_emptystring.json");
+    WhitelistAccessManager whitelist = WhitelistAccessManager.fromJson(getWhitelist("list_with_emptystring.json"));
     assertTrue(whitelist.hasAccess("org.junit"));
   }
 

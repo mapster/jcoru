@@ -77,6 +77,7 @@ public class StrictSecurityManager extends SecurityManager {
     }
   }
 
+  // TODO: Need better pattern for checking whitelist.
   private boolean isWhitelisted(Permission perm) {
     String[] permissions;
 
@@ -88,6 +89,7 @@ public class StrictSecurityManager extends SecurityManager {
       permissions = new String[]{accessName};
     }
 
+    // TODO: Need a info level log that permission was granted.
     return stream(permissions).allMatch(p -> permissionWhitelist.hasAccess(p));
   }
 
