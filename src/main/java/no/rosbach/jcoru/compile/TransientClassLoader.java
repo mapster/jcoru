@@ -37,10 +37,12 @@ public class TransientClassLoader extends ClassLoader {
 
   @Override
   public Class<?> loadClass(String name) throws ClassNotFoundException {
+    LOGGER.debug("Requesting to load class: {}", name);
     if (classesWhitelist.hasAccess(name) || isKnownSource(name)) {
-      LOGGER.debug("Loading class: " + name);
+      LOGGER.debug("Permitted to load class: {}", name);
       Class clazz = findClass(name);
       if (clazz == null) {
+        LOGGER.debug("Loading class with parent: {}", name);
         clazz = super.loadClass(name);
       }
       return clazz;
@@ -54,6 +56,7 @@ public class TransientClassLoader extends ClassLoader {
   protected Class<?> findClass(String name) throws ClassNotFoundException {
     Class<?> clazz = findLoadedClass(name);
     if (clazz != null) {
+      LOGGER.debug("Class already loaded: {}", name);
       return clazz;
     }
 
@@ -61,6 +64,7 @@ public class TransientClassLoader extends ClassLoader {
     if (clazzFile != null) {
       try {
         byte[] bytes = IOUtils.toByteArray(clazzFile.openInputStream());
+        LOGGER.info("Loading class: {}", name);
         return defineClass(name, bytes, 0, bytes.length);
       } catch (IOException e) {
         throw new NonRecoverableError("Failed to read compiled class object.", e);
