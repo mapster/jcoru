@@ -106,13 +106,12 @@ public class StrictSecurityManagerTest {
               return 0;
             } else if (type == byte.class) {
               return (byte) 0;
-            }
-            if (type == Permission.class) {
+            } else if (type == Permission.class) {
               return new RuntimePermission("a perm");
             } else if (type == String.class) {
               return "some";
             } else if (type == ThreadGroup.class) {
-              return null;
+              return new ThreadGroup("");
             } else if (type == InetAddress.class) {
               return InetAddress.getLocalHost();
             }
@@ -135,7 +134,7 @@ public class StrictSecurityManagerTest {
     } catch (IllegalAccessException e) {
       throw new Error("Failed invoking method " + method.getName(), e);
     } catch (IllegalArgumentException e) {
-      throw new Error("Argument type mismatch.", e);
+      throw new Error("Argument type mismatch: " + method.getName(), e);
     }
 
     assertEquals(

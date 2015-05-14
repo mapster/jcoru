@@ -5,46 +5,45 @@ import no.rosbach.jcoru.provider.SecurityManagerWhitelist;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sun.security.util.SecurityConstants;
+
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
 import java.net.InetAddress;
+import java.net.SocketPermission;
 import java.security.Permission;
 import java.security.SecurityPermission;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.PropertyPermission;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 public class StrictSecurityManager extends SecurityManager {
+  private static final Logger LOGGER = LogManager.getLogger();
   private static final HashSet<Permission> REQUIRED_PERMISSIONS = new HashSet<>(
       Arrays.asList(
           new RuntimePermission("accessClassInPackage.org.apache.logging.log4j"),
-          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message")));
-
-  private static final Logger LOGGER = LogManager.getFormatterLogger(StrictSecurityManager.class);
+          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message"),
+          new FilePermission("/var/lib/tomcat8/webapps/java-compile-service/WEB-INF/lib/hamcrest-core-1.1.jar", "read")));
+  private static final Set<Permission> PERMISSIONS_WHEN_DISABLED = new HashSet<>(Arrays.asList(new RuntimePermission("setSecurityManager")));
+  private static ThreadGroup rootGroup = getRootGroup();
   private final AccessManager<Permission> permissionWhitelist;
   private Object knownSecret;
-  private Set<String> pkgWhitelist = new HashSet<>();
-  private Set<Permission> permissionsWhenDisabled = new HashSet<>();
 
   @Inject
   public StrictSecurityManager(@SecurityManagerWhitelist AccessManager<Permission> permissionWhitelist) {
     this.permissionWhitelist = permissionWhitelist.extend(REQUIRED_PERMISSIONS);
-    permissionsWhenDisabled.add(new RuntimePermission("setSecurityManager"));
-    readWhitelists();
   }
 
-  private void readWhitelists() {
-    // whitelisted packages
-    String[] pkgs = {"java.lang", "java.math", "java.io",
-        "java.util", "java.util.function", "java.util.concurrent.atomic",
-//        "org.apache.commons.io", "org.apache.commons.io.input",
-        "org.junit.runner", "org.junit.runners", "org.junit.internal.runners", "org.junit.internal.runners.model", "org.junit.runner.notification",
-    };
-    for (String pkg : pkgs) {
-      pkgWhitelist.add(pkg);
+  private static ThreadGroup getRootGroup() {
+    ThreadGroup root = Thread.currentThread().getThreadGroup();
+    while (root.getParent() != null) {
+      root = root.getParent();
     }
+    return root;
   }
 
   public boolean enable(Object secret) {
@@ -61,225 +60,281 @@ public class StrictSecurityManager extends SecurityManager {
     return this.knownSecret == null;
   }
 
-  private boolean allowIfDisabled(Permission perm) {
-    return permissionsWhenDisabled.contains(perm);
+  private boolean isPermittedWhenDisabled(Permission perm) {
+    return PERMISSIONS_WHEN_DISABLED.contains(perm);
   }
 
-  private void denyAccessIfActive(String validatingMethod) {
-    denyAccessIfActive(validatingMethod, new RuntimePermission("no args"));
+  private boolean isDisabled() {
+    return this.knownSecret == null;
   }
 
-  private void denyAccessIfActive(String validatingMethod, String target) {
-    denyAccessIfActive(validatingMethod, new SecurityPermission(target));
-  }
-
-  private void denyAccessIfActive(String validatingMethod, Permission perm) {
-    if (knownSecret != null) {
-      // This is a potential danger sone! Causes stack overflow if manager is prevented from logging.
-      LOGGER.error(validatingMethod + " denied access: " + perm);
-      throw new StrictAccessControlException(validatingMethod + " denied access: " + perm, perm);
-    }
-  }
-
-  // TODO: Need better pattern for checking whitelist.
   private boolean isWhitelisted(Permission perm) {
-    // TODO: Need a info level log that permission was granted.
     return permissionWhitelist.hasAccess(perm);
+  }
+
+  /**
+   * Denies access to the requested permission if the permission is not white listed. Certain permissions are only allowed when {@link #isDisabled()},
+   * e.g. setSecurityManager.
+   *
+   * WARNING: The use of {@link #LOGGER} in this method may cause stack overflow issues if it is not permitted access to necessary permissions.
+   *
+   * @param perm the permission.
+   */
+  private void denyAccessUnlessWhitelisted_OR_disabledAndAllowed(Permission perm) {
+    if (perm == null) {
+      LOGGER.error("Attempt to check permission for null value.");
+      throw new NullPointerException("Permission cannot be null.");
+    }
+
+    if (isWhitelisted(perm)) {
+      LOGGER.debug("Access permitted by whitelist for: {}", perm);
+      return;
+    }
+
+    if (isDisabled() && isPermittedWhenDisabled(perm)) {
+      LOGGER.debug("Access permitted (security manager is disabled): {}", perm);
+      return;
+    }
+
+    LOGGER.error("Access denied for: {}", perm);
+    throw new StrictAccessControlException(String.format("Access denied for: %s", perm), perm);
   }
 
   @Override
   public void checkSecurityAccess(String target) {
-    denyAccessIfActive("checkSecurityAccess", target);
-    super.checkSecurityAccess(target);
+    checkPermission(new SecurityPermission(target));
   }
 
   @Override
   public void checkPermission(Permission perm) {
-    if (!isWhitelisted(perm)) {
-      denyAccessIfActive("checkPermission", perm);
-
-      // skip checking with super if listed as allowed when disabled.
-      // if not, check with super if this is allowed.
-      if (!allowIfDisabled(perm)) {
-        super.checkPermission(perm);
-      }
-    }
+    denyAccessUnlessWhitelisted_OR_disabledAndAllowed(perm);
   }
 
   @Override
   public void checkPermission(Permission perm, Object context) {
-    denyAccessIfActive("checkPermission", perm);
-    super.checkPermission(perm, context);
+    LOGGER.error("Context of permission ({}) is ignored: {}", perm, context);
+    checkPermission(perm);
   }
 
   @Override
   public void checkCreateClassLoader() {
-    denyAccessIfActive("checkCreateClassLoader");
-    super.checkCreateClassLoader();
+    checkPermission(SecurityConstants.CREATE_CLASSLOADER_PERMISSION);
   }
 
   @Override
   public void checkAccess(Thread t) {
-    denyAccessIfActive("checkAccess", "modifyThread");
-    super.checkAccess(t);
+    if (t == null) {
+      throw new NullPointerException("Thread cannot be null.");
+    }
+
+    if (t.getThreadGroup() == rootGroup) {
+      LOGGER.error("Access denied to modify thread in root thread group.");
+    }
+
+    checkPermission(SecurityConstants.MODIFY_THREAD_PERMISSION);
   }
 
   @Override
   public void checkAccess(ThreadGroup g) {
-    denyAccessIfActive("checkAccess", "modifyThread");
-    super.checkAccess(g);
+    if (g == null) {
+      throw new NullPointerException("Thread group cannot be null.");
+    }
+
+    if (g == rootGroup) {
+      LOGGER.error("Access denied to modify root thread group.");
+    }
+
+    checkPermission(SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
   }
 
   @Override
   public void checkExit(int status) {
-    denyAccessIfActive("checkExit", new RuntimePermission("exitVM." + status));
-    super.checkExit(status);
+    checkPermission(new RuntimePermission("exitVM." + status));
   }
 
   @Override
   public void checkExec(String cmd) {
-    denyAccessIfActive("checkExec", new FilePermission(cmd, "execute"));
-    super.checkExec(cmd);
+    File f = new File(cmd);
+
+    if (f.isAbsolute()) {
+      LOGGER.error("Access denied to execute file: {}", cmd);
+    } else {
+      LOGGER.error("Access denied to execute relative file {} with absolute path {}.", cmd, f.getAbsolutePath());
+    }
+
+    throw new StrictAccessControlException(String.format("Access denied to execute file: %s", cmd));
   }
 
   @Override
   public void checkLink(String lib) {
-    denyAccessIfActive("checkLink", new RuntimePermission("loadLibrary." + lib));
-    super.checkLink(lib);
+    LOGGER.error("Access denied to link library: {}", lib);
+    throw new StrictAccessControlException(String.format("Access denied to link library: %s", lib));
   }
 
   @Override
   public void checkRead(FileDescriptor fd) {
-    denyAccessIfActive("checkRead", new RuntimePermission("readFileDescriptor"));
-    super.checkRead(fd);
+    if (fd == null) {
+      throw new NullPointerException("File descriptor cannot be null.");
+    }
+    LOGGER.debug("Access request to read file descriptor: {}", fd);
+    checkPermission(new RuntimePermission("readFileDescriptor"));
   }
 
   @Override
   public void checkRead(String file) {
-    denyAccessIfActive("checkRead", new FilePermission(file, "read"));
-    super.checkRead(file);
+    checkPermission(new FilePermission(file, SecurityConstants.FILE_READ_ACTION));
   }
 
   @Override
   public void checkRead(String file, Object context) {
-    denyAccessIfActive("checkRead", new FilePermission(file, "read"));
-    super.checkRead(file, context);
+    checkPermission(new FilePermission(file, SecurityConstants.FILE_READ_ACTION), context);
   }
 
   @Override
   public void checkWrite(FileDescriptor fd) {
-    denyAccessIfActive("checkWrite", new RuntimePermission("writeFileDescriptor"));
-    super.checkWrite(fd);
+    if (fd == null) {
+      throw new NullPointerException("File descriptor cannot be null.");
+    }
+    LOGGER.debug("Access request to write to file descriptor: {}", fd);
+    checkPermission(new RuntimePermission("writeFileDescriptor"));
   }
 
   @Override
   public void checkWrite(String file) {
-    denyAccessIfActive("checkWrite", new FilePermission(file, "write"));
-    super.checkWrite(file);
+    checkPermission(new FilePermission(file, SecurityConstants.FILE_WRITE_ACTION));
   }
 
   @Override
   public void checkDelete(String file) {
-    denyAccessIfActive("checkDelete", new FilePermission(file, "delete"));
-    super.checkDelete(file);
+    checkPermission(new FilePermission(file, SecurityConstants.FILE_DELETE_ACTION));
+  }
+
+  private SocketPermission getConnectPermission(String host, int port) {
+    host = getHostForPermission(host, port);
+    // If port is -1 then this is a resolve hostname permission request.
+    if (port == -1) {
+      return new SocketPermission(host, SecurityConstants.SOCKET_RESOLVE_ACTION);
+    }
+    return new SocketPermission(host, SecurityConstants.SOCKET_CONNECT_ACTION);
+  }
+
+  /**
+   * Get a properly formatted host for permission checking. Ignores port if -1,
+   *
+   * @param host the host.
+   * @param port the port.
+   * @return formatted host.
+   */
+  private String getHostForPermission(String host, int port) {
+    if (host == null) {
+      throw new NullPointerException("Host cannot be null.");
+    }
+    // IPv6 check (if not already wrapped as a IPv6 literal, but is IPv6, then wrap).
+    if (!host.startsWith("[") && host.indexOf(':') != -1) {
+      host = "[" + host + "]";
+    }
+    return port == -1 ? host : (host + ":" + port);
   }
 
   @Override
   public void checkConnect(String host, int port) {
-    denyAccessIfActive("checkConnect");
-    super.checkConnect(host, port);
+    checkPermission(getConnectPermission(host, port));
   }
 
   @Override
   public void checkConnect(String host, int port, Object context) {
-    denyAccessIfActive("checkConnect");
-    super.checkConnect(host, port, context);
+    checkPermission(getConnectPermission(host, port), context);
   }
 
   @Override
   public void checkListen(int port) {
-    denyAccessIfActive("checkListen");
-    super.checkListen(port);
+    checkPermission(new SocketPermission(getHostForPermission("localhost", port), SecurityConstants.SOCKET_LISTEN_ACTION));
   }
 
   @Override
   public void checkAccept(String host, int port) {
-    denyAccessIfActive("checkAccept");
-    super.checkAccept(host, port);
+    checkPermission(new SocketPermission(getHostForPermission(host, port), SecurityConstants.SOCKET_ACCEPT_ACTION));
   }
 
   @Override
   public void checkMulticast(InetAddress maddr) {
-    denyAccessIfActive("checkMulticast");
-    super.checkMulticast(maddr);
+    checkPermission(new SocketPermission(getHostForPermission(maddr.getHostAddress(), -1), SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION));
   }
 
   @Override
   public void checkMulticast(InetAddress maddr, byte ttl) {
-    denyAccessIfActive("checkMulticast");
-    super.checkMulticast(maddr, ttl);
+    Permission perm = new SocketPermission(getHostForPermission(maddr.getHostAddress(), -1), SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION);
+    LOGGER.error("Access permission request through deprecated method checkMulticast(InetAddress, byte): {}", perm);
+    throw new StrictAccessControlException("Access denied by deprecated method checkMulticast(InetAddress, byte)", perm);
   }
 
   @Override
   public void checkPropertiesAccess() {
-    denyAccessIfActive("checkPropertiesAccess");
-    super.checkPropertiesAccess();
+    checkPermission(new PropertyPermission("*", SecurityConstants.PROPERTY_RW_ACTION));
   }
 
   @Override
   public void checkPropertyAccess(String key) {
-    denyAccessIfActive("checkPropertyAccess");
-    super.checkPropertyAccess(key);
+    checkPermission(new PropertyPermission("*", SecurityConstants.PROPERTY_RW_ACTION));
   }
 
   @Override
   public boolean checkTopLevelWindow(Object window) {
-    denyAccessIfActive("checkTopLevelWindow");
-    return super.checkTopLevelWindow(window);
+    LOGGER.error("Access permission request through deprecated method checkTopLevelWindow(Object).");
+    throw new StrictAccessControlException("Access denied by deprecated method checkTopLevelWindow(Object)");
   }
 
   @Override
   public void checkPrintJobAccess() {
-    denyAccessIfActive("checkPrintJobAccess");
-    super.checkPrintJobAccess();
+    checkPermission(new RuntimePermission("queuePrintJob"));
   }
 
   @Override
   public void checkSystemClipboardAccess() {
-    denyAccessIfActive("checkSystemClipboardAccess");
-    super.checkSystemClipboardAccess();
+    LOGGER.error("Access permission request through deprecated method checkSystemClipboardAccess().");
+    throw new StrictAccessControlException("Access denied by deprecated method checkSystemClipboardAccess()");
   }
 
   @Override
   public void checkAwtEventQueueAccess() {
-    denyAccessIfActive("checkAwtEventQueueAccess");
-    super.checkAwtEventQueueAccess();
+    LOGGER.error("Access permission request through deprecated method checkAwtEventQueueAccess().");
+    throw new StrictAccessControlException("Access denied by deprecated method checkAwtEventQueueAccess()");
   }
 
   @Override
   public void checkPackageAccess(String pkg) {
-    RuntimePermission perm = new RuntimePermission("accessClassInPackage." + pkg);
-    if (!isWhitelisted(perm)) {
-      denyAccessIfActive("checkPackageAccess", perm);
-      super.checkPackageAccess(pkg);
+    if (pkg == null) {
+      throw new NullPointerException("Package name cannot be null");
     }
+
+    checkPermission(new RuntimePermission("accessClassInPackage." + pkg));
   }
 
   @Override
   public void checkPackageDefinition(String pkg) {
-    denyAccessIfActive("checkPackageDefinition", new RuntimePermission("defineClassInPackage." + pkg));
-    super.checkPackageDefinition(pkg);
+    if (pkg == null) {
+      throw new NullPointerException("Package name cannot be null");
+    }
+
+    checkPermission(new RuntimePermission("defineClassInPackage." + pkg));
   }
 
   @Override
   public void checkSetFactory() {
-    denyAccessIfActive("checkSetFactory");
-    super.checkSetFactory();
+    LOGGER.error("Access denied to set URL stream handler factory.");
+    throw new StrictAccessControlException("Access denied to set URL stream handler factory.");
   }
 
   @Override
   public void checkMemberAccess(Class<?> clazz, int which) {
-    denyAccessIfActive("checkMemberAccess", "accessDeclaredMembers");
-    super.checkMemberAccess(clazz, which);
+    LOGGER.error(
+        "Access permission request through deprecated method checkMemberAccess(Class<?>, int) for: {} and access {}.",
+        clazz.getName(),
+        which);
+    throw new StrictAccessControlException(
+        String.format(
+            "Access denied by deprecated method checkMemberAccess(Class<?>, int) for: %s and access %s.",
+            clazz.getName(),
+            which));
   }
 }
