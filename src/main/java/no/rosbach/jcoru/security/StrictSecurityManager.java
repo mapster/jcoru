@@ -5,8 +5,6 @@ import no.rosbach.jcoru.provider.SecurityManagerWhitelist;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sun.security.util.SecurityConstants;
-
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
@@ -27,8 +25,10 @@ public class StrictSecurityManager extends SecurityManager {
       Arrays.asList(
           new RuntimePermission("accessClassInPackage.org.apache.logging.log4j"),
           new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message"),
-          new FilePermission("/var/lib/tomcat8/webapps/java-compile-service/WEB-INF/lib/hamcrest-core-1.1.jar", "read")));
-  private static final Set<Permission> PERMISSIONS_WHEN_DISABLED = new HashSet<>(Arrays.asList(new RuntimePermission("setSecurityManager")));
+          // TODO: should be specified elsewhere
+          new FilePermission("/var/lib/tomcat8/webapps/java-compile-service/WEB-INF/lib/hamcrest-core-1.1.jar", SecurityConstants.FILE_READ_ACTION)
+      ));
+  private static final Set<Permission> PERMISSIONS_WHEN_DISABLED = new HashSet<>(Arrays.asList(SecurityConstants.SET_SECURITY_MANAGER_PERMISSION));
   private static ThreadGroup rootGroup = getRootGroup();
   private final AccessManager<Permission> permissionWhitelist;
   private Object knownSecret;
@@ -275,7 +275,7 @@ public class StrictSecurityManager extends SecurityManager {
 
   @Override
   public void checkPropertyAccess(String key) {
-    checkPermission(new PropertyPermission("*", SecurityConstants.PROPERTY_RW_ACTION));
+    checkPermission(new PropertyPermission(key, SecurityConstants.PROPERTY_RW_ACTION));
   }
 
   @Override
@@ -336,5 +336,21 @@ public class StrictSecurityManager extends SecurityManager {
             "Access denied by deprecated method checkMemberAccess(Class<?>, int) for: %s and access %s.",
             clazz.getName(),
             which));
+  }
+
+  static class SecurityConstants {
+    public static final String FILE_DELETE_ACTION = "delete";
+    public static final String FILE_READ_ACTION = "read";
+    public static final String FILE_WRITE_ACTION = "write";
+    public static final String SOCKET_RESOLVE_ACTION = "resolve";
+    public static final String SOCKET_CONNECT_ACTION = "connect";
+    public static final String SOCKET_LISTEN_ACTION = "listen";
+    public static final String SOCKET_ACCEPT_ACTION = "accept";
+    public static final String SOCKET_CONNECT_ACCEPT_ACTION = "connect,accept";
+    public static final String PROPERTY_RW_ACTION = "read,write";
+    public static final RuntimePermission CREATE_CLASSLOADER_PERMISSION = new RuntimePermission("createClassLoader");
+    public static final RuntimePermission MODIFY_THREAD_PERMISSION = new RuntimePermission("modifyThread");
+    public static final RuntimePermission MODIFY_THREADGROUP_PERMISSION = new RuntimePermission("modifyThreadGroup");
+    public static final RuntimePermission SET_SECURITY_MANAGER_PERMISSION = new RuntimePermission("setSecurityManager");
   }
 }

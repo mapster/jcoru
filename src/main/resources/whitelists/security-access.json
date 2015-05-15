@@ -5,21 +5,60 @@
       {
         "accessClassInPackage": [
           {
-            "org.junit": [
-              "",
-              "runner"
-            ]
-          },
-          {
             "java": [
               "io",
-              "lang",
+              {
+                "lang": [
+                  "",
+                  "annotation",
+                  "reflect"
+                ]
+              },
               "math",
-              "util"
+              {
+                "util": [
+                  "",
+                  "concurrent.atomic",
+                  "regex"
+                ]
+              }
+            ]
+          },
+          "junit.framework",
+          "org.hamcrest",
+          {
+            "org.junit": [
+              "",
+              {
+                "internal": [
+                  "builders",
+                  "runners"
+                ]
+              },
+              {
+                "runner": [
+                  "",
+                  "notification"
+                ]
+              },
+              {
+                "runners": [
+                  "",
+                  "model"
+                ]
+              }
             ]
           }
         ]
       }
     ]
+  },
+  {
+    "java.util.PropertyPermission": {
+      "line.separator": [
+        "read",
+        "write"
+      ]
+    }
   }
 ]

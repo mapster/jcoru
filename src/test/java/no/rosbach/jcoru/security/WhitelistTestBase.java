@@ -15,6 +15,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class WhitelistTestBase<T> {
+
+  protected AccessManager<T> whitelist(T... entries) {
+    return createAccessManager(new HashSet<T>(Arrays.asList(entries)));
+  }
+
   protected ArrayNode getWhitelistJson(final String resource) {
     try (InputStream fixtureStream = getClass().getClassLoader().getResourceAsStream(resource)) {
       ObjectMapper mapper = new ObjectMapper();
@@ -23,6 +28,8 @@ public abstract class WhitelistTestBase<T> {
       throw new Error("Failed to read whitelist fixture: " + resource, e);
     }
   }
+
+  protected abstract AccessManager<T> whitelistFromJson(String json);
 
   protected abstract T[] getTwoDistinctEntries();
 
