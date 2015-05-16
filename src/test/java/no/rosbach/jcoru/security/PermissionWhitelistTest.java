@@ -1,5 +1,6 @@
 package no.rosbach.jcoru.security;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -13,6 +14,13 @@ import java.util.PropertyPermission;
 
 public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
 
+  public static final String LINE_SEPARATOR_KEY = "line.separator";
+  public static final PropertyPermission READ_LINE_SEPARATOR_PERMISSION = new PropertyPermission(LINE_SEPARATOR_KEY, "read");
+  public static final PropertyPermission WRITE_LINE_SEPARATOR_PERMISSION = new PropertyPermission(LINE_SEPARATOR_KEY, "write");
+
+  /**
+   * Parsing
+   */
 
   @Test(expected = IllegalArgumentException.class)
   public void elementsInRootListMustBeObjects() {
@@ -48,7 +56,7 @@ public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
     new PermissionWhitelist(
         new HashSet<>(
             Arrays.asList(
-                new Permission("") {
+                new Permission("x") {
                   @Override
                   public boolean implies(Permission permission) {
                     return false;
@@ -74,7 +82,7 @@ public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
   @Test
   public void acceptsPropertyPermissionWithSingleAction() {
     PermissionWhitelist whitelist = whitelistFromJson("property_permission.json");
-    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "read")));
+    assertTrue(whitelist.hasAccess(READ_LINE_SEPARATOR_PERMISSION));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -85,8 +93,45 @@ public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
   @Test
   public void acceptsPropertyPermissionWithListOfActions() {
     PermissionWhitelist whitelist = whitelistFromJson("property_with_action_list.json");
-    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "read")));
-    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "write")));
+    assertTrue(whitelist.hasAccess(READ_LINE_SEPARATOR_PERMISSION));
+    assertTrue(whitelist.hasAccess(WRITE_LINE_SEPARATOR_PERMISSION));
+  }
+
+  /**
+   * Functional
+   */
+
+  @Test
+  public void doesNotPermitAccessWhenActionIsNotIncluded() {
+    AccessManager<Permission> whitelist = whitelist(READ_LINE_SEPARATOR_PERMISSION);
+    assertFalse(whitelist.hasAccess(WRITE_LINE_SEPARATOR_PERMISSION));
+  }
+
+  @Test
+  public void doesNotPermitAccessWhenNoMatchingPropertyName() {
+    assertFalse(whitelist(new PropertyPermission[0]).hasAccess(WRITE_LINE_SEPARATOR_PERMISSION));
+  }
+
+  @Test
+  public void permitsAccessWhenActionIsIncluded() {
+    AccessManager<Permission> whitelist = whitelist(new PropertyPermission(LINE_SEPARATOR_KEY, "read,write"));
+    assertTrue(whitelist.hasAccess(READ_LINE_SEPARATOR_PERMISSION));
+    assertTrue(whitelist.hasAccess(WRITE_LINE_SEPARATOR_PERMISSION));
+  }
+
+  @Test
+  public void permitsAccessWithWildcardEntry() {
+    assertTrue(whitelist(new PropertyPermission("line.*", "read")).hasAccess(new PropertyPermission(LINE_SEPARATOR_KEY, "read")));
+  }
+
+  @Test
+  public void permitsAccessWithWildcardEntryWithMultipleActions() {
+    assertTrue(whitelist(new PropertyPermission("line.*", "read,write")).hasAccess(new PropertyPermission(LINE_SEPARATOR_KEY, "read")));
+  }
+
+  @Test
+  public void doesNotPermitsAccessWithWildcardEntryForNonCoveredAction() {
+    assertFalse(whitelist(new PropertyPermission("line.*", "read")).hasAccess(new PropertyPermission(LINE_SEPARATOR_KEY, "write")));
   }
 
   @Override

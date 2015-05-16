@@ -1,5 +1,7 @@
 package no.rosbach.jcoru.security;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
@@ -8,8 +10,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Sets;
 
 import java.security.Permission;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.PropertyPermission;
 import java.util.Set;
@@ -18,11 +22,13 @@ public class PermissionWhitelist extends AccessManager<Permission> {
 
   public static final String RUNTIME_PERMISSION = "java.lang.RuntimePermission";
   public static final String PROPERTY_PERMISSION = "java.util.PropertyPermission";
-  private final HashSet<Permission> entries;
+  private final HashMap<String, Permission> entries;
+  private final List<Permission> wildcardEntries;
 
   public PermissionWhitelist(Set<Permission> permissions) {
     super(permissions);
-    entries = new HashSet<>(permissions);
+    entries = new HashMap<>(permissions.stream().collect(toMap(p -> p.getName(), p -> p)));
+    this.wildcardEntries = permissions.stream().filter(e -> e.getName().endsWith("*")).collect(toList());
   }
 
   public static PermissionWhitelist fromJson(ArrayNode permissionJsonList) {
@@ -81,29 +87,27 @@ public class PermissionWhitelist extends AccessManager<Permission> {
 
   @Override
   protected boolean isIllegalEntry(Permission entry) {
-    switch (entry.getClass().getName()) {
-      case RUNTIME_PERMISSION:
-        return hasIllegalWildcard(entry.getName());
+    return hasIllegalWildcard(entry.getName());
+  }
+
+  @Override
+  public boolean hasAccess(final Permission permission) {
+    Permission whitelisted = entries.get(permission.getName());
+    if (whitelisted != null) {
+      return whitelisted.implies(permission);
     }
+
+    for (Permission whitelistedWildcard : wildcardEntries) {
+      if (whitelistedWildcard.implies(permission)) {
+        return true;
+      }
+    }
+
     return false;
   }
 
   @Override
-  public boolean hasAccess(Permission name) {
-//    String[] permissions;
-//
-//    String accessName = String.format("%s.%s", perm.getClass().getName(), perm.getName());
-//    String actions = perm.getActions();
-//    if (actions != null && actions.length() > 0) {
-//      permissions = stream(actions.split(",")).map(action -> accessName + "." + action).toArray(String[]::new);
-//    } else {
-//      permissions = new String[]{accessName};
-//    }
-    return entries.contains(name);
-  }
-
-  @Override
   public AccessManager<Permission> extend(Set<Permission> additional) {
-    return new PermissionWhitelist(Sets.union(this.entries, additional));
+    return new PermissionWhitelist(Sets.union(new HashSet<>(entries.values()), additional));
   }
 }

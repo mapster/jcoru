@@ -62,6 +62,11 @@ public class WhitelistAccessManagerTest extends WhitelistTestBase<String> {
     whitelist(new String[]{null});
   }
 
+  @Test
+  public void doesNotPermitParentOfWildcardEntry() {
+    assertFalse(whitelist("java.lang.*").hasAccess("java.lang"));
+  }
+
   /*
 
     Parsing tests.
