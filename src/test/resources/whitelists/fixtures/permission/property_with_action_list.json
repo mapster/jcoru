@@ -1,0 +1,10 @@
+[
+  {
+    "java.util.PropertyPermission": {
+      "line.separator": [
+        "read",
+        "write"
+      ]
+    }
+  }
+]

@@ -55,10 +55,7 @@
   },
   {
     "java.util.PropertyPermission": {
-      "line.separator": [
-        "read",
-        "write"
-      ]
+      "line.separator": "read"
     }
   }
 ]

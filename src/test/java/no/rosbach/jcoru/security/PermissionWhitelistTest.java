@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.PropertyPermission;
 
 public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
 
@@ -70,6 +71,23 @@ public class PermissionWhitelistTest extends WhitelistTestBase<Permission> {
                 })));
   }
 
+  @Test
+  public void acceptsPropertyPermissionWithSingleAction() {
+    PermissionWhitelist whitelist = whitelistFromJson("property_permission.json");
+    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "read")));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void doesNotAcceptPropertyPermissionWithList() {
+    whitelistFromJson("property_with_illegal_list.json");
+  }
+
+  @Test
+  public void acceptsPropertyPermissionWithListOfActions() {
+    PermissionWhitelist whitelist = whitelistFromJson("property_with_action_list.json");
+    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "read")));
+    assertTrue(whitelist.hasAccess(new PropertyPermission("line.separator", "write")));
+  }
 
   @Override
   protected ArrayNode getWhitelistJson(String name) {

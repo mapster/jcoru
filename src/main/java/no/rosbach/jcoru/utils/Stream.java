@@ -1,6 +1,7 @@
 package no.rosbach.jcoru.utils;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
 /**
@@ -8,6 +9,11 @@ import java.util.stream.StreamSupport;
  */
 public class Stream {
   private Stream() {
+  }
+
+  public static <T> java.util.stream.Stream<T> stream(Iterator<T> iterator) {
+    Iterable<T> iterable = () -> iterator;
+    return StreamSupport.stream(iterable.spliterator(), false);
   }
 
   public static <T> java.util.stream.Stream<T> stream(Iterable<T> iterable) {
