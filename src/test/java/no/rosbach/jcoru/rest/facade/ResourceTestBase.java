@@ -1,5 +1,7 @@
 package no.rosbach.jcoru.rest.facade;
 
+import no.rosbach.jcoru.rest.PreloadClassesServlet;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.jboss.weld.environment.se.Weld;
@@ -24,7 +26,7 @@ public abstract class ResourceTestBase extends JerseyTest {
 
   @Override
   final protected Application configure() {
-    return new ResourceConfig().packages("no.rosbach.jcoru.rest.facade");
+    return new ResourceConfig().packages("no.rosbach.jcoru.rest.facade").register(PreloadClassesServlet.class);
   }
 
 }

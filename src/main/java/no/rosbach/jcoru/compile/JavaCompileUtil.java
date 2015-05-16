@@ -44,7 +44,7 @@ public class JavaCompileUtil {
     File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
     if (libs.length > 0) {
       options.add("-classpath");
-      options.add(stream(libs).map(lib -> lib.getPath()).reduce("", (l1, l2) -> l1 + ":" + l2));
+      options.add(stream(libs).map(lib -> lib.getPath()).reduce("", (l1, l2) -> l1 + (l1.isEmpty() ? "" : ":") + l2));
     }
 
     JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);

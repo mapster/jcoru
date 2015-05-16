@@ -36,4 +36,5 @@ public class CompilerResourceTest extends CompilerResourceTestBase {
     CompilationReport report = compilationReportRequest(new JavaSourceStringDto[0]);
     assertTrue(report.isSuccess());
   }
+
 }
