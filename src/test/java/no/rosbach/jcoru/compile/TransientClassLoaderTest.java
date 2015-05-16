@@ -17,6 +17,7 @@ import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.provider.WhitelistProvider;
+import no.rosbach.jcoru.security.AccessManager;
 import no.rosbach.jcoru.security.StrictAccessControlException;
 import no.rosbach.jcoru.security.WhitelistAccessManager;
 
@@ -59,7 +60,7 @@ public class TransientClassLoaderTest {
         new SensitiveDiagnosticListener());
 
     // Create a classLoaderWhitelist with the interfaces compiled above whitelisted
-    WhitelistAccessManager classloaderWhitelist = getWhitelistWithExtra("no.rosbach.jcoru.compile.fixtures.*");
+    AccessManager<String> classloaderWhitelist = getWhitelistWithExtra("no.rosbach.jcoru.compile.fixtures.*");
 
     // Then compile the fixtures to test.
     InMemoryFileManager fileManager = new InMemoryFileManager(
@@ -152,8 +153,8 @@ public class TransientClassLoaderTest {
     loadClass(TestClass.class);
   }
 
-  private WhitelistAccessManager getWhitelistWithExtra(String... entry) {
-    return new WhitelistAccessManager(whitelistProvider.getClassloaderWhitelist(), new HashSet<>(Arrays.asList(entry)));
+  private AccessManager<String> getWhitelistWithExtra(String... entry) {
+    return whitelistProvider.getClassloaderWhitelist().extend(new HashSet<>(Arrays.asList(entry)));
   }
 
   private Object invoke(Method method, Object instance) {

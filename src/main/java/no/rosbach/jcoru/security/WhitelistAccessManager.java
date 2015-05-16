@@ -7,17 +7,16 @@ import com.google.common.collect.Sets;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WhitelistAccessManager extends AccessManager<String> {
   private final List<String> wildcardEntries;
+  private final HashSet<String> entries;
 
-  public WhitelistAccessManager(HashSet<String> entries) {
+  public WhitelistAccessManager(Set<String> entries) {
     super(entries);
+    this.entries = new HashSet<>(entries);
     wildcardEntries = extractWildcardEntries(entries);
-  }
-
-  public WhitelistAccessManager(AccessManager<String> from, HashSet<String> additional) {
-    this(new HashSet<String>(Sets.union(from.entries, additional)));
   }
 
   public static WhitelistAccessManager fromJson(ArrayNode jsonWhitelist) {
@@ -29,7 +28,7 @@ public class WhitelistAccessManager extends AccessManager<String> {
     return hasIllegalWildcard(entry);
   }
 
-  private List<String> extractWildcardEntries(HashSet<String> entries) {
+  private List<String> extractWildcardEntries(Set<String> entries) {
     return entries.stream()
         .filter(e -> e.endsWith("*"))
         .map(e -> e.substring(0, e.length() - 1))
@@ -37,10 +36,11 @@ public class WhitelistAccessManager extends AccessManager<String> {
   }
 
   @Override
-  public AccessManager<String> extend(HashSet<String> additional) {
-    return new WhitelistAccessManager(this, additional);
+  public AccessManager<String> extend(Set<String> additional) {
+    return new WhitelistAccessManager(Sets.union(this.entries, additional));
   }
 
+  @Override
   public boolean hasAccess(String name) {
     if (entries.contains(name)) {
       return true;

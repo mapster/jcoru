@@ -1,23 +1,19 @@
 package no.rosbach.jcoru.security;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Sets;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class AccessManager<T> {
-  protected final HashSet<T> entries;
 
-  public AccessManager(HashSet<T> entries) {
+  /**
+   * Enforces validation of entries.
+   */
+  public AccessManager(Set<T> entries) {
     validateEntries(entries);
-
-    this.entries = entries;
-  }
-
-  public AccessManager(AccessManager<T> from, HashSet<T> additional) {
-    this(new HashSet<T>(Sets.union(from.entries, additional)));
   }
 
   protected static String concatName(String parent, String child) {
@@ -27,7 +23,7 @@ public abstract class AccessManager<T> {
     return parent + "." + child;
   }
 
-  protected static HashSet<String> fromJson(String parent, JsonNode current) {
+  protected static Set<String> fromJson(String parent, JsonNode current) {
     HashSet<String> entries = new HashSet<>();
     if (current.isTextual()) {
       // add parent if current is empty string.
@@ -51,7 +47,7 @@ public abstract class AccessManager<T> {
     return entries;
   }
 
-  protected void validateEntries(HashSet<T> entries) {
+  protected void validateEntries(Set<T> entries) {
     entries.stream().filter(this::isIllegalEntry)
         .map(illegal -> illegal == null ? "null" : illegal)
         .findFirst().ifPresent(
@@ -84,5 +80,5 @@ public abstract class AccessManager<T> {
 
   public abstract boolean hasAccess(T name);
 
-  public abstract AccessManager<T> extend(HashSet<T> additional);
+  public abstract AccessManager<T> extend(Set<T> additional);
 }

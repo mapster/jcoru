@@ -1,6 +1,5 @@
 package no.rosbach.jcoru.security;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +48,6 @@ public abstract class WhitelistTestBase<T> {
     AccessManager<T> whitelist = createAccessManager(new HashSet<>(Arrays.asList(entries[0])));
 
     AccessManager<T> extended = whitelist.extend(new HashSet<>(Arrays.asList(entries[1])));
-    assertEquals(2, extended.entries.size());
     assertTrue(extended.hasAccess(entries[0]));
     assertTrue(extended.hasAccess(entries[1]));
   }

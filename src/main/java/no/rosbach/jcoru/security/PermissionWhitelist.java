@@ -5,6 +5,7 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.collect.Sets;
 
 import java.security.Permission;
 import java.util.HashSet;
@@ -17,13 +18,11 @@ public class PermissionWhitelist extends AccessManager<Permission> {
 
   public static final String RUNTIME_PERMISSION = "java.lang.RuntimePermission";
   public static final String PROPERTY_PERMISSION = "java.util.PropertyPermission";
+  private final HashSet<Permission> entries;
 
-  public PermissionWhitelist(HashSet<Permission> permissions) {
+  public PermissionWhitelist(Set<Permission> permissions) {
     super(permissions);
-  }
-
-  public PermissionWhitelist(AccessManager<Permission> from, HashSet<Permission> additional) {
-    super(from, additional);
+    entries = new HashSet<>(permissions);
   }
 
   public static PermissionWhitelist fromJson(ArrayNode permissionJsonList) {
@@ -104,7 +103,7 @@ public class PermissionWhitelist extends AccessManager<Permission> {
   }
 
   @Override
-  public AccessManager<Permission> extend(HashSet<Permission> additional) {
-    return new PermissionWhitelist(this, additional);
+  public AccessManager<Permission> extend(Set<Permission> additional) {
+    return new PermissionWhitelist(Sets.union(this.entries, additional));
   }
 }
