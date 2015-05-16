@@ -17,6 +17,9 @@
         <servlet-name>Jersey Web Application</servlet-name>
         <url-pattern>/webapi/*</url-pattern>
     </servlet-mapping>
+    <listener>
+        <listener-class>no.rosbach.jcoru.rest.PreloadClassesServlet</listener-class>
+    </listener>
     <!--<env-entry>
         <env-entry-name>testInject</env-entry-name>
         <env-entry-type>java.lang.Integer</env-entry-type>
