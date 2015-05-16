@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
+import java.lang.reflect.ReflectPermission;
 import java.net.InetAddress;
 import java.net.SocketPermission;
 import java.security.Permission;
@@ -23,10 +24,10 @@ public class StrictSecurityManager extends SecurityManager {
   private static final Logger LOGGER = LogManager.getLogger();
   private static final HashSet<Permission> REQUIRED_PERMISSIONS = new HashSet<>(
       Arrays.asList(
-          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j"),
-          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message"),
-          // TODO: should be specified elsewhere
-          new FilePermission("/var/lib/tomcat8/webapps/java-compile-service/WEB-INF/lib/hamcrest-core-1.1.jar", SecurityConstants.FILE_READ_ACTION)
+          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j")
+          , new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message")
+          , new RuntimePermission("createClassLoader") // Was not able to
+          , new ReflectPermission("suppressAccessChecks")
       ));
   private static final Set<Permission> PERMISSIONS_WHEN_DISABLED = new HashSet<>(Arrays.asList(SecurityConstants.SET_SECURITY_MANAGER_PERMISSION));
   private static ThreadGroup rootGroup = getRootGroup();
