@@ -8,8 +8,6 @@ import static javax.tools.StandardLocation.SOURCE_PATH;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
-import no.rosbach.jcoru.provider.FileManagerPackageWhitelist;
-import no.rosbach.jcoru.provider.SystemFileManager;
 import no.rosbach.jcoru.security.AccessManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +21,6 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -38,10 +35,9 @@ public class InMemoryFileManager implements JavaFileManager {
   private final FileTree outputClasses;
   private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
-  @Inject
-  public InMemoryFileManager(@SystemFileManager JavaFileManager systemFileManager,
+  public InMemoryFileManager(JavaFileManager systemFileManager,
                              TransientClassLoader classLoader,
-                             @FileManagerPackageWhitelist AccessManager<String> packageWhitelist) {
+                             AccessManager<String> packageWhitelist) {
     this.classOutputLoader = classLoader;
     this.packageWhitelist = packageWhitelist;
     this.classOutputLoader.setFileManager(this);

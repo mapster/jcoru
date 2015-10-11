@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -24,7 +23,6 @@ public class JavaCompileUtil {
   private final JavaCompiler compiler;
   private final InMemoryFileManager fileManager;
 
-  @Inject
   public JavaCompileUtil(JavaCompiler compiler, InMemoryFileManager fileManager) {
     this.fileManager = fileManager;
     this.compiler = compiler;

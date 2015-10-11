@@ -3,8 +3,10 @@ package no.rosbach.jcoru.rest.facade;
 import static java.lang.String.format;
 
 import no.rosbach.jcoru.compile.JUnitTestRunner;
+import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.NonRecoverableError;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
+import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
@@ -12,11 +14,9 @@ import no.rosbach.jcoru.rest.reports.JUnitReport;
 import no.rosbach.jcoru.rest.reports.JUnitReportFailure;
 import no.rosbach.jcoru.rest.reports.Report;
 import no.rosbach.jcoru.security.SandboxThread;
-import no.rosbach.jcoru.security.StrictSecurityManager;
 
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,11 +28,13 @@ import javax.ws.rs.core.MediaType;
 public class JUnitRunnerResource extends CompilerResourceBase {
   public static final String TEST_PATH = "/test";
   public static final String INITIALIZATION_ERROR_FAILURE = "initializationError";
-  private final StrictSecurityManager securityManager;
 
-  @Inject
-  public JUnitRunnerResource(StrictSecurityManager securityManager) {
-    this.securityManager = securityManager;
+  public JUnitRunnerResource() {
+    super(new JavaCompilerProvider().getJavaCompileUtil());
+  }
+
+  public JUnitRunnerResource(JavaCompileUtil compiler) {
+    super(compiler);
   }
 
   private static void throwExceptionIfInitializationError(JUnitReportFailure failure) {

@@ -1,5 +1,7 @@
 package no.rosbach.jcoru.rest.facade;
 
+import no.rosbach.jcoru.compile.JavaCompileUtil;
+import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
@@ -15,6 +17,14 @@ import javax.ws.rs.core.MediaType;
 @Path(CompilerResource.COMPILER_PATH)
 public class CompilerResource extends CompilerResourceBase {
   public static final String COMPILER_PATH = "/compile";
+
+  public CompilerResource() {
+    super(new JavaCompilerProvider().getJavaCompileUtil());
+  }
+
+  public CompilerResource(JavaCompileUtil compileUtil) {
+    super(compileUtil);
+  }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
