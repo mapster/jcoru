@@ -138,8 +138,8 @@ public class StrictSecurityManagerTest {
     }
 
     assertEquals(
-        String.format("%s: expected StrictSecuritManager to deny access, not pass along request.", method.getName()),
-        StrictAccessControlException.class, actual.getClass());
+        String.format("%s: expected StrictSecurityManager to deny access, not pass along request.", method.getName()),
+        StrictAccessControlException.class, actual == null ? null : actual.getClass());
   }
 
 }
