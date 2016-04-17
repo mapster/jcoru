@@ -28,7 +28,7 @@ public class CompilerResource extends CompilerResourceBase {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
   public CompilationReport compilePost(List<JavaSourceStringDto> javaSources) {
     throwBadRequestIfSourcesAreInvalid(javaSources);
     compile(javaSources);

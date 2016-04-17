@@ -46,7 +46,7 @@ public class JUnitRunnerResource extends CompilerResourceBase {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
   public Report runTests(List<JavaSourceStringDto> javaSources) {
     throwBadRequestIfSourcesAreInvalid(javaSources);
 
