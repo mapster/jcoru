@@ -1,78 +1,77 @@
 package no.rosbach.jcoru.compile;
 
-import static java.util.stream.Collectors.toList;
-import static no.rosbach.jcoru.utils.Stream.stream;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import no.rosbach.jcoru.compile.fixtures.AggregationClass;
-import no.rosbach.jcoru.compile.fixtures.ContainedClass;
-import no.rosbach.jcoru.compile.fixtures.Fixtures;
-import no.rosbach.jcoru.compile.fixtures.TestClass;
+import no.rosbach.jcoru.JcoruApplication;
+import no.rosbach.jcoru.compile.fixtures.*;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.filemanager.InMemoryClassFile;
 import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.provider.WhitelistProvider;
-import no.rosbach.jcoru.security.AccessManager;
-import no.rosbach.jcoru.security.StrictAccessControlException;
-import no.rosbach.jcoru.security.WhitelistAccessManager;
-
+import no.rosbach.jcoru.security.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.*;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
-/**
- * Created by mapster on 14.03.15.
- */
+import static java.util.stream.Collectors.toList;
+import static no.rosbach.jcoru.utils.Stream.stream;
+import static org.junit.Assert.*;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class TransientClassLoaderTest {
-  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
-  private final JavaCompilerProvider compilerProvider = new JavaCompilerProvider();
-
   private TransientClassLoader classLoader;
   private Class<TestClass> loadedTestClass;
+
+  private WhitelistProvider whitelistProvider = new WhitelistProvider();
+  @Resource
   private JavaCompileUtil compiler;
+  @Resource
+  private InMemoryFileManager inMemoryFileManager;
+
+  @Configuration
+  @Import(JcoruApplication.class)
+  public static class TestConfiguration {
+    @Bean
+    public AccessManager<String> classLoaderWhitelist() {
+      return getWhitelistWithExtra("no.rosbach.jcoru.compile.fixtures.*");
+    }
+  }
 
   @Before
   public void setStage() throws IOException {
     Fixtures[] fixtures = {Fixtures.TEST_CLASS, Fixtures.AGGREGATION_CLASS, Fixtures.CONTAINED_CLASS};
 
     // First compile fixture interfaces to make them available as java byte code classes.
-    compiler = new JavaCompileUtil(
-        compilerProvider.getJavaCompiler(),
-        new InMemoryFileManager(
-            compilerProvider.getSystemFileManager(),
-            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
-            whitelistProvider.getFileManagerPackagesWhitelist()));
-    List<CompiledClassObject> compiledInterfaces = compiler.compile(
+    JavaCompileUtil otherCompiler = createNewCompiler();
+    List<CompiledClassObject> compiledInterfaces = otherCompiler.compile(
         stream(fixtures).map(Fixtures::getFixtureInterfaceSource).collect(toList()),
         new SensitiveDiagnosticListener());
 
-    // Create a classLoaderWhitelist with the interfaces compiled above whitelisted
-    AccessManager<String> classloaderWhitelist = getWhitelistWithExtra("no.rosbach.jcoru.compile.fixtures.*");
-
-    // Then compile the fixtures to test.
-    InMemoryFileManager fileManager = new InMemoryFileManager(
-        compilerProvider.getSystemFileManager(),
-        new TransientClassLoader(classloaderWhitelist),
-        whitelistProvider.getFileManagerPackagesWhitelist());
-    compiler = new JavaCompileUtil(compilerProvider.getJavaCompiler(), fileManager);
-    compiledInterfaces.forEach(f -> fileManager.addClassPathClass(f));
+    // Add compiled interfaces to file manager and compile sources
+    compiledInterfaces.forEach(f -> inMemoryFileManager.addClassPathClass(f));
     compiler.compile(Fixtures.getFixtureSources(fixtures), new SensitiveDiagnosticListener());
 
     classLoader = (TransientClassLoader) compiler.getClassLoader();
     loadedTestClass = loadClass(TestClass.class);
+  }
+
+  private JavaCompileUtil createNewCompiler() {
+    JavaCompilerProvider javaCompilerProvider = new JavaCompilerProvider();
+    return new JavaCompileUtil(
+            javaCompilerProvider.javaCompiler(),
+            new InMemoryFileManager(
+                    new TransientClassLoader(whitelistProvider.classLoaderWhitelist()),
+                    whitelistProvider.fileManagerPackageWhitelist(),
+                    javaCompilerProvider.systemFileManager()
+            )
+    );
   }
 
   @Test
@@ -127,6 +126,8 @@ public class TransientClassLoaderTest {
   @Test
   public void ableToGetReferencedContainedClass() {
     Class<AggregationClass> clazz = loadClass(AggregationClass.class);
+    System.out.println(AggregationClass.class.getClassLoader());
+    System.out.println(createInstance(clazz).getClass().getClassLoader());
     AggregationClass instance = createInstance(clazz);
     assertEquals(ContainedClass.class.getSimpleName(), instance.getValue().getClass().getName());
     assertEquals(ContainedClass.actualValue, instance.getValue().getActualValue());
@@ -136,7 +137,7 @@ public class TransientClassLoaderTest {
   public void newClassLoaderShouldBeAbleToLoadPreviouslyLoadedClass() {
     // stage
     classLoader = new TransientClassLoader(getWhitelistWithExtra("no.rosbach.jcoru.compile.fixtures.TestClass"));
-    classLoader.setFileManager(compiler.getFileManager());
+    classLoader.setInMemoryFileManager(compiler.getInMemoryFileManager());
 
     // act
     Class<TestClass> newClass = loadClass(TestClass.class);
@@ -147,30 +148,10 @@ public class TransientClassLoaderTest {
   public void classLoaderRespectsWhitelist() {
     // stage
     classLoader = new TransientClassLoader(new WhitelistAccessManager(new HashSet<>()));
-    classLoader.setFileManager(compiler.getFileManager());
+    classLoader.setInMemoryFileManager(compiler.getInMemoryFileManager());
 
     // act
     loadClass(TestClass.class);
-  }
-
-  private AccessManager<String> getWhitelistWithExtra(String... entry) {
-    return whitelistProvider.getClassloaderWhitelist().extend(new HashSet<>(Arrays.asList(entry)));
-  }
-
-  private Object invoke(Method method, Object instance) {
-    try {
-      return method.invoke(instance);
-    } catch (Exception e) {
-      throw new Error("Unable to invoke method.", e);
-    }
-  }
-
-  private void addClass(HashMap<String, InMemoryClassFile> classStore, Class<?> clazz) throws IOException {
-    classStore.put(
-        clazz.getSimpleName(),
-        new InMemoryClassFile(
-            URI.create(clazz.getSimpleName()),
-            this.getClass().getClassLoader().getResourceAsStream(clazz.getSimpleName() + ".class")));
   }
 
   private <C> Class<C> loadClass(Class<C> classInterface) {
@@ -191,11 +172,7 @@ public class TransientClassLoaderTest {
     }
   }
 
-  private Method getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
-    try {
-      return clazz.getMethod(name, parameterTypes);
-    } catch (NoSuchMethodException e) {
-      throw new Error("Unable to get method.", e);
-    }
+  static AccessManager<String> getWhitelistWithExtra(String... entry) {
+    return new WhitelistProvider().classLoaderWhitelist().extend(new HashSet<>(Arrays.asList(entry)));
   }
 }

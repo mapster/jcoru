@@ -1,22 +1,19 @@
 package no.rosbach.jcoru.rest.facade;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.Response;
+import no.rosbach.jcoru.rest.reports.BadRequestException;
+import no.rosbach.jcoru.rest.reports.InternalServerError;
+import org.springframework.http.ResponseEntity;
 
-/**
- * Created by mapster on 24.04.15.
- */
 public class ResponseHandler {
-  public static void throwExceptionIfError(Response response) {
-    switch (Response.Status.fromStatusCode(response.getStatus())) {
+  public static void throwExceptionIfError(ResponseEntity response) {
+    switch (response.getStatusCode()) {
       case BAD_REQUEST:
         throw new BadRequestException();
       case INTERNAL_SERVER_ERROR:
-        throw new InternalServerErrorException();
+        throw new InternalServerError();
     }
-    if (response.getStatus() >= Response.Status.BAD_REQUEST.getStatusCode()) {
-      throw new RuntimeException("Unhandled error response: " + response.getStatus());
+    if (!response.getStatusCode().is2xxSuccessful()) {
+      throw new RuntimeException("Unhandled error response: " + response.getStatusCodeValue());
     }
   }
 }

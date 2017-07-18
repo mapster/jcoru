@@ -1,19 +1,18 @@
 package no.rosbach.jcoru.rest.reports;
 
+import no.rosbach.jcoru.compile.JUnitRunnerTestBase;
+import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
 import static no.rosbach.jcoru.compile.fixtures.Fixtures.FAIL_TEST;
 import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
 
-import no.rosbach.jcoru.compile.JUnitRunnerTestBase;
-import no.rosbach.jcoru.compile.fixtures.Fixtures;
-
-import org.junit.Before;
-import org.junit.ComparisonFailure;
-import org.junit.Test;
-
-/**
- * Created by mapster on 26.04.15.
- */
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class JUnitReportFailureTest extends JUnitRunnerTestBase {
 
   public static final String TEST_NAME = "failingTest";

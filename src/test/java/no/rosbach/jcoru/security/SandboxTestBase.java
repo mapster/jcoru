@@ -1,11 +1,17 @@
 package no.rosbach.jcoru.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public class SandboxTestBase {
+import javax.annotation.Resource;
+
+import static org.junit.Assert.*;
+
+@SpringBootTest
+class SandboxTestBase {
   private SandboxThread sandbox;
+
+  @Resource
+  private StrictSecurityManager strictSecurityManager;
 
   protected void assertTargetThrew(Class type) {
     assertEquals(type, sandbox.getThrownByTarget().getClass());
@@ -19,7 +25,7 @@ public class SandboxTestBase {
   }
 
   protected void runInSandbox(Runnable target) {
-    this.sandbox = new SandboxThread(target);
+    this.sandbox = new SandboxThread(strictSecurityManager, target);
     runSandbox();
   }
 

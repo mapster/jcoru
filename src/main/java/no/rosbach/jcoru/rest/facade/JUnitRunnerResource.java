@@ -1,41 +1,30 @@
 package no.rosbach.jcoru.rest.facade;
 
-import static java.lang.String.format;
-
 import no.rosbach.jcoru.compile.JUnitTestRunner;
-import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.compile.NonRecoverableError;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.rest.CompilerResourceBase;
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
-import no.rosbach.jcoru.rest.reports.CompilationReport;
-import no.rosbach.jcoru.rest.reports.JUnitReport;
-import no.rosbach.jcoru.rest.reports.JUnitReportFailure;
-import no.rosbach.jcoru.rest.reports.Report;
+import no.rosbach.jcoru.rest.reports.*;
 import no.rosbach.jcoru.security.SandboxThread;
+import no.rosbach.jcoru.security.StrictSecurityManager;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import static java.lang.String.format;
 
-@Path(JUnitRunnerResource.TEST_PATH)
+@RestController
+@RequestMapping(JUnitRunnerResource.TEST_PATH)
 public class JUnitRunnerResource extends CompilerResourceBase {
-  public static final String TEST_PATH = "/test";
-  public static final String INITIALIZATION_ERROR_FAILURE = "initializationError";
+  static final String TEST_PATH = "/test";
 
-  public JUnitRunnerResource() {
-    super(new JavaCompilerProvider().getJavaCompileUtil());
-  }
+  @Resource
+  private StrictSecurityManager strictSecurityManager;
 
-  public JUnitRunnerResource(JavaCompileUtil compiler) {
-    super(compiler);
-  }
+  private static final String INITIALIZATION_ERROR_FAILURE = "initializationError";
 
   private static void throwExceptionIfInitializationError(JUnitReportFailure failure) {
     if (failure.getTestMethodName().equals(INITIALIZATION_ERROR_FAILURE)) {
@@ -44,10 +33,8 @@ public class JUnitRunnerResource extends CompilerResourceBase {
     }
   }
 
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-  public Report runTests(List<JavaSourceStringDto> javaSources) {
+  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public Report runTests(@RequestBody List<JavaSourceStringDto> javaSources) {
     throwBadRequestIfSourcesAreInvalid(javaSources);
 
     List<CompiledClassObject> compiledClasses = compile(javaSources);
@@ -58,7 +45,7 @@ public class JUnitRunnerResource extends CompilerResourceBase {
     }
 
     final JUnitTestRunner testRunner = JUnitTestRunner.getRunner(compiledClasses, getClassLoader());
-    SandboxThread sandboxThread = new SandboxThread(testRunner);
+    SandboxThread sandboxThread = new SandboxThread(strictSecurityManager, testRunner);
     sandboxThread.start();
     try {
       sandboxThread.join();

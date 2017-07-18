@@ -1,42 +1,45 @@
 package no.rosbach.jcoru.provider;
 
-import no.rosbach.jcoru.compile.NonRecoverableError;
-import no.rosbach.jcoru.security.AccessManager;
-import no.rosbach.jcoru.security.PermissionWhitelist;
-import no.rosbach.jcoru.security.WhitelistAccessManager;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import no.rosbach.jcoru.compile.NonRecoverableError;
+import no.rosbach.jcoru.security.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ReflectPermission;
 import java.security.Permission;
+import java.util.Arrays;
+import java.util.HashSet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-
-@ApplicationScoped
+@Configuration
 public class WhitelistProvider {
+  public static final HashSet<Permission> REQUIRED_SECURITY_PERMISSIONS = new HashSet<>(
+      Arrays.asList(
+          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j")
+          , new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message")
+          , new RuntimePermission("createClassLoader") // Was not able to
+          , new ReflectPermission("suppressAccessChecks")
+      ));
   private final WhitelistAccessManager classloader = WhitelistAccessManager.fromJson(getWhitelistJsonFromFile("classes.json"));
   private final WhitelistAccessManager fileManagerPackages = WhitelistAccessManager.fromJson(getWhitelistJsonFromFile("filemanager-packages.json"));
   private final PermissionWhitelist permissionsWhitelist = PermissionWhitelist.fromJson(getWhitelistJsonFromFile("security-access.json"));
 
-  @Produces
-  @ClassloaderWhitelist
-  public AccessManager<String> getClassloaderWhitelist() {
+  @Bean
+  public AccessManager<String> classLoaderWhitelist() {
     return classloader;
   }
 
-  @Produces
-  @FileManagerPackageWhitelist
-  public AccessManager<String> getFileManagerPackagesWhitelist() {
+  @Bean
+  public AccessManager<String> fileManagerPackageWhitelist() {
     return fileManagerPackages;
   }
 
-  @Produces
-  @SecurityManagerWhitelist
-  public AccessManager<Permission> getSecurityManagerWhitelist() {
-    return permissionsWhitelist;
+  @Bean
+  public AccessManager<Permission> securityManagerWhitelist() {
+    return permissionsWhitelist.extend(REQUIRED_SECURITY_PERMISSIONS);
   }
 
   private ArrayNode getWhitelistJsonFromFile(String name) {

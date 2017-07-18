@@ -1,40 +1,37 @@
 package no.rosbach.jcoru.rest.facade;
 
-import static org.junit.Assert.assertTrue;
-
 import no.rosbach.jcoru.rest.JavaSourceStringDto;
 import no.rosbach.jcoru.rest.reports.CompilationReport;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
+import javax.annotation.Resource;
+import java.util.*;
 
-/**
- * Created by mapster on 05.04.15.
- */
+import static org.junit.Assert.assertTrue;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class CompilerResourceTest extends CompilerResourceTestBase {
-
-  @Override
-  protected Invocation.Builder request() {
-    return target(CompilerResource.COMPILER_PATH).request();
-  }
-
-  @Override
-  protected CompilationReport compilationReportFromResponse(Response response) {
-    return response.readEntity(CompilationReport.class);
-  }
+  @Resource
+  private CompilerResource compilerResource;
 
   @Test
   public void compilerReturnsSuccessReport() {
-    CompilationReport result = compilationReportRequest(TEST_CLASS_SOURCE, TEST_CLASS_I_SOURCE);
+    CompilationReport result = compile(Arrays.asList(TEST_CLASS_SOURCE, TEST_CLASS_I_SOURCE));
     assertTrue(result.isSuccess());
   }
 
   @Test
   public void returnsSuccessForEmptyList() {
-    CompilationReport report = compilationReportRequest(new JavaSourceStringDto[0]);
+    CompilationReport report = compile(Collections.emptyList());
     assertTrue(report.isSuccess());
   }
 
+  @Override
+  protected CompilationReport compile(List<JavaSourceStringDto> sources) {
+    return compilerResource.compilePost(sources);
+  }
 }

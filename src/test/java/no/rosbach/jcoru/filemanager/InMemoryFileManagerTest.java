@@ -1,52 +1,42 @@
 package no.rosbach.jcoru.filemanager;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.Resource;
+import javax.tools.*;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+
 import static javax.tools.JavaFileObject.Kind;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import no.rosbach.jcoru.compile.TransientClassLoader;
-import no.rosbach.jcoru.provider.WhitelistProvider;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
-
-/**
- * Created by mapster on 09.03.15.
- */
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class InMemoryFileManagerTest {
-  public static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
+  private static final InMemoryClassFile TEST_CLASS = new InMemoryClassFile("Test");
   private static final String PACKAGE = "package/sub";
   private static final String CLASS_NAME = "MyClass";
   private static final JavaSourceString JAVA_SOURCE = new JavaSourceString(CLASS_NAME + ".java", "");
   private static final JavaSourceString SOURCE_IN_PACKAGE = new JavaSourceString(PACKAGE + "/" + CLASS_NAME + ".java", "");
-  private final WhitelistProvider provider = new WhitelistProvider();
+
+  @MockBean(name = "systemFileManager")
   private JavaFileManager systemFileManager;
+  @Resource
   private InMemoryFileManager inMemoryFileManager;
 
   @Before
   public void setStage() throws IOException {
-    systemFileManager = mock(JavaFileManager.class);
     when(
         systemFileManager.list(
             any(JavaFileManager.Location.class),
@@ -54,10 +44,6 @@ public class InMemoryFileManagerTest {
             anySet(),
             anyBoolean())).thenReturn(Arrays.asList(new InMemoryClassFile("heisann")));
 
-    inMemoryFileManager = new InMemoryFileManager(
-        systemFileManager,
-        new TransientClassLoader(provider.getClassloaderWhitelist()),
-        provider.getFileManagerPackagesWhitelist());
 
     inMemoryFileManager.addSources(JAVA_SOURCE, SOURCE_IN_PACKAGE);
     inMemoryFileManager.addOutputClass(TEST_CLASS);

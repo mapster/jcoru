@@ -29,15 +29,6 @@
                 </dependency>
             </dependencies>
         </profile>
-        <profile>
-            <id>tomcat-packaging</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.glassfish.jersey.ext.cdi</groupId>
-                    <artifactId>jersey-cdi1x-servlet</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
     </profiles>
 
     <build>
@@ -146,40 +137,17 @@
         </plugins>
     </reporting>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>${jersey.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>2.17</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <!--<scope>test</scope>-->
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- util libraries -->
@@ -197,31 +165,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-        </dependency>
-
-        <!-- Log4j2 - including support for json parsing via Jackson -->
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>2.5.1</version>
@@ -236,37 +179,12 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.5.1</version>
         </dependency>
-
-        <!-- CDI Support Tomcat -->
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.weld.servlet</groupId>
-            <artifactId>weld-servlet</artifactId>
-            <version>2.2.11.Final</version>
-        </dependency>
-
-        <!-- CDI Support JerseyTest-->
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.cdi</groupId>
-            <artifactId>jersey-weld2-se</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
     </dependencies>
 
     <properties>
-        <jersey.version>2.17</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>google_checks.xml</checkstyle.config.location>
+        <spring-boot.version>1.5.4.RELEASE</spring-boot.version>
     </properties>
 
 </project>

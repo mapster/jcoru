@@ -1,23 +1,21 @@
 package no.rosbach.jcoru.rest;
 
+import no.rosbach.jcoru.compile.JavaCompileUtil;
+import no.rosbach.jcoru.filemanager.CompiledClassObject;
+import no.rosbach.jcoru.rest.reports.BadRequestException;
+import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
+
+import javax.annotation.Resource;
+import java.util.List;
+
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import no.rosbach.jcoru.compile.JavaCompileUtil;
-import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
-
-import java.util.List;
-
-import javax.ws.rs.BadRequestException;
-
 public abstract class CompilerResourceBase {
   protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
-  private final JavaCompileUtil compiler;
 
-  protected CompilerResourceBase(JavaCompileUtil compiler) {
-    this.compiler = compiler;
-  }
+  @Resource
+  private JavaCompileUtil JavaCompileUtil;
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {
@@ -27,16 +25,16 @@ public abstract class CompilerResourceBase {
     if (!invalidSources.isEmpty()) {
       throw new BadRequestException(
           String.format(
-              "The following source files are missing file name or source code: ",
+              "The following source files are missing file name or source code: %s",
               invalidSources.stream().map(s -> s.filename).reduce((f1, f2) -> f1 + ", " + f2)));
     }
   }
 
   protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
-    return compiler.compile(sources.stream().map(source -> source.transfer()).collect(toList()), reportBuilder);
+    return JavaCompileUtil.compile(sources.stream().map(JavaSourceStringDto::transfer).collect(toList()), reportBuilder);
   }
 
   protected ClassLoader getClassLoader() {
-    return compiler.getClassLoader();
+    return JavaCompileUtil.getClassLoader();
   }
 }

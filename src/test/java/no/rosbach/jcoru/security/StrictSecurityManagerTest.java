@@ -1,12 +1,5 @@
 package no.rosbach.jcoru.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import no.rosbach.jcoru.provider.WhitelistProvider;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,17 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.security.Permission;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
-/**
- * Created by mapster on 28.04.15.
- */
+import static org.junit.Assert.*;
+
 public class StrictSecurityManagerTest {
 
   public static final String SECRET = "abc";
-  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
   private StrictSecurityManager sm;
 
   @Before

@@ -1,25 +1,29 @@
 package no.rosbach.jcoru.security;
 
-import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSources;
-
-import no.rosbach.jcoru.compile.JUnitTestRunner;
-import no.rosbach.jcoru.compile.JavaCompileUtil;
-import no.rosbach.jcoru.compile.SensitiveDiagnosticListener;
-import no.rosbach.jcoru.compile.TransientClassLoader;
+import no.rosbach.jcoru.compile.*;
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.filemanager.InMemoryFileManager;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 import no.rosbach.jcoru.provider.JavaCompilerProvider;
 import no.rosbach.jcoru.provider.WhitelistProvider;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.util.List;
 
+import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSources;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class SandboxThreadTest extends SandboxTestBase {
   private final WhitelistProvider whitelistProvider = new WhitelistProvider();
   private final JavaCompilerProvider compilerProvider = new JavaCompilerProvider();
+
+  @Resource
+  private JavaCompileUtil javaCompileUtil;
 
   private ClassLoader classLoader;
 
@@ -58,8 +62,7 @@ public class SandboxThreadTest extends SandboxTestBase {
   public void testThatExceptionsFromSandboxEnvIsCaught() {
     runInSandbox(
         null,
-        () -> {
-        }
+        () -> {}
     );
     assertSandBoxThrew(NullPointerException.class);
   }
@@ -71,13 +74,7 @@ public class SandboxThreadTest extends SandboxTestBase {
   }
 
   public List<CompiledClassObject> compile(List<JavaSourceString> sources) {
-    JavaCompileUtil compiler = new JavaCompileUtil(
-        compilerProvider.getJavaCompiler(),
-        new InMemoryFileManager(
-            compilerProvider.getSystemFileManager(),
-            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
-            whitelistProvider.getFileManagerPackagesWhitelist()));
-    classLoader = compiler.getClassLoader();
-    return compiler.compile(sources, new SensitiveDiagnosticListener());
+    classLoader = javaCompileUtil.getClassLoader();
+    return javaCompileUtil.compile(sources, new SensitiveDiagnosticListener());
   }
 }

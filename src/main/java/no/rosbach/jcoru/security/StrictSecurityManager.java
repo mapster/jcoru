@@ -1,42 +1,28 @@
 package no.rosbach.jcoru.security;
 
-import no.rosbach.jcoru.provider.SecurityManagerWhitelist;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FilePermission;
-import java.lang.reflect.ReflectPermission;
+import javax.annotation.Resource;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.SocketPermission;
 import java.security.Permission;
 import java.security.SecurityPermission;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.PropertyPermission;
-import java.util.Set;
+import java.util.*;
 
-import javax.inject.Inject;
-
+@Component
 public class StrictSecurityManager extends SecurityManager {
-  private static final Logger LOGGER = LogManager.getLogger();
-  private static final HashSet<Permission> REQUIRED_PERMISSIONS = new HashSet<>(
-      Arrays.asList(
-          new RuntimePermission("accessClassInPackage.org.apache.logging.log4j")
-          , new RuntimePermission("accessClassInPackage.org.apache.logging.log4j.message")
-          , new RuntimePermission("createClassLoader") // Was not able to
-          , new ReflectPermission("suppressAccessChecks")
-      ));
+  private static final Logger LOGGER = LoggerFactory.getLogger(StrictSecurityManager.class);
   private static final Set<Permission> PERMISSIONS_WHEN_DISABLED = new HashSet<>(Arrays.asList(SecurityConstants.SET_SECURITY_MANAGER_PERMISSION));
   private static ThreadGroup rootGroup = getRootGroup();
-  private final AccessManager<Permission> permissionWhitelist;
+  @Resource
+  private AccessManager<Permission> securityManagerWhitelist;
   private Object knownSecret;
 
-  @Inject
-  public StrictSecurityManager(@SecurityManagerWhitelist AccessManager<Permission> permissionWhitelist) {
-    this.permissionWhitelist = permissionWhitelist.extend(REQUIRED_PERMISSIONS);
+  public StrictSecurityManager(AccessManager<Permission> securityManagerWhitelist) {
+    this.securityManagerWhitelist = securityManagerWhitelist;
   }
 
   private static ThreadGroup getRootGroup() {
@@ -70,7 +56,7 @@ public class StrictSecurityManager extends SecurityManager {
   }
 
   private boolean isWhitelisted(Permission perm) {
-    return permissionWhitelist.hasAccess(perm);
+    return securityManagerWhitelist.hasAccess(perm);
   }
 
   /**

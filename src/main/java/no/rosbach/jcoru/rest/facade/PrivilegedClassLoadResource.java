@@ -1,21 +1,20 @@
 package no.rosbach.jcoru.rest.facade;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
+import no.rosbach.jcoru.rest.reports.NotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Path("/loadclass")
+@RequestMapping("/loadclass")
 public class PrivilegedClassLoadResource {
 
-  @GET
-  public Response loadClass(@QueryParam("name") String name) {
-    try {
-      Class.forName(name);
-    } catch (ClassNotFoundException e) {
-      throw new NotFoundException("Could not load class.", e);
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity loadClass(@RequestParam("name") String name) {
+
+        try {
+            Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            throw new NotFoundException("Could not load class.", e);
+        }
+        return ResponseEntity.noContent().build();
     }
-    return Response.noContent().build();
-  }
 }

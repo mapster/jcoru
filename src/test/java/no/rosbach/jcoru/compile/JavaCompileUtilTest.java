@@ -1,46 +1,29 @@
 package no.rosbach.jcoru.compile;
 
+import com.sun.source.util.JavacTask;
+import no.rosbach.jcoru.compile.fixtures.Fixtures;
+import no.rosbach.jcoru.filemanager.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.Resource;
+import javax.tools.*;
+import javax.tools.JavaFileObject.Kind;
+import java.io.*;
+import java.util.*;
+
 import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import no.rosbach.jcoru.compile.fixtures.Fixtures;
-import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.filemanager.InMemoryClassFile;
-import no.rosbach.jcoru.filemanager.InMemoryFileManager;
-import no.rosbach.jcoru.filemanager.JavaSourceString;
-import no.rosbach.jcoru.provider.JavaCompilerProvider;
-import no.rosbach.jcoru.provider.WhitelistProvider;
-
-import com.sun.source.util.JavacTask;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentMatcher;
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
-
-/**
- * Created by mapster on 25.11.14.
- */
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class JavaCompileUtilTest {
   private static final JavaSourceString MY_TEST_SOURCE = new JavaSourceString(
       "MyTest.java",
@@ -52,10 +35,10 @@ public class JavaCompileUtilTest {
       "Contained.java",
       "public class Contained { public String getActualValue() { return \"the actual value\"; } }");
 
-  private final WhitelistProvider whitelistProvider = new WhitelistProvider();
-  private final JavaCompilerProvider compilerProvider = new JavaCompilerProvider();
-
-  private JavaCompileUtil compiler;
+  @Resource
+  private JavaCompileUtil javaCompileUtil;
+  @Resource
+  private InMemoryFileManager inMemoryFileManager;
 
   private static <T> List<T> collect(Iterable<T> it) {
     List<T> list = new LinkedList<>();
@@ -63,16 +46,6 @@ public class JavaCompileUtilTest {
       list.add(e);
     }
     return list;
-  }
-
-  @Before
-  public void setStage() {
-    compiler = new JavaCompileUtil(
-        compilerProvider.getJavaCompiler(),
-        new InMemoryFileManager(
-            compilerProvider.getSystemFileManager(),
-            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
-            whitelistProvider.getFileManagerPackagesWhitelist()));
   }
 
   @Test
@@ -139,13 +112,8 @@ public class JavaCompileUtilTest {
             any(Iterable.class)))
         .thenReturn(mock(JavacTask.class));
 
-    compiler = new JavaCompileUtil(
-        mock,
-        new InMemoryFileManager(
-            compilerProvider.getSystemFileManager(),
-            new TransientClassLoader(whitelistProvider.getClassloaderWhitelist()),
-            whitelistProvider.getFileManagerPackagesWhitelist()));
-    compiler.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
+    javaCompileUtil = new JavaCompileUtil(mock, inMemoryFileManager);
+    javaCompileUtil.compile(getFixtureSource(Fixtures.TEST_CLASS), new SensitiveDiagnosticListener());
 
     verify(mock).getTask(
         any(PrintWriter.class), any(JavaFileManager.class), any(DiagnosticListener.class), argThat(
@@ -181,6 +149,6 @@ public class JavaCompileUtilTest {
   }
 
   private List<CompiledClassObject> compile(JavaSourceString... source) {
-    return compiler.compile(Arrays.asList(source), new SensitiveDiagnosticListener());
+    return javaCompileUtil.compile(Arrays.asList(source), new SensitiveDiagnosticListener());
   }
 }

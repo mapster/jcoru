@@ -1,22 +1,13 @@
 package no.rosbach.jcoru.security;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static no.rosbach.jcoru.utils.Stream.stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.collect.Sets;
 
 import java.security.Permission;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PropertyPermission;
-import java.util.Set;
+import java.util.*;
+
+import static java.util.stream.Collectors.*;
+import static no.rosbach.jcoru.utils.Stream.stream;
 
 public class PermissionWhitelist extends AccessManager<Permission> {
 
@@ -108,6 +99,8 @@ public class PermissionWhitelist extends AccessManager<Permission> {
 
   @Override
   public AccessManager<Permission> extend(Set<Permission> additional) {
-    return new PermissionWhitelist(Sets.union(new HashSet<>(entries.values()), additional));
+    HashSet<Permission> union = new HashSet<>(entries.values());
+    union.addAll(additional);
+    return new PermissionWhitelist(union);
   }
 }

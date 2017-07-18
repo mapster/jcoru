@@ -1,50 +1,38 @@
 package no.rosbach.jcoru.filemanager;
 
-import static javax.tools.StandardLocation.ANNOTATION_PROCESSOR_PATH;
-import static javax.tools.StandardLocation.CLASS_OUTPUT;
-import static javax.tools.StandardLocation.CLASS_PATH;
-import static javax.tools.StandardLocation.PLATFORM_CLASS_PATH;
-import static javax.tools.StandardLocation.SOURCE_PATH;
-import static no.rosbach.jcoru.utils.Stream.stream;
-
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.security.AccessManager;
+import org.springframework.stereotype.Component;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import javax.annotation.Resource;
+import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.tools.FileObject;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
+import static javax.tools.StandardLocation.*;
+import static no.rosbach.jcoru.utils.Stream.stream;
 
+@Component
 public class InMemoryFileManager implements JavaFileManager {
-  private static final Logger LOGGER = LogManager.getLogger();
-  private final TransientClassLoader classOutputLoader;
-  private final AccessManager<String> packageWhitelist;
-  private final JavaFileManager systemFileManager;
-  private final FileTree sources;
-  private final FileTree outputClasses;
+  @Resource
+  private TransientClassLoader classOutputLoader;
+  @Resource
+  private AccessManager<String> fileManagerPackageWhitelist;
+  @Resource
+  private JavaFileManager systemFileManager;
+  private final FileTree sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM);
+  private final FileTree outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
   private final FileTree classPathClasses = new SimpleFileTree<>(FileTree.PathSeparator.PACKAGE, new LinkedList<>());
 
-  public InMemoryFileManager(JavaFileManager systemFileManager,
-                             TransientClassLoader classLoader,
-                             AccessManager<String> packageWhitelist) {
-    this.classOutputLoader = classLoader;
-    this.packageWhitelist = packageWhitelist;
-    this.classOutputLoader.setFileManager(this);
+  public InMemoryFileManager() {
+  }
 
-    this.systemFileManager = systemFileManager;
-    this.sources = new SimpleFileTree(FileTree.PathSeparator.FILESYSTEM);
-    this.outputClasses = new SimpleFileTree(FileTree.PathSeparator.PACKAGE);
+  public InMemoryFileManager(TransientClassLoader classOutputLoader, AccessManager<String> fileManagerPackageWhitelist, JavaFileManager systemFileManager) {
+      this.classOutputLoader = classOutputLoader;
+      this.fileManagerPackageWhitelist = fileManagerPackageWhitelist;
+      this.systemFileManager = systemFileManager;
   }
 
   @Override
@@ -54,7 +42,7 @@ public class InMemoryFileManager implements JavaFileManager {
 
   @Override
   public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
-    if (packageWhitelist.hasAccess(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
+    if (fileManagerPackageWhitelist.hasAccess(packageName) || location.equals(PLATFORM_CLASS_PATH) || location.equals(ANNOTATION_PROCESSOR_PATH)) {
       Iterable<JavaFileObject> list = systemFileManager.list(location, packageName, kinds, recurse);
       return stream(list).map(file -> new ManagedFileObject(systemFileManager, file)).collect(Collectors.toList());
     }

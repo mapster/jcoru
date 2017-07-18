@@ -1,6 +1,9 @@
 package no.rosbach.jcoru.security;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -8,6 +11,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class WhitelistTest extends SandboxTestBase {
 
   private void assertIsWhitelisted(Runnable expected) {
@@ -19,8 +24,8 @@ public class WhitelistTest extends SandboxTestBase {
   public void ableToUseLists() {
     assertIsWhitelisted(
         () -> {
-          List<String> list = new LinkedList<String>();
-          list = new ArrayList<String>();
+          List<String> list = new LinkedList<>();
+          list = new ArrayList<>();
           list.add("abc");
           list.add("abc" + "123");
           String sum = new String();

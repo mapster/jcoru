@@ -1,31 +1,31 @@
 package no.rosbach.jcoru.compile;
 
+import no.rosbach.jcoru.filemanager.*;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.tools.*;
+import java.io.File;
+import java.util.*;
+
 import static java.util.stream.Collectors.toList;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
-import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.filemanager.InMemoryFileManager;
-import no.rosbach.jcoru.filemanager.JavaSourceString;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
-
+@Component
 public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
-  private final JavaCompiler compiler;
-  private final InMemoryFileManager fileManager;
+  @Resource
+  private JavaCompiler javaCompiler;
+  @Resource
+  private InMemoryFileManager inMemoryFileManager;
 
-  public JavaCompileUtil(JavaCompiler compiler, InMemoryFileManager fileManager) {
-    this.fileManager = fileManager;
-    this.compiler = compiler;
+  public JavaCompileUtil() {
+  }
+
+  JavaCompileUtil(JavaCompiler javaCompiler, InMemoryFileManager inMemoryFileManager) {
+      this.javaCompiler = javaCompiler;
+      this.inMemoryFileManager = inMemoryFileManager;
   }
 
   public List<CompiledClassObject> compile(JavaSourceString myTestSource, DiagnosticListener diagnosticListener) {
@@ -45,14 +45,14 @@ public class JavaCompileUtil {
       options.add(stream(libs).map(lib -> lib.getPath()).reduce("", (l1, l2) -> l1 + (l1.isEmpty() ? "" : ":") + l2));
     }
 
-    JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticListener, options, null, files);
+    JavaCompiler.CompilationTask task = javaCompiler.getTask(null, inMemoryFileManager, diagnosticListener, options, null, files);
     task.call();
 
     return stream(files)
         .map(
-            source -> fileManager.getJavaFileForInput(
+            source -> inMemoryFileManager.getJavaFileForInput(
                 StandardLocation.CLASS_OUTPUT,
-                fileManager.inferBinaryName(StandardLocation.CLASS_OUTPUT, source),
+                inMemoryFileManager.inferBinaryName(StandardLocation.CLASS_OUTPUT, source),
                 JavaFileObject.Kind.CLASS))
         .filter(compiled -> compiled != null)
         .map(CompiledClassObject::new)
@@ -60,10 +60,10 @@ public class JavaCompileUtil {
   }
 
   public ClassLoader getClassLoader() {
-    return fileManager.getClassLoader(StandardLocation.CLASS_PATH);
+    return inMemoryFileManager.getClassLoader(StandardLocation.CLASS_PATH);
   }
 
-  public InMemoryFileManager getFileManager() {
-    return fileManager;
+  public InMemoryFileManager getInMemoryFileManager() {
+    return inMemoryFileManager;
   }
 }

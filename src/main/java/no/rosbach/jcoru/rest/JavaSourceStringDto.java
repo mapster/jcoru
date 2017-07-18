@@ -2,9 +2,6 @@ package no.rosbach.jcoru.rest;
 
 import no.rosbach.jcoru.filemanager.JavaSourceString;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class JavaSourceStringDto {
 
   public String filename;

@@ -1,13 +1,10 @@
 package no.rosbach.jcoru.security;
 
-import static java.util.stream.Collectors.toList;
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.collect.Sets;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 public class WhitelistAccessManager extends AccessManager<String> {
   private final List<String> wildcardEntries;
@@ -37,7 +34,9 @@ public class WhitelistAccessManager extends AccessManager<String> {
 
   @Override
   public AccessManager<String> extend(Set<String> additional) {
-    return new WhitelistAccessManager(Sets.union(this.entries, additional));
+    HashSet union = new HashSet(this.entries);
+    union.addAll(additional);
+    return new WhitelistAccessManager(union);
   }
 
   @Override

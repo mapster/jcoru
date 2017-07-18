@@ -1,23 +1,22 @@
 package no.rosbach.jcoru.compile;
 
-import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSource;
-import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSources;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import no.rosbach.jcoru.compile.fixtures.Fixtures;
 import no.rosbach.jcoru.filemanager.JavaSourceString;
-
 import org.junit.Test;
 import org.junit.runner.Result;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.util.LinkedList;
 
-/**
- * Created by mapster on 06.04.15.
- */
+import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSource;
+import static no.rosbach.jcoru.compile.fixtures.Fixtures.getFixtureSources;
+import static org.junit.Assert.*;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class JUnitTestRunnerTest extends JUnitRunnerTestBase {
 
   @Test
