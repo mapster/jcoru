@@ -30,7 +30,7 @@ org.junit.internal.runners.ErrorReportingRunner
 org.junit.internal.runners.InitializationError
 org.junit.internal.runners.model.EachTestNotifier
 org.junit.internal.runners.model.ReflectiveCallable
-org.junit.internal.runners.rules.RuleFieldValidator
+org.junit.internal.runners.rules.RuleMemberValidator
 org.junit.internal.runners.statements.ExpectException
 org.junit.internal.runners.statements.Fail
 org.junit.internal.runners.statements.FailOnTimeout
@@ -48,6 +48,8 @@ org.junit.runner.Description
 org.junit.runner.manipulation.NoTestsRemainException
 org.junit.runner.manipulation.Sorter
 org.junit.runner.manipulation.Sorter$1
+org.junit.runner.notification.Failure
+org.junit.runner.notification.RunListener$ThreadSafe
 org.junit.runner.notification.RunNotifier$1
 org.junit.runner.notification.RunNotifier$2
 org.junit.runner.notification.RunNotifier$3
@@ -79,4 +81,4 @@ org.junit.runners.ParentRunner$3
 org.junit.runners.Suite
 org.junit.Test
 org.junit.Test$None
-
+org.junit.validator.ValidateWith

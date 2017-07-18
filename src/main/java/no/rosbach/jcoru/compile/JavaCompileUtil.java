@@ -1,6 +1,8 @@
 package no.rosbach.jcoru.compile;
 
 import no.rosbach.jcoru.filemanager.*;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -12,6 +14,7 @@ import static java.util.stream.Collectors.toList;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
 @Component
+@Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 

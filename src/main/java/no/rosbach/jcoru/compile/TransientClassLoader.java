@@ -7,6 +7,7 @@ import no.rosbach.jcoru.security.StrictAccessControlException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,17 +16,19 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 
 @Component
+@Scope("request")
 public class TransientClassLoader extends ClassLoader {
   private static Logger LOGGER = LoggerFactory.getLogger(TransientClassLoader.class);
   @Resource
   private AccessManager<String> classLoaderWhitelist;
-  @Resource
   private InMemoryFileManager inMemoryFileManager;
+
+  public TransientClassLoader() {
+  }
 
   public TransientClassLoader(AccessManager<String> classLoaderWhitelist) {
     super(TransientClassLoader.class.getClassLoader());
     this.classLoaderWhitelist = classLoaderWhitelist;
-    this.inMemoryFileManager = inMemoryFileManager;
   }
 
   public boolean isClassLoaded(String name) {

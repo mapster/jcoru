@@ -2,8 +2,10 @@ package no.rosbach.jcoru.filemanager;
 
 import no.rosbach.jcoru.compile.TransientClassLoader;
 import no.rosbach.jcoru.security.AccessManager;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.tools.*;
 import java.io.File;
@@ -15,6 +17,7 @@ import static javax.tools.StandardLocation.*;
 import static no.rosbach.jcoru.utils.Stream.stream;
 
 @Component
+@Scope("request")
 public class InMemoryFileManager implements JavaFileManager {
   @Resource
   private TransientClassLoader classOutputLoader;
@@ -33,6 +36,11 @@ public class InMemoryFileManager implements JavaFileManager {
       this.classOutputLoader = classOutputLoader;
       this.fileManagerPackageWhitelist = fileManagerPackageWhitelist;
       this.systemFileManager = systemFileManager;
+  }
+
+  @PostConstruct
+  public void init() {
+      this.classOutputLoader.setInMemoryFileManager(this);
   }
 
   @Override

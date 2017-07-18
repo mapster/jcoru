@@ -3,6 +3,8 @@ package no.rosbach.jcoru;
 import no.rosbach.jcoru.rest.PreloadClasses;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootApplication
 public class JcoruApplication {
@@ -15,5 +17,12 @@ public class JcoruApplication {
 
         PreloadClasses preloadClasses = new PreloadClasses();
         preloadClasses.loadClasses();
+    }
+
+
+
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
     }
 }
