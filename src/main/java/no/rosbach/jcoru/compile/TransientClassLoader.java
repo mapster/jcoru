@@ -24,6 +24,7 @@ public class TransientClassLoader extends ClassLoader {
   private InMemoryFileManager inMemoryFileManager;
 
   public TransientClassLoader() {
+    super(TransientClassLoader.class.getClassLoader());
   }
 
   public TransientClassLoader(AccessManager<String> classLoaderWhitelist) {

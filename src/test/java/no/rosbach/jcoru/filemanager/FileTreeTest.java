@@ -1,18 +1,15 @@
 package no.rosbach.jcoru.filemanager;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.tools.JavaFileObject;
 import java.util.Collection;
 import java.util.List;
 
-import javax.tools.JavaFileObject;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.*;
 
 public abstract class FileTreeTest {
 

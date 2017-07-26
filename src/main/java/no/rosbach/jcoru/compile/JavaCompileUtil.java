@@ -1,6 +1,8 @@
 package no.rosbach.jcoru.compile;
 
 import no.rosbach.jcoru.filemanager.*;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 public class JavaCompileUtil {
   public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
+  @Value("${compilerLibsPath:}")
+  private String comilerLibsPath;
   @Resource
   private JavaCompiler javaCompiler;
   @Resource
@@ -42,7 +46,7 @@ public class JavaCompileUtil {
 
     // build classpath
     List<String> options = new LinkedList<>();
-    File[] libs = new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile()).listFiles();
+    File[] libs = getLibDirectory().listFiles();
     if (libs.length > 0) {
       options.add("-classpath");
       options.add(stream(libs).map(lib -> lib.getPath()).reduce("", (l1, l2) -> l1 + (l1.isEmpty() ? "" : ":") + l2));
@@ -57,9 +61,16 @@ public class JavaCompileUtil {
                 StandardLocation.CLASS_OUTPUT,
                 inMemoryFileManager.inferBinaryName(StandardLocation.CLASS_OUTPUT, source),
                 JavaFileObject.Kind.CLASS))
-        .filter(compiled -> compiled != null)
+        .filter(Objects::nonNull)
         .map(CompiledClassObject::new)
         .collect(toList());
+  }
+
+  private File getLibDirectory() {
+    if (StringUtils.isEmpty(comilerLibsPath)) {
+      return new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile());
+    }
+    return new File(comilerLibsPath);
   }
 
   public ClassLoader getClassLoader() {

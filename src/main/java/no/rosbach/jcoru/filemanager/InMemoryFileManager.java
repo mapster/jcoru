@@ -170,7 +170,7 @@ public class InMemoryFileManager implements JavaFileManager {
 
   @Override
   public void close() throws IOException {
-    throw new UnsupportedOperationException("close not implemented yet.");
+    // not necessary to destroy any resources as they are in memory
   }
 
   @Override

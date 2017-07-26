@@ -4,6 +4,7 @@
       "accessDeclaredMembers",
       {
         "accessClassInPackage": [
+          "ch.qos.logback.classic.spi",
           {
             "java": [
               "io",
