@@ -33,11 +33,12 @@ public class JUnitRunnerResource extends CompilerResourceBase {
     }
   }
 
-  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8", produces = MediaType.APPLICATION_JSON_VALUE)
   public Report runTests(@RequestBody List<JavaSourceStringDto> javaSources) {
     throwBadRequestIfSourcesAreInvalid(javaSources);
 
-    List<CompiledClassObject> compiledClasses = compile(javaSources);
+    CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
+    List<CompiledClassObject> compiledClasses = compile(javaSources, reportBuilder);
     // If compilation failed the return compilation report
     CompilationReport compilationReport = reportBuilder.buildReport();
     if (!compilationReport.isSuccess()) {

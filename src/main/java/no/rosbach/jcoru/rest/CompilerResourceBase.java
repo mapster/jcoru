@@ -2,8 +2,7 @@ package no.rosbach.jcoru.rest;
 
 import no.rosbach.jcoru.compile.JavaCompileUtil;
 import no.rosbach.jcoru.filemanager.CompiledClassObject;
-import no.rosbach.jcoru.rest.reports.BadRequestException;
-import no.rosbach.jcoru.rest.reports.CompilationReportBuilder;
+import no.rosbach.jcoru.rest.reports.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -12,10 +11,9 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class CompilerResourceBase {
-  protected final CompilationReportBuilder reportBuilder = new CompilationReportBuilder();
 
   @Resource
-  private JavaCompileUtil JavaCompileUtil;
+  private JavaCompileUtil javaCompileUtil;
 
   protected void throwBadRequestIfSourcesAreInvalid(List<JavaSourceStringDto> sources) {
     if (sources == null) {
@@ -30,11 +28,11 @@ public abstract class CompilerResourceBase {
     }
   }
 
-  protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources) {
-    return JavaCompileUtil.compile(sources.stream().map(JavaSourceStringDto::transfer).collect(toList()), reportBuilder);
+  protected List<CompiledClassObject> compile(List<JavaSourceStringDto> sources, CompilationReportBuilder reportBuilder) {
+    return javaCompileUtil.compile(sources.stream().map(JavaSourceStringDto::transfer).collect(toList()), reportBuilder);
   }
 
   protected ClassLoader getClassLoader() {
-    return JavaCompileUtil.getClassLoader();
+    return javaCompileUtil.getClassLoader();
   }
 }
