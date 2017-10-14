@@ -1,7 +1,6 @@
 package no.rosbach.jcoru.compile;
 
 import no.rosbach.jcoru.filemanager.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -11,6 +10,7 @@ import javax.annotation.Resource;
 import javax.tools.*;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static no.rosbach.jcoru.utils.Stream.stream;
@@ -18,7 +18,6 @@ import static no.rosbach.jcoru.utils.Stream.stream;
 @Component
 @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class JavaCompileUtil {
-  public static final String LIB_RESOURCE_DIRECTORY = "lib";
 
   @Value("${compilerLibsPath:}")
   private String comilerLibsPath;
@@ -44,13 +43,14 @@ public class JavaCompileUtil {
       return new LinkedList<>();
     }
 
-    // build classpath
     List<String> options = new LinkedList<>();
-    File[] libs = getLibDirectory().listFiles();
-    if (libs.length > 0) {
+
+    // build classpath
+    Optional<String> classPath = buildClassPath();
+    classPath.ifPresent(cp -> {
       options.add("-classpath");
-      options.add(stream(libs).map(lib -> lib.getPath()).reduce("", (l1, l2) -> l1 + (l1.isEmpty() ? "" : ":") + l2));
-    }
+      options.add(cp);
+    });
 
     JavaCompiler.CompilationTask task = javaCompiler.getTask(null, inMemoryFileManager, diagnosticListener, options, null, files);
     task.call();
@@ -66,11 +66,17 @@ public class JavaCompileUtil {
         .collect(toList());
   }
 
-  private File getLibDirectory() {
-    if (StringUtils.isEmpty(comilerLibsPath)) {
-      return new File(this.getClass().getClassLoader().getResource(JavaCompileUtil.LIB_RESOURCE_DIRECTORY).getFile());
-    }
-    return new File(comilerLibsPath);
+  private Optional<String> buildClassPath() {
+    Stream<File> jars = Optional.ofNullable(comilerLibsPath)
+            .map(File::new)
+            .filter(File::isDirectory)
+            .map(File::listFiles)
+            .map(Arrays::stream)
+            .orElseGet(Stream::empty);
+
+    return jars.map(File::getPath)
+            .reduce((a, b) -> a + ":" + b);
+
   }
 
   public ClassLoader getClassLoader() {
