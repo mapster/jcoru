@@ -1,0 +1,7 @@
+env: flex
+runtime: custom
+
+handlers:
+- url: /.*
+  script: this field is required, but ignored
+
