@@ -1,5 +1,6 @@
 env: flex
 runtime: custom
+service: jcoru
 
 handlers:
 - url: /.*
