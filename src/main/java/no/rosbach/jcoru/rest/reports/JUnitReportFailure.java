@@ -5,6 +5,10 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class JUnitReportFailure {
   @XmlTransient
@@ -34,6 +38,11 @@ public class JUnitReportFailure {
     this.testMethodName = desc.getMethodName();
 
     this.exception = failure.getException();
+    exception.setStackTrace(Arrays.stream(exception.getStackTrace())
+            .limit(5)
+            .collect(Collectors.toList())
+            .toArray(new StackTraceElement[0]));
+
     this.failureType = exception.getClass().getSimpleName();
     if (exception instanceof ComparisonFailure) {
       ComparisonFailure cmpFailure = (ComparisonFailure) exception;
