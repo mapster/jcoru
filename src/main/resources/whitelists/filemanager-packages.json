@@ -1,4 +1,5 @@
 [
   "org.junit",
-  "junit.framework"
+  "junit.framework",
+  "sun.reflect"
 ]
